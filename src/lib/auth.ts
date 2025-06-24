@@ -1,5 +1,19 @@
 import { supabase } from "./supabaseClient";
 
+// Utilidad para obtener el dominio correcto según entorno
+function getRedirectOrigin() {
+  // Si está en Vercel producción, usar dominio real
+  if (typeof window !== 'undefined' && window.location.hostname === 'roabusiness.com') {
+    return 'https://roabusiness.com';
+  }
+  // Si está en preview de Vercel, usar el dominio de preview
+  if (typeof window !== 'undefined' && window.location.hostname.endsWith('.vercel.app')) {
+    return window.location.origin;
+  }
+  // Por defecto (desarrollo local)
+  return window.location.origin;
+}
+
 // Registro de usuario con verificación de email
 // envía un correo de confirmación automáticamente
 export async function signUpWithEmail(email: string, password: string) {
@@ -7,7 +21,7 @@ export async function signUpWithEmail(email: string, password: string) {
     email,
     password,
     options: {
-      emailRedirectTo: window.location.origin + "/login", // Redirige tras confirmar email
+      emailRedirectTo: getRedirectOrigin() + "/login", // Redirige tras confirmar email
     },
   });
 }
@@ -20,7 +34,7 @@ export async function signInWithEmail(email: string, password: string) {
 // Enviar email para recuperación de contraseña
 export async function resetPassword(email: string) {
   return await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin + "/set-new-password", // Página para cambiar contraseña
+    redirectTo: getRedirectOrigin() + "/set-new-password", // Página para cambiar contraseña
   });
 }
 
