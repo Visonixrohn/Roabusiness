@@ -8,17 +8,12 @@
   "description": "Directorio de negocios de las Islas de la Bahía, Honduras.",
   "icons": [
     {
-      "src": "/favicon.ico",
-      "sizes": "48x48 32x32 16x16",
-      "type": "image/x-icon"
-    },
-    {
-      "src": "/images/roatan-beach.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/2288/2288494.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/images/roatan-beach.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/2288/2288494.png",
       "sizes": "512x512",
       "type": "image/png"
     }
