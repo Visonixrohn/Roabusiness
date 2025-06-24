@@ -15,18 +15,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import businessCategories from "@/data/businessCategories";
 
-const categories = [
-  "Hoteles y Alojamiento",
-  "Restaurantes",
-  "Tours y Actividades",
-  "Spa y Bienestar",
-  "Tiendas y Comercios",
-  "Servicios",
-  "Transporte",
-  "Entretenimiento",
-  "Deportes y Recreación",
-];
 const days = [
   "Lunes",
   "Martes",
@@ -364,18 +354,19 @@ export default function BusinessSettingsPage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Categoría
             </label>
-            <select
+            <input
+              list="categories-list"
               className="w-full p-2 border rounded"
               value={form.category}
               onChange={(e) => handleChange("category", e.target.value)}
-            >
-              <option value="">Selecciona una categoría</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
+              placeholder="Escribe o selecciona una categoría"
+              required
+            />
+            <datalist id="categories-list">
+              {businessCategories.map((cat) => (
+                <option key={cat} value={cat} />
               ))}
-            </select>
+            </datalist>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

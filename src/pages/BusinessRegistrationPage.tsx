@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import ImageUpload from "@/components/ImageUpload";
 import { toast } from "sonner";
+import businessCategories from "@/data/businessCategories";
 
 interface FormData {
   // Información básica
@@ -78,18 +79,6 @@ const BusinessRegistrationPage = () => {
     confirmPassword: "",
   });
 
-  const categories = [
-    "Hoteles y Alojamiento",
-    "Restaurantes",
-    "Tours y Actividades",
-    "Spa y Bienestar",
-    "Tiendas y Comercios",
-    "Servicios",
-    "Transporte",
-    "Entretenimiento",
-    "Deportes y Recreación",
-  ];
-
   const islands = ["Roatán", "Utila", "Guanaja"];
   const priceRanges = [
     { value: "$", label: "$ - Económico" },
@@ -97,6 +86,8 @@ const BusinessRegistrationPage = () => {
     { value: "$$$", label: "$$$ - Caro" },
     { value: "$$$$", label: "$$$$ - Muy Caro" },
   ];
+
+  const categories = businessCategories;
 
   const totalSteps = 5;
 
@@ -339,20 +330,19 @@ const BusinessRegistrationPage = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Categoría *
                   </label>
-                  <select
+                  <input
+                    list="categories-list"
                     value={formData.category}
-                    onChange={(e) =>
-                      handleInputChange("category", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("category", e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Selecciona una categoría</option>
+                    placeholder="Escribe o selecciona una categoría"
+                    required
+                  />
+                  <datalist id="categories-list">
                     {categories.map((category) => (
-                      <option key={category} value={category}>
-                        {category}
-                      </option>
+                      <option key={category} value={category} />
                     ))}
-                  </select>
+                  </datalist>
                 </div>
 
                 <div>
