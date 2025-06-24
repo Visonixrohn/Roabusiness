@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Search, MapPin, Star, ChevronRight } from "lucide-react";
+import { Search, MapPin, Star, ChevronRight, Download } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BusinessCard from "@/components/BusinessCard";
@@ -185,6 +185,36 @@ const HomePage = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
+            <button
+              onClick={() => {
+                if (window.matchMedia('(display-mode: standalone)').matches) {
+                  alert('¡Ya tienes RoaBusiness como app en tu dispositivo!');
+                  return;
+                }
+                if (window.navigator && 'serviceWorker' in window.navigator) {
+                  // Intentar mostrar el prompt de instalación PWA
+                  let deferredPrompt: any;
+                  window.addEventListener('beforeinstallprompt', (e: any) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    deferredPrompt.prompt();
+                  });
+                  // Si no se dispara el evento, mostrar instrucciones
+                  setTimeout(() => {
+                    alert('Para agregar RoaBusiness a tu pantalla de inicio, abre el menú de tu navegador y selecciona "Agregar a pantalla de inicio".');
+                  }, 1000);
+                } else {
+                  alert('Para agregar RoaBusiness a tu pantalla de inicio, abre el menú de tu navegador y selecciona "Agregar a pantalla de inicio".');
+                }
+              }}
+              className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg rounded flex items-center justify-center gap-2 shadow mt-2"
+            >
+              <Download className="h-5 w-5" />
+              Instalar RoaBusiness (Acceso Directo)
+            </button>
           </div>
         </div>
       </section>
