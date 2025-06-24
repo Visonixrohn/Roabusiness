@@ -33,8 +33,9 @@ export async function signInWithEmail(email: string, password: string) {
 
 // Enviar email para recuperación de contraseña
 export async function resetPassword(email: string) {
+  // Siempre usar la URL de producción para la redirección
   return await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: getRedirectOrigin() + "/set-new-password", // Página para cambiar contraseña
+    redirectTo: 'https://roabusiness.com/set-new-password',
   });
 }
 
