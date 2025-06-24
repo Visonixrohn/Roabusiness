@@ -5,11 +5,27 @@ import Footer from "@/components/Footer";
 import BusinessCard from "@/components/BusinessCard";
 import { useBusinesses } from "@/hooks/useBusinesses";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const HomePage = () => {
   // Usar negocios más seguidos y destacados dinámicamente
   const { mostFollowedBusinesses, loading, followersMap } = useBusinesses();
+  const installPromptRef = useRef<any>(null);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
+
+  useEffect(() => {
+    // Detectar si ya está instalada como PWA
+    setIsStandalone(
+      window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true
+    );
+    // Capturar el evento beforeinstallprompt
+    window.addEventListener("beforeinstallprompt", (e: any) => {
+      e.preventDefault();
+      installPromptRef.current = e;
+    });
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -189,32 +205,48 @@ const HomePage = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
             <button
-              onClick={() => {
-                if (window.matchMedia('(display-mode: standalone)').matches) {
-                  alert('¡Ya tienes RoaBusiness como app en tu dispositivo!');
+              onClick={async () => {
+                if (isStandalone) {
+                  alert("¡Ya tienes RoaBusiness como app en tu dispositivo!");
                   return;
                 }
-                if (window.navigator && 'serviceWorker' in window.navigator) {
-                  // Intentar mostrar el prompt de instalación PWA
-                  let deferredPrompt: any;
-                  window.addEventListener('beforeinstallprompt', (e: any) => {
-                    e.preventDefault();
-                    deferredPrompt = e;
-                    deferredPrompt.prompt();
-                  });
-                  // Si no se dispara el evento, mostrar instrucciones
-                  setTimeout(() => {
-                    alert('Para agregar RoaBusiness a tu pantalla de inicio, abre el menú de tu navegador y selecciona "Agregar a pantalla de inicio".');
-                  }, 1000);
-                } else {
-                  alert('Para agregar RoaBusiness a tu pantalla de inicio, abre el menú de tu navegador y selecciona "Agregar a pantalla de inicio".');
+                if (installPromptRef.current) {
+                  installPromptRef.current.prompt();
+                  const { outcome } = await installPromptRef.current.userChoice;
+                  if (outcome === "accepted") return;
                 }
+                setShowTutorial(true);
               }}
               className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg rounded flex items-center justify-center gap-2 shadow mt-2"
             >
               <Download className="h-5 w-5" />
               Instalar RoaBusiness (Acceso Directo)
             </button>
+            {showTutorial && (
+              <div className="bg-white border border-gray-300 rounded-lg p-4 mt-4 max-w-md mx-auto text-gray-800 text-left shadow-lg animate-fade-in">
+                <h3 className="font-bold mb-2 text-lg">
+                  ¿Cómo agregar RoaBusiness a tu pantalla de inicio?
+                </h3>
+                <ol className="list-decimal ml-5 space-y-1">
+                  <li>
+                    Abre el menú <b>⋮</b> o <b>Compartir</b> de tu navegador.
+                  </li>
+                  <li>
+                    Selecciona <b>"Agregar a pantalla de inicio"</b> o{" "}
+                    <b>"Instalar app"</b>.
+                  </li>
+                  <li>Confirma la instalación. ¡Listo!</li>
+                </ol>
+                <div className="flex justify-end mt-2">
+                  <button
+                    onClick={() => setShowTutorial(false)}
+                    className="text-blue-600 hover:underline text-sm"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
