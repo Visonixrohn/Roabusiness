@@ -18,7 +18,7 @@ const HomePage = () => {
     // Detectar si ya está instalada como PWA
     setIsStandalone(
       window.matchMedia("(display-mode: standalone)").matches ||
-        window.navigator.standalone === true
+        (window.navigator as any).standalone === true
     );
     // Capturar el evento beforeinstallprompt
     window.addEventListener("beforeinstallprompt", (e: any) => {
@@ -223,27 +223,21 @@ const HomePage = () => {
               Instalar RoaBusiness (Acceso Directo)
             </button>
             {showTutorial && (
-              <div className="bg-white border border-gray-300 rounded-lg p-4 mt-4 max-w-md mx-auto text-gray-800 text-left shadow-lg animate-fade-in">
-                <h3 className="font-bold mb-2 text-lg">
-                  ¿Cómo agregar RoaBusiness a tu pantalla de inicio?
-                </h3>
-                <ol className="list-decimal ml-5 space-y-1">
-                  <li>
-                    Abre el menú <b>⋮</b> o <b>Compartir</b> de tu navegador.
-                  </li>
-                  <li>
-                    Selecciona <b>"Agregar a pantalla de inicio"</b> o{" "}
-                    <b>"Instalar app"</b>.
-                  </li>
+              <div className="bg-white border border-gray-300 rounded-lg p-4 mt-4 max-w-md mx-auto text-gray-800 text-left shadow-lg animate-fade-in flex flex-col items-center">
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/2288/2288494.png"
+                  alt="Icono RoaBusiness"
+                  className="w-16 h-16 mb-2 rounded-full shadow"
+                  style={{ background: '#fff' }}
+                />
+                <h3 className="font-bold mb-2 text-lg text-center">¿Cómo agregar RoaBusiness a tu pantalla de inicio?</h3>
+                <ol className="list-decimal ml-5 space-y-1 text-left">
+                  <li>Abre el menú <b>⋮</b> o <b>Compartir</b> de tu navegador.</li>
+                  <li>Selecciona <b>"Agregar a pantalla de inicio"</b> o <b>"Instalar app"</b>.</li>
                   <li>Confirma la instalación. ¡Listo!</li>
                 </ol>
-                <div className="flex justify-end mt-2">
-                  <button
-                    onClick={() => setShowTutorial(false)}
-                    className="text-blue-600 hover:underline text-sm"
-                  >
-                    Cerrar
-                  </button>
+                <div className="flex justify-end mt-2 w-full">
+                  <button onClick={() => setShowTutorial(false)} className="text-blue-600 hover:underline text-sm">Cerrar</button>
                 </div>
               </div>
             )}
