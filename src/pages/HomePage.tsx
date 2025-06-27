@@ -45,20 +45,21 @@ const HomePage = () => {
         <img
           src="https://i.imgur.com/IyMgElg.jpeg"
           alt="Islas de la Bahía"
-          className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+          className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-500 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
           onLoad={handleImageLoad}
           style={{ zIndex: 1 }}
         />
         {/* Ripple SVG animado */}
         {!rippleActive && (
-          <svg className="absolute inset-0 w-full h-full z-20 pointer-events-none" viewBox="0 0 100 100">
-            <circle
-              cx="50" cy="60" r="1"
-              fill="rgba(255,255,255,0.15)"
-              >
+          <svg
+            className="absolute inset-0 w-full h-full z-20 pointer-events-none"
+            viewBox="0 0 100 100"
+          >
+            <circle cx="50" cy="60" r="1" fill="rgba(255,255,255,0.15)">
               <animate
                 attributeName="r"
-                from="1" to="80"
+                from="1"
+                to="80"
                 dur="1s"
                 begin="0s"
                 fill="freeze"
@@ -67,7 +68,8 @@ const HomePage = () => {
               />
               <animate
                 attributeName="opacity"
-                from="0.7" to="0"
+                from="0.7"
+                to="0"
                 dur="1s"
                 begin="0s"
                 fill="freeze"
@@ -77,26 +79,30 @@ const HomePage = () => {
         )}
         {/* Máscara circular para revelar la imagen */}
         <div
-          className={`absolute inset-0 w-full h-full pointer-events-none transition-all duration-1000 ${rippleActive ? 'mask-reveal' : ''}`}
+          className={`absolute inset-0 w-full h-full pointer-events-none transition-all duration-1000 ${rippleActive ? "mask-reveal" : ""}`}
           style={{
-            background: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6))',
+            background: "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6))",
             zIndex: 2,
             maskImage: rippleActive
-              ? 'radial-gradient(circle at 50% 60%, white 100%, transparent 100%)'
-              : 'radial-gradient(circle at 50% 60%, white 0%, transparent 0%)',
+              ? "radial-gradient(circle at 50% 60%, white 100%, transparent 100%)"
+              : "radial-gradient(circle at 50% 60%, white 0%, transparent 0%)",
             WebkitMaskImage: rippleActive
-              ? 'radial-gradient(circle at 50% 60%, white 100%, transparent 100%)'
-              : 'radial-gradient(circle at 50% 60%, white 0%, transparent 0%)',
-            transition: 'mask-image 1s, -webkit-mask-image 1s',
+              ? "radial-gradient(circle at 50% 60%, white 100%, transparent 100%)"
+              : "radial-gradient(circle at 50% 60%, white 0%, transparent 0%)",
+            transition: "mask-image 1s, -webkit-mask-image 1s",
           }}
         />
         <div className="relative z-10 text-center text-white px-6 max-w-5xl mx-auto">
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold mb-6 drop-shadow-lg leading-tight">
             Descubre las
-            <span className="text-blue-400 block animate-pulse">Islas de la Bahía</span>
+            <span className="text-blue-400 block animate-pulse">
+              Islas de la Bahía
+            </span>
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed text-gray-100 drop-shadow-md">
-            El paraíso caribeño de Honduras te espera. Explora los mejores negocios, restaurantes, hoteles y actividades en Roatán, Utila y Guanaja.
+            El paraíso caribeño de Honduras te espera. Explora los mejores
+            negocios, restaurantes, hoteles y actividades en Roatán, Utila y
+            Guanaja.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/directorio">

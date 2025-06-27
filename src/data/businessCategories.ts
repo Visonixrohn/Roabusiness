@@ -103,7 +103,7 @@ const businessCategories = [
   "Fotografía",
   "Servicios de video",
   "Alquiler de sonido",
-  "Alquiler de luces"
+  "Alquiler de luces",
 ];
 
 export default businessCategories;

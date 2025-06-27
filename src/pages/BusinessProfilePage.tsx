@@ -38,6 +38,11 @@ import ImageUpload from "@/components/ImageUpload";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import FacebookIcon from "@/components/icons/FacebookIcon";
+import InstagramIcon from "@/components/icons/InstagramIcon";
+import XIcon from "@/components/icons/XIcon";
+import TikTokIcon from "@/components/icons/TikTokIcon";
+import SocialFloatingButton from "@/components/SocialFloatingButton";
 
 const PostCard = ({
   post,
@@ -763,6 +768,9 @@ const BusinessProfilePage = () => {
     );
   }
 
+  // DEBUG: Mostrar en consola los datos de contacto para verificar
+  console.log("DEBUG business.contact", business.contact);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -847,31 +855,71 @@ const BusinessProfilePage = () => {
                 </div>
               </div>
 
-              {/* Botones Contactar y Seguir responsivos */}
-              <div className="flex flex-col sm:flex-row gap-2 mt-4 sm:mt-0 w-full">
-                <Button
-                  onClick={() => setShowContactModal(true)}
-                  className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
-                >
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Contactar
-                </Button>
-                <Button
-                  variant={isFollowing ? "default" : "outline"}
-                  onClick={() => {
-                    if (!user) {
-                      toast.error("Debes iniciar sesión para seguir negocios");
-                      return;
-                    }
-                    toggleFollow();
-                  }}
-                  className="w-full sm:w-auto"
-                >
-                  <Heart className="h-4 w-4 mr-2" />
-                  {isFollowing ? "Dejar de seguir" : "Seguir"}
-                  <span className="ml-2">({followersCount})</span>
-                </Button>
+              {/* Botones Contactar, Seguir y Redes Sociales responsivos */}
+              <div className="flex flex-col sm:flex-row flex-wrap gap-2 mt-4 sm:mt-0 w-full items-stretch">
+                <div className="flex-1 min-w-[180px] flex">
+                  <Button
+                    variant={isFollowing ? "default" : "outline"}
+                    onClick={() => {
+                      if (!user) {
+                        toast.error(
+                          "Debes iniciar sesión para seguir negocios"
+                        );
+                        return;
+                      }
+                      toggleFollow();
+                    }}
+                    className="w-full h-full"
+                  >
+                    <Heart className="h-4 w-4 mr-2" />
+                    {isFollowing ? "Dejar de seguir" : "Seguir"}
+                    <span className="ml-2">({followersCount})</span>
+                  </Button>
+                </div>
+                <div className="flex-1 min-w-[180px] flex">
+                  <Button
+                    onClick={() => setShowContactModal(true)}
+                    className="bg-blue-600 hover:bg-blue-700 w-full h-full"
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Contactar
+                  </Button>
+                </div>
+                {business.contact?.phone && (
+                  <div className="flex-1 min-w-[180px] flex">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const phone = (business.contact?.phone || "").replace(
+                          /\D/g,
+                          ""
+                        );
+                        window.open(`https://wa.me/${phone}`);
+                      }}
+                      style={{ backgroundColor: "#25D366", color: "white" }}
+                      className="flex items-center gap-2 w-full h-full"
+                    >
+                      <svg
+                        viewBox="0 0 32 32"
+                        width="20"
+                        height="20"
+                        fill="currentColor"
+                      >
+                        <path d="M16 3C9.373 3 4 8.373 4 15c0 2.637.86 5.08 2.34 7.09L4 29l7.18-2.31A12.93 12.93 0 0 0 16 27c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 22c-1.98 0-3.89-.52-5.54-1.5l-.39-.23-4.27 1.37 1.4-4.15-.25-.4A9.93 9.93 0 0 1 6 15c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10zm5.07-7.75c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.44-2.25-1.4-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.34.42-.51.14-.17.18-.29.28-.48.09-.19.05-.36-.02-.5-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.62-.47-.16-.01-.36-.01-.56-.01-.19 0-.5.07-.76.36-.26.28-1 1-.97 2.43.03 1.43 1.03 2.81 1.18 3.01.15.2 2.03 3.1 4.93 4.22.69.3 1.23.48 1.65.61.69.22 1.32.19 1.82.12.56-.08 1.65-.67 1.88-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.33z"></path>
+                      </svg>
+                      WhatsApp
+                    </Button>
+                  </div>
+                )}
               </div>
+              {/* Botón flotante para redes sociales */}
+              <SocialFloatingButton
+                facebook={business.facebook}
+                instagram={business.instagram}
+                twitter={business.twitter}
+                tiktok={business.tiktok}
+              />
             </div>
 
             {/* Mostrar visualizaciones en el perfil */}
@@ -1005,6 +1053,63 @@ const BusinessProfilePage = () => {
                     </a>
                   </div>
                 )}
+                {/* Redes Sociales SOLO en perfil público, con efectos visuales */}
+                {(business.contact?.facebook ||
+                  business.contact?.instagram ||
+                  business.contact?.twitter ||
+                  business.contact?.tiktok) && (
+                  <div className="flex flex-col gap-2 mt-4">
+                    <h3 className="text-lg font-semibold mb-2">
+                      Redes sociales
+                    </h3>
+                    <div className="flex gap-4">
+                      {business.contact?.facebook && (
+                        <a
+                          href={business.contact.facebook}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="transition-transform hover:scale-110 hover:shadow-lg rounded-full p-2 bg-[#f3f4f6] text-[#1877f3] hover:bg-[#e7f0fd] hover:text-[#1456a0]"
+                          title="Facebook"
+                        >
+                          <FacebookIcon size={28} />
+                        </a>
+                      )}
+                      {business.contact?.instagram && (
+                        <a
+                          href={business.contact.instagram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="transition-transform hover:scale-110 hover:shadow-lg rounded-full p-2 bg-[#f3f4f6] text-[#e1306c] hover:bg-[#fce4ef] hover:text-[#a81d4d]"
+                          title="Instagram"
+                        >
+                          <InstagramIcon size={28} />
+                        </a>
+                      )}
+                      {business.contact?.twitter && (
+                        <a
+                          href={business.contact.twitter}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="transition-transform hover:scale-110 hover:shadow-lg rounded-full p-2 bg-[#f3f4f6] text-[#1da1f2] hover:bg-[#e5f6fd] hover:text-[#0d6fa1]"
+                          title="X (Twitter)"
+                        >
+                          <XIcon size={28} />
+                        </a>
+                      )}
+                      {business.contact?.tiktok && (
+                        <a
+                          href={business.contact.tiktok}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="transition-transform hover:scale-110 hover:shadow-lg rounded-full p-2 bg-[#f3f4f6] text-black hover:bg-[#eaeaea] hover:text-[#ff0050]"
+                          title="TikTok"
+                        >
+                          <TikTokIcon size={28} />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center">
                   <MapPin className="h-5 w-5 text-gray-400 mr-3" />
                   <span className="text-gray-700">
@@ -1014,36 +1119,7 @@ const BusinessProfilePage = () => {
               </div>
             </div>
 
-            {/* Botón WhatsApp en la sección de contacto del perfil público */}
-            {business.contact?.phone && (
-              <div className="flex items-center mt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    // Eliminar todos los caracteres que no sean dígitos
-                    const phone = (business.contact?.phone || "").replace(
-                      /\D/g,
-                      ""
-                    );
-                    window.open(`https://wa.me/${phone}`);
-                  }}
-                  style={{ backgroundColor: "#25D366", color: "white" }}
-                  className="flex items-center gap-2"
-                >
-                  <svg
-                    viewBox="0 0 32 32"
-                    width="20"
-                    height="20"
-                    fill="currentColor"
-                  >
-                    <path d="M16 3C9.373 3 4 8.373 4 15c0 2.637.86 5.08 2.34 7.09L4 29l7.18-2.31A12.93 12.93 0 0 0 16 27c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 22c-1.98 0-3.89-.52-5.54-1.5l-.39-.23-4.27 1.37 1.4-4.15-.25-.4A9.93 9.93 0 0 1 6 15c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10zm5.07-7.75c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.44-2.25-1.4-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.34.42-.51.14-.17.18-.29.28-.48.09-.19.05-.36-.02-.5-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.62-.47-.16-.01-.36-.01-.56-.01-.19 0-.5.07-.76.36-.26.28-1 1-.97 2.43.03 1.43 1.03 2.81 1.18 3.01.15.2 2.03 3.1 4.93 4.22.69.3 1.23.48 1.65.61.69.22 1.32.19 1.82.12.56-.08 1.65-.67 1.88-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.33z"></path>
-                  </svg>
-                  WhatsApp
-                </Button>
-              </div>
-            )}
-
+           
             {/* Business Stats */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-lg font-semibold mb-4">Datos</h3>
@@ -1175,7 +1251,9 @@ const BusinessProfilePage = () => {
                   className="w-full border rounded px-3 py-2 mb-3"
                   placeholder="Título de la publicación"
                   value={newPost.title}
-                  onChange={e => setNewPost(prev => ({ ...prev, title: e.target.value }))}
+                  onChange={(e) =>
+                    setNewPost((prev) => ({ ...prev, title: e.target.value }))
+                  }
                   maxLength={80}
                   required
                   autoFocus

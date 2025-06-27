@@ -3,11 +3,17 @@ import { supabase } from "./supabaseClient";
 // Utilidad para obtener el dominio correcto según entorno
 function getRedirectOrigin() {
   // Si está en Vercel producción, usar dominio real
-  if (typeof window !== 'undefined' && window.location.hostname === 'roabusiness.com') {
-    return 'https://roabusiness.com';
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname === "roabusiness.com"
+  ) {
+    return "https://roabusiness.com";
   }
   // Si está en preview de Vercel, usar el dominio de preview
-  if (typeof window !== 'undefined' && window.location.hostname.endsWith('.vercel.app')) {
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname.endsWith(".vercel.app")
+  ) {
     return window.location.origin;
   }
   // Por defecto (desarrollo local)
@@ -35,7 +41,7 @@ export async function signInWithEmail(email: string, password: string) {
 export async function resetPassword(email: string) {
   // Siempre usar la URL de producción para la redirección
   return await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://roabusiness.com/set-new-password',
+    redirectTo: "https://roabusiness.com/set-new-password",
   });
 }
 

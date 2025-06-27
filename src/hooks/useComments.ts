@@ -48,23 +48,35 @@ export function useComments(postId: string) {
     setError(null);
     fetchComments();
     // Suscripción realtime a la tabla de comentarios para este post
-    const channel = supabase
-      .channel("comments-realtime-" + postId)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "comments",
-          filter: `post_id=eq.${postId}`,
-        },
-        (payload) => {
-          fetchComments();
-        }
-      )
-      .subscribe();
+    let channel: any = null;
+    if (!window.__supabaseCommentChannels)
+      window.__supabaseCommentChannels = {};
+    if (!window.__supabaseCommentChannels[postId]) {
+      channel = supabase
+        .channel("comments-realtime-" + postId)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "comments",
+            filter: `post_id=eq.${postId}`,
+          },
+          (payload) => {
+            fetchComments();
+          }
+        )
+        .subscribe();
+      window.__supabaseCommentChannels[postId] = channel;
+    }
     return () => {
-      supabase.removeChannel(channel);
+      if (
+        window.__supabaseCommentChannels &&
+        window.__supabaseCommentChannels[postId]
+      ) {
+        supabase.removeChannel(window.__supabaseCommentChannels[postId]);
+        delete window.__supabaseCommentChannels[postId];
+      }
     };
   }, [postId]);
 
@@ -98,4 +110,11 @@ export function useComments(postId: string) {
   }
 
   return { comments, loading, error, createComment };
+}
+
+// Agrega la propiedad global para evitar error de typescript
+declare global {
+  interface Window {
+    __supabaseCommentChannels?: Record<string, any>;
+  }
 }

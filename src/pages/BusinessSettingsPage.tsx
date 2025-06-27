@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,17 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import businessCategories from "@/data/businessCategories";
+import { Menu, MenuIcon } from "lucide-react";
+import {
+  Facebook,
+  Instagram,
+  Twitter,
+  Globe,
+  Mail,
+  Phone,
+} from "lucide-react";
+import TikTokIcon from "@/components/icons/TikTokIcon";
+import RobotMascot from "@/components/ui/RobotMascot";
 
 const days = [
   "Lunes",
@@ -27,11 +38,24 @@ const days = [
   "Domingo",
 ];
 
+const menuSections = [
+  { key: "name", label: "Nombre del Negocio" },
+  { key: "location", label: "Ubicación" },
+  { key: "contact", label: "Contacto" },
+  { key: "category", label: "Categoría" },
+  { key: "priceRange", label: "Rango de Precios" },
+  { key: "images", label: "Imágenes" },
+  { key: "description", label: "Descripción" },
+  { key: "schedule", label: "Horario" },
+  { key: "amenities", label: "Amenidades" },
+  { key: "security", label: "Seguridad" },
+];
+
 export default function BusinessSettingsPage() {
   const { id } = useParams();
   const { user, updateProfile } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState<any>(null);
+  const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showWait, setShowWait] = useState(false);
@@ -46,6 +70,8 @@ export default function BusinessSettingsPage() {
   const [errorPass, setErrorPass] = useState("");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
+  const [activeSection, setActiveSection] = useState("name");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchBusiness = async () => {
@@ -60,26 +86,23 @@ export default function BusinessSettingsPage() {
         setLoading(false);
         return;
       }
-      // Inicializar horarios si no existen o están incompletos
       if (!business.schedule || business.schedule.length !== days.length) {
-        business.schedule = days.map((d: string) => {
-          const found = business.schedule?.find((s: any) => s.day === d);
+        business.schedule = days.map((d) => {
+          const found = business.schedule?.find((s) => s.day === d);
           return found || { day: d, open: "", close: "" };
         });
       } else {
         business.schedule = days.map(
-          (d: string) =>
-            business.schedule.find((s: any) => s.day === d) || {
+          (d) =>
+            business.schedule.find((s) => s.day === d) || {
               day: d,
               open: "",
               close: "",
             }
         );
       }
-      // Asegurar que contact existe
       if (!business.contact)
         business.contact = { phone: "", email: "", website: "" };
-      // Si phone existe y no hay countryCode/phoneNumber, separarlos
       if (
         business.contact.phone &&
         (!business.contact.countryCode || !business.contact.phoneNumber)
@@ -93,32 +116,36 @@ export default function BusinessSettingsPage() {
           business.contact.phoneNumber = business.contact.phone;
         }
       }
+      if (business.facebook === undefined) business.facebook = "";
+      if (business.instagram === undefined) business.instagram = "";
+      if (business.twitter === undefined) business.twitter = "";
+      if (business.tiktok === undefined) business.tiktok = "";
       setForm(business);
       setLoading(false);
     };
     fetchBusiness();
   }, [id]);
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field, value) => {
     if (field === "phone") {
-      setForm((prev: any) => ({
+      setForm((prev) => ({
         ...prev,
         contact: { ...prev.contact, phone: value },
       }));
     } else {
-      setForm((prev: any) => ({ ...prev, [field]: value }));
+      setForm((prev) => ({ ...prev, [field]: value }));
     }
   };
 
-  const handleScheduleChange = (idx: number, key: string, value: string) => {
-    setForm((prev: any) => {
+  const handleScheduleChange = (idx, key, value) => {
+    setForm((prev) => {
       const schedule = [...(prev.schedule || [])];
       schedule[idx][key] = value;
       return { ...prev, schedule };
     });
   };
 
-  const handleImageChange = (field: string, file: File | null) => {
+  const handleImageChange = (field, file) => {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -127,25 +154,27 @@ export default function BusinessSettingsPage() {
     reader.readAsDataURL(file);
   };
 
-  // Guardar datos generales
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorProfile("");
     setPasswordInput("");
     setShowPasswordModal(true);
   };
 
-  // Confirmar y guardar tras ingresar contraseña
   const handleConfirmSave = async () => {
     setErrorProfile("");
     if (!passwordInput) {
-      setErrorProfile("Debes ingresar tu contraseña actual para guardar cambios.");
+      setErrorProfile(
+        "Debes ingresar tu contraseña actual para guardar cambios."
+      );
       toast.error("Debes ingresar tu contraseña actual para guardar cambios.");
       return;
     }
     setSaving(true);
-    // Validar contraseña actual
-    const { error: authError } = await signInWithEmail(user.email, passwordInput);
+    const { error: authError } = await signInWithEmail(
+      user.email,
+      passwordInput
+    );
     if (authError) {
       setErrorProfile("Contraseña actual incorrecta.");
       toast.error("Contraseña actual incorrecta.");
@@ -153,7 +182,6 @@ export default function BusinessSettingsPage() {
       return;
     }
     try {
-      // Prepara el objeto a guardar
       const toSave = {
         ...form,
         contact: {
@@ -164,6 +192,10 @@ export default function BusinessSettingsPage() {
           email: form.contact?.email || "",
           website: form.contact?.website || "",
         },
+        facebook: form.facebook || null,
+        instagram: form.instagram || null,
+        twitter: form.twitter || null,
+        tiktok: form.tiktok || null,
       };
       const { error } = await supabase
         .from("businesses")
@@ -193,8 +225,7 @@ export default function BusinessSettingsPage() {
     }
   };
 
-  // Cambiar email y/o contraseña
-  const handleEmailPassUpdate = async (e: any) => {
+  const handleEmailPassUpdate = async (e) => {
     e.preventDefault();
     setErrorPass("");
     if (!currentPasswordPass) {
@@ -210,7 +241,6 @@ export default function BusinessSettingsPage() {
       return;
     }
     setSaving(true);
-    // Reautenticación
     const { error: authError } = await signInWithEmail(
       user.email,
       currentPasswordPass
@@ -220,7 +250,6 @@ export default function BusinessSettingsPage() {
       setSaving(false);
       return;
     }
-    // Cambiar email en Supabase Auth y en la BD
     if (newEmail && newEmail !== user.email) {
       const { error: emailError } = await supabase.auth.updateUser({
         email: newEmail,
@@ -230,7 +259,6 @@ export default function BusinessSettingsPage() {
         setSaving(false);
         return;
       }
-      // Actualizar en la BD
       await supabase
         .from("users")
         .update({ email: newEmail })
@@ -240,7 +268,6 @@ export default function BusinessSettingsPage() {
         .update({ "contact.email": newEmail })
         .eq("id", id);
     }
-    // Cambiar contraseña
     if (newPassword) {
       const { error: passError } = await updatePassword(newPassword);
       if (passError) {
@@ -264,483 +291,647 @@ export default function BusinessSettingsPage() {
     setSaving(false);
   };
 
-  if (loading || !form) return <div className="p-8">Cargando...</div>;
+  if (loading || !form)
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="animate-pulse text-2xl font-semibold text-gray-600">
+          Cargando...
+        </div>
+      </div>
+    );
+
   if (!user || String(user.businessData?.id) !== String(id))
-    return <div className="p-8 text-red-500">No autorizado</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-red-600 text-xl font-semibold">No autorizado</div>
+      </div>
+    );
 
   if (showWait) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white">
-        <div className="animate-spin rounded-full h-24 w-24 border-b-4 border-blue-600 mb-6"></div>
-        <h2 className="text-3xl font-extrabold text-blue-700 mb-2 animate-pulse">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-gray-100">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 mb-6"></div>
+        <h2 className="text-4xl font-bold text-blue-700 mb-2 animate-pulse">
           RoaBusiness
         </h2>
-        <p className="text-gray-500">Guardando cambios...</p>
+        <p className="text-gray-600 text-lg">Guardando cambios...</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-10 flex flex-col md:flex-row gap-8">
-      <div className="w-full md:w-2/3 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
-        <div className="flex items-center mb-6 gap-4">
-          <img
-            src={form.logo || "https://via.placeholder.com/60x60"}
-            alt="Logo"
-            className="w-16 h-16 rounded-full object-cover border-2 border-blue-200"
-          />
-          <div>
-            <h1 className="text-3xl font-bold text-blue-800">
-              Editar: {form.name}
-            </h1>
-            <p className="text-gray-500">ID: {form.id}</p>
-          </div>
+    <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-gray-100">
+      <aside
+        className={`bg-white shadow-lg w-72 p-6 fixed md:static top-0 left-0 h-full flex flex-col transition-transform duration-300 ease-in-out z-30 md:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
+        <div className="flex items-center justify-between mb-8">
+          <RobotMascot className="w-12 h-12 hidden md:block" />
+          <button
+            className="md:hidden text-gray-600 hover:text-blue-600"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <MenuIcon className="h-6 w-6" />
+          </button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Logo */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Logo
-            </label>
-            <div className="flex items-center gap-4">
-              <img
-                src={form.logo || "https://via.placeholder.com/80x80"}
-                alt="Logo preview"
-                className="w-20 h-20 rounded-full object-cover border"
-              />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  handleImageChange("logo", e.target.files?.[0] || null)
-                }
-                className="block"
-              />
-            </div>
-          </div>
-          {/* Cover Image */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Imagen Principal
-            </label>
-            <div className="flex items-center gap-4">
-              <img
-                src={form.coverImage || "https://via.placeholder.com/200x80"}
-                alt="Cover preview"
-                className="w-40 h-20 object-cover rounded border"
-              />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  handleImageChange("coverImage", e.target.files?.[0] || null)
-                }
-                className="block"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+        <nav className="space-y-2">
+          {menuSections.map((section) => (
+            <button
+              key={section.key}
+              className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 ${
+                activeSection === section.key
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+              } font-medium`}
+              onClick={() => {
+                setActiveSection(section.key);
+                setSidebarOpen(false);
+              }}
+            >
+              {section.label}
+            </button>
+          ))}
+        </nav>
+      </aside>
+      <button
+        className="fixed top-4 left-4 z-40 md:hidden bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors duration-200"
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Abrir menú"
+      >
+        <Menu className="h-6 w-6" />
+      </button>
+      <main className="flex-1 p-6 md:p-10 ml-0 md:ml-72 max-w-4xl mx-auto">
+        {activeSection === "name" && (
+          <Fragment>
+            <h2 className="text-3xl font-bold mb-6 text-blue-800">
               Nombre del Negocio
-            </label>
-            <input
-              className="w-full p-2 border rounded"
-              value={form.name}
-              onChange={(e) => handleChange("name", e.target.value)}
-              placeholder="Nombre"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Categoría
-            </label>
-            <input
-              list="categories-list"
-              className="w-full p-2 border rounded"
-              value={form.category}
-              onChange={(e) => handleChange("category", e.target.value)}
-              placeholder="Escribe o selecciona una categoría"
-              required
-            />
-            <datalist id="categories-list">
-              {businessCategories.map((cat) => (
-                <option key={cat} value={cat} />
-              ))}
-            </datalist>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Isla
-            </label>
-            <input
-              className="w-full p-2 border rounded"
-              value={form.island}
-              onChange={(e) => handleChange("island", e.target.value)}
-              placeholder="Isla"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ubicación
-            </label>
-            <input
-              className="w-full p-2 border rounded"
-              value={form.location}
-              onChange={(e) => handleChange("location", e.target.value)}
-              placeholder="Ubicación"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Descripción
-            </label>
-            <textarea
-              className="w-full p-2 border rounded"
-              value={form.description}
-              onChange={(e) => handleChange("description", e.target.value)}
-              placeholder="Descripción"
-            />
-          </div>
-          {/* Teléfono dividido en código de país y número */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Teléfono
-            </label>
-            <div className="flex gap-2">
+            </h2>
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Nombre
+              </label>
               <input
-                className="w-1/3 p-2 border rounded"
-                value={form.contact?.countryCode || ""}
-                onChange={(e) =>
-                  setForm((prev: any) => ({
-                    ...prev,
-                    contact: { ...prev.contact, countryCode: e.target.value },
-                  }))
-                }
-                placeholder="Código país (ej: +504)"
-                maxLength={5}
-                required
-              />
-              <input
-                className="w-2/3 p-2 border rounded"
-                value={form.contact?.phoneNumber || ""}
-                onChange={(e) =>
-                  setForm((prev: any) => ({
-                    ...prev,
-                    contact: { ...prev.contact, phoneNumber: e.target.value },
-                  }))
-                }
-                placeholder="Número"
-                required
-              />
-            </div>
-          </div>
-          {/* Email editable */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Correo electrónico
-            </label>
-            <input
-              className="w-full p-2 border rounded"
-              value={form.contact?.email || ""}
-              onChange={(e) =>
-                setForm((prev: any) => ({
-                  ...prev,
-                  contact: { ...prev.contact, email: e.target.value },
-                }))
-              }
-              placeholder="Correo electrónico"
-            />
-          </div>
-          {/* Página web editable */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Página web
-            </label>
-            <input
-              className="w-full p-2 border rounded"
-              value={form.contact?.website || ""}
-              onChange={(e) =>
-                setForm((prev: any) => ({
-                  ...prev,
-                  contact: { ...prev.contact, website: e.target.value },
-                }))
-              }
-              placeholder="Página web"
-            />
-          </div>
-          {/* Servicios y Amenidades */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Servicios y Amenidades
-            </label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {form.amenities?.map((amenity: string, idx: number) => (
-                <span
-                  key={idx}
-                  className="inline-flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
-                >
-                  {amenity}
-                  <button
-                    type="button"
-                    className="ml-2 text-red-500 hover:text-red-700"
-                    onClick={() =>
-                      setForm((prev: any) => ({
-                        ...prev,
-                        amenities: prev.amenities.filter(
-                          (_: string, i: number) => i !== idx
-                        ),
-                      }))
-                    }
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input
-                className="flex-1 p-2 border rounded"
-                value={newAmenity}
-                onChange={(e) => setNewAmenity(e.target.value)}
-                placeholder="Agregar servicio o amenidad"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                value={form.name}
+                onChange={(e) => handleChange("name", e.target.value)}
+                placeholder="Nombre del negocio"
               />
               <Button
-                type="button"
-                onClick={() => {
-                  if (newAmenity.trim()) {
-                    setForm((prev: any) => ({
-                      ...prev,
-                      amenities: [...(prev.amenities || []), newAmenity.trim()],
-                    }));
-                    setNewAmenity("");
-                  }
-                }}
+                onClick={() => setShowPasswordModal(true)}
+                disabled={saving}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
               >
-                Agregar
+                Guardar
               </Button>
             </div>
-          </div>
-          {/* Horarios */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Horarios por día
-            </label>
-            <div className="grid grid-cols-1 gap-2">
-              {form.schedule?.map((sch: any, idx: number) => (
-                <div
-                  key={sch.day}
-                  className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 border-b pb-2 last:border-b-0"
-                >
-                  <span className="w-24 text-gray-700 font-semibold">
-                    {sch.day}
-                  </span>
-                  <div className="flex gap-2 items-center">
-                    <label className="text-xs text-gray-500">Abre</label>
-                    <input
-                      type="time"
-                      className="p-1 border rounded"
-                      value={sch.open}
-                      onChange={(e) =>
-                        handleScheduleChange(idx, "open", e.target.value)
-                      }
-                    />
-                    <label className="text-xs text-gray-500">Cierra</label>
-                    <input
-                      type="time"
-                      className="p-1 border rounded"
-                      value={sch.close}
-                      onChange={(e) =>
-                        handleScheduleChange(idx, "close", e.target.value)
-                      }
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Mapa */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ubicación en el mapa
-            </label>
-            <div className="w-full h-64 mb-2 rounded overflow-hidden">
-              <GoogleMap
-                mapContainerStyle={{ width: "100%", height: "100%" }}
-                center={form.coordinates || GOOGLE_MAPS_CONFIG.defaultCenter}
-                zoom={15}
-                onClick={(e) => {
-                  if (e.latLng) {
-                    handleChange("coordinates", {
-                      lat: e.latLng.lat(),
-                      lng: e.latLng.lng(),
-                    });
-                  }
-                }}
-                options={{ disableDefaultUI: true }}
-              >
-                {form.coordinates && <Marker position={form.coordinates} />}
-              </GoogleMap>
-            </div>
-            <div className="flex gap-2">
-              <input
-                className="w-1/2 p-2 border rounded"
-                type="number"
-                step="any"
-                value={form.coordinates?.lat || ""}
-                onChange={(e) =>
-                  handleChange("coordinates", {
-                    ...form.coordinates,
-                    lat: parseFloat(e.target.value),
-                  })
-                }
-                placeholder="Latitud"
-              />
-              <input
-                className="w-1/2 p-2 border rounded"
-                type="number"
-                step="any"
-                value={form.coordinates?.lng || ""}
-                onChange={(e) =>
-                  handleChange("coordinates", {
-                    ...form.coordinates,
-                    lng: parseFloat(e.target.value),
-                  })
-                }
-                placeholder="Longitud"
-              />
-            </div>
-          </div>
-          {/* Switch de perfil público */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Perfil público
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={!!form.is_public}
-                onChange={(e) =>
-                  setForm((prev: any) => ({
-                    ...prev,
-                    is_public: e.target.checked,
-                  }))
-                }
-                className="form-checkbox h-5 w-5 text-blue-600"
-                id="is_public_switch"
-              />
-              <span className="text-gray-700">
-                {form.is_public
-                  ? "Visible en el directorio"
-                  : "Oculto del directorio"}
-              </span>
-            </div>
-          </div>
-          <Button
-            type="submit"
-            disabled={saving}
-            className="w-full py-3 text-lg font-bold bg-blue-600 hover:bg-blue-700"
-          >
-            {saving ? "Guardando..." : "Guardar Cambios"}
-          </Button>
-        </form>
-        {/* Modal para confirmar contraseña antes de guardar */}
-        <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirmar cambios</DialogTitle>
-              <DialogDescription>
-                Ingresa tu contraseña para guardar los cambios.
-              </DialogDescription>
-            </DialogHeader>
-            <input
-              type="password"
-              value={passwordInput}
-              onChange={e => setPasswordInput(e.target.value)}
-              className="w-full border rounded px-3 py-2 mt-4"
-              placeholder="Contraseña actual"
-              autoFocus
-            />
-            {errorProfile && <div className="text-red-500 text-sm mt-2">{errorProfile}</div>}
-            <DialogFooter className="mt-4 flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setShowPasswordModal(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleConfirmSave} disabled={saving}>
-                {saving ? "Guardando..." : "Confirmar y guardar"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-      <div className="w-full md:w-1/3 bg-white p-6 rounded-2xl shadow-xl border border-gray-100 mt-8 md:mt-0">
-        <h2 className="text-xl font-bold mb-4 text-blue-700">
-          Actualizar email o contraseña
-        </h2>
-        <Button
-          variant="outline"
-          onClick={() => setShowEmailPassFields(!showEmailPassFields)}
-          className="mb-4 w-full"
-        >
-          {showEmailPassFields ? "Cancelar" : "Actualizar email/contraseña"}
-        </Button>
-        {showEmailPassFields && (
-          <form onSubmit={handleEmailPassUpdate} className="space-y-4">
-            <div>
-              <label className="block font-semibold mb-1">Nuevo email</label>
-              <input
-                type="email"
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                className="w-full border rounded-xl px-3 py-2"
-              />
-            </div>
-            <div>
-              <label className="block font-semibold mb-1">
-                Contraseña actual <span className="text-red-500">*</span>
+          </Fragment>
+        )}
+        {activeSection === "location" && (
+          <Fragment>
+            <h2 className="text-3xl font-bold mb-6 text-blue-800">Ubicación</h2>
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Ubicación
               </label>
               <input
-                type="password"
-                value={currentPasswordPass}
-                onChange={(e) => setCurrentPasswordPass(e.target.value)}
-                className="w-full border rounded-xl px-3 py-2"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                value={form.location}
+                onChange={(e) => handleChange("location", e.target.value)}
+                placeholder="Dirección del negocio"
+              />
+              {/* Inputs para coordenadas GPS */}
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Latitud
+                  </label>
+                  <input
+                    type="number"
+                    step="any"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    value={form.coordinates?.lat || ""}
+                    onChange={(e) =>
+                      handleChange("coordinates", {
+                        ...form.coordinates,
+                        lat: parseFloat(e.target.value),
+                      })
+                    }
+                    placeholder="Latitud"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Longitud
+                  </label>
+                  <input
+                    type="number"
+                    step="any"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    value={form.coordinates?.lng || ""}
+                    onChange={(e) =>
+                      handleChange("coordinates", {
+                        ...form.coordinates,
+                        lng: parseFloat(e.target.value),
+                      })
+                    }
+                    placeholder="Longitud"
+                  />
+                </div>
+              </div>
+              {/* Mapa para coordenadas GPS, ahora movible */}
+              {form.coordinates && (
+                <div className="w-full h-64 rounded-lg overflow-hidden border border-gray-300">
+                  <GoogleMap
+                    mapContainerStyle={{ width: "100%", height: "100%" }}
+                    center={{
+                      lat: form.coordinates.lat,
+                      lng: form.coordinates.lng,
+                    }}
+                    zoom={16}
+                    options={{
+                      disableDefaultUI: true,
+                      draggable: true,
+                      scrollwheel: true,
+                    }}
+                    onClick={(e) => {
+                      if (e.latLng) {
+                        handleChange("coordinates", {
+                          lat: e.latLng.lat(),
+                          lng: e.latLng.lng(),
+                        });
+                      }
+                    }}
+                  >
+                    <Marker
+                      position={{
+                        lat: form.coordinates.lat,
+                        lng: form.coordinates.lng,
+                      }}
+                      draggable={true}
+                      onDragEnd={(e) => {
+                        handleChange("coordinates", {
+                          lat: e.latLng.lat(),
+                          lng: e.latLng.lng(),
+                        });
+                      }}
+                    />
+                  </GoogleMap>
+                </div>
+              )}
+              <Button
+                onClick={() => setShowPasswordModal(true)}
+                disabled={saving}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+              >
+                Guardar
+              </Button>
+            </div>
+          </Fragment>
+        )}
+        {activeSection === "contact" && (
+          <Fragment>
+            <h2 className="text-3xl font-bold mb-6 text-blue-800">Contacto</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Phone className="h-4 w-4 text-blue-600" /> Teléfono
+                </label>
+                <input
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                  value={form.contact?.phone || ""}
+                  onChange={(e) => handleChange("phone", e.target.value)}
+                  placeholder="Teléfono"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-blue-600" /> Email
+                </label>
+                <input
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                  value={form.contact?.email || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      contact: { ...prev.contact, email: e.target.value },
+                    }))
+                  }
+                  placeholder="Email"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-blue-600" /> Sitio web
+                </label>
+                <input
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                  value={form.contact?.website || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      contact: { ...prev.contact, website: e.target.value },
+                    }))
+                  }
+                  placeholder="Sitio web"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Facebook className="h-4 w-4 text-blue-600" /> Facebook
+                </label>
+                <input
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                  value={form.facebook || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, facebook: e.target.value }))
+                  }
+                  placeholder="URL de Facebook"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Instagram className="h-4 w-4 text-pink-500" /> Instagram
+                </label>
+                <input
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                  value={form.instagram || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, instagram: e.target.value }))
+                  }
+                  placeholder="URL de Instagram"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Twitter className="h-4 w-4 text-blue-400" /> X (Twitter)
+                </label>
+                <input
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                  value={form.twitter || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, twitter: e.target.value }))
+                  }
+                  placeholder="URL de X"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <TikTokIcon className="h-4 w-4 text-black" /> TikTok
+                </label>
+                <input
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                  value={form.tiktok || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, tiktok: e.target.value }))
+                  }
+                  placeholder="URL de TikTok"
+                />
+              </div>
+              <Button
+                onClick={() => setShowPasswordModal(true)}
+                disabled={saving}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+              >
+                Guardar
+              </Button>
+            </div>
+          </Fragment>
+        )}
+        {activeSection === "category" && (
+          <Fragment>
+            <h2 className="text-3xl font-bold mb-6 text-blue-800">Categoría</h2>
+            <div className="space-y-4">
+              <input
+                list="categories-list"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                value={form.category}
+                onChange={(e) => handleChange("category", e.target.value)}
+                placeholder="Escribe o selecciona una categoría"
                 required
               />
+              <datalist id="categories-list">
+                {businessCategories.map((cat) => (
+                  <option key={cat} value={cat} />
+                ))}
+              </datalist>
+              <Button
+                onClick={() => setShowPasswordModal(true)}
+                disabled={saving}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+              >
+                Guardar
+              </Button>
             </div>
-            <div>
-              <label className="block font-semibold mb-1">
-                Nueva contraseña
-              </label>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full border rounded-xl px-3 py-2"
-              />
-            </div>
-            <div>
-              <label className="block font-semibold mb-1">
-                Confirmar nueva contraseña
-              </label>
-              <input
-                type="password"
-                value={confirmNewPassword}
-                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                className="w-full border rounded-xl px-3 py-2"
-              />
-            </div>
-            {errorPass && (
-              <div className="text-red-500 text-sm">{errorPass}</div>
-            )}
-            <Button
-              type="submit"
-              disabled={saving}
-              className="w-full py-3 text-lg font-bold bg-blue-600 hover:bg-blue-700"
-            >
-              {saving ? "Guardando..." : "Actualizar email/contraseña"}
-            </Button>
-          </form>
+          </Fragment>
         )}
-      </div>
+        {activeSection === "priceRange" && (
+          <Fragment>
+            <h2 className="text-3xl font-bold mb-6 text-blue-800">
+              Rango de Precios
+            </h2>
+            <div className="space-y-4">
+              <select
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                value={form.priceRange}
+                onChange={(e) => handleChange("priceRange", e.target.value)}
+              >
+                <option value="">Selecciona un rango</option>
+                <option value="$">$ - Económico</option>
+                <option value="$$">$$ - Moderado</option>
+                <option value="$$$">$$$ - Caro</option>
+                <option value="$$$$">$$$$ - Muy Caro</option>
+              </select>
+              <Button
+                onClick={() => setShowPasswordModal(true)}
+                disabled={saving}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+              >
+                Guardar
+              </Button>
+            </div>
+          </Fragment>
+        )}
+        {activeSection === "images" && (
+          <Fragment>
+            <h2 className="text-3xl font-bold mb-6 text-blue-800">Imágenes</h2>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Logo
+                </label>
+                <div className="flex items-center gap-4">
+                  <img
+                    src={form.logo || "https://via.placeholder.com/80x80"}
+                    alt="Logo preview"
+                    className="w-20 h-20 rounded-full object-cover border-2 border-gray-200 shadow-sm"
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleImageChange("logo", e.target.files?.[0] || null)
+                    }
+                    className="block text-sm text-gray-600"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Imagen Principal
+                </label>
+                <div className="flex items-center gap-4">
+                  <img
+                    src={
+                      form.coverImage || "https://via.placeholder.com/200x80"
+                    }
+                    alt="Cover preview"
+                    className="w-40 h-20 object-cover rounded-lg border-2 border-gray-200 shadow-sm"
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleImageChange(
+                        "coverImage",
+                        e.target.files?.[0] || null
+                      )
+                    }
+                    className="block text-sm text-gray-600"
+                  />
+                </div>
+              </div>
+              <Button
+                onClick={() => setShowPasswordModal(true)}
+                disabled={saving}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+              >
+                Guardar
+              </Button>
+            </div>
+          </Fragment>
+        )}
+        {activeSection === "description" && (
+          <Fragment>
+            <h2 className="text-3xl font-bold mb-6 text-blue-800">
+              Descripción
+            </h2>
+            <div className="space-y-4">
+              <textarea
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                value={form.description}
+                onChange={(e) => handleChange("description", e.target.value)}
+                placeholder="Descripción del negocio"
+                rows={6}
+              />
+              <Button
+                onClick={() => setShowPasswordModal(true)}
+                disabled={saving}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+              >
+                Guardar
+              </Button>
+            </div>
+          </Fragment>
+        )}
+        {activeSection === "schedule" && (
+          <Fragment>
+            <h2 className="text-3xl font-bold mb-6 text-blue-800">Horario</h2>
+            <div className="space-y-4">
+              {form.schedule?.map((s, idx) => (
+                <div key={s.day} className="flex items-center gap-3">
+                  <span className="w-24 font-medium text-gray-700">
+                    {s.day}
+                  </span>
+                  <input
+                    type="time"
+                    className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                    value={s.open}
+                    onChange={(e) =>
+                      handleScheduleChange(idx, "open", e.target.value)
+                    }
+                  />
+                  <span className="text-gray-600">a</span>
+                  <input
+                    type="time"
+                    className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                    value={s.close}
+                    onChange={(e) =>
+                      handleScheduleChange(idx, "close", e.target.value)
+                    }
+                  />
+                </div>
+              ))}
+              <Button
+                onClick={() => setShowPasswordModal(true)}
+                disabled={saving}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+              >
+                Guardar
+              </Button>
+            </div>
+          </Fragment>
+        )}
+        {activeSection === "amenities" && (
+          <Fragment>
+            <h2 className="text-3xl font-bold mb-6 text-blue-800">
+              Amenidades
+            </h2>
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {form.amenities?.map((a) => (
+                  <span
+                    key={a}
+                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium"
+                  >
+                    {a}
+                  </span>
+                ))}
+              </div>
+              <input
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                value={newAmenity}
+                onChange={(e) => setNewAmenity(e.target.value)}
+                placeholder="Agregar amenidad"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (newAmenity.trim()) {
+                      setForm((prev) => ({
+                        ...prev,
+                        amenities: [
+                          ...(prev.amenities || []),
+                          newAmenity.trim(),
+                        ],
+                      }));
+                      setNewAmenity("");
+                    }
+                  }
+                }}
+              />
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => {
+                    if (newAmenity.trim()) {
+                      setForm((prev) => ({
+                        ...prev,
+                        amenities: [
+                          ...(prev.amenities || []),
+                          newAmenity.trim(),
+                        ],
+                      }));
+                      setNewAmenity("");
+                    }
+                  }}
+                  disabled={saving}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+                >
+                  Agregar
+                </Button>
+                <Button
+                  onClick={() => setShowPasswordModal(true)}
+                  disabled={saving}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+                >
+                  Guardar
+                </Button>
+              </div>
+            </div>
+          </Fragment>
+        )}
+        {activeSection === "security" && (
+          <Fragment>
+            <h2 className="text-3xl font-bold mb-6 text-blue-800">Seguridad</h2>
+            <div className="space-y-4">
+              <Button
+                onClick={() => setShowEmailPassFields(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+              >
+                Cambiar Email o Contraseña
+              </Button>
+              {showEmailPassFields && (
+                <form onSubmit={handleEmailPassUpdate} className="space-y-4">
+                  <input
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                    type="email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    placeholder="Nuevo email"
+                  />
+                  <input
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                    type="password"
+                    value={currentPasswordPass}
+                    onChange={(e) => setCurrentPasswordPass(e.target.value)}
+                    placeholder="Contraseña actual"
+                  />
+                  <input
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Nueva contraseña"
+                  />
+                  <input
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                    type="password"
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    placeholder="Confirmar nueva contraseña"
+                  />
+                  {errorPass && (
+                    <div className="text-red-500 text-sm">{errorPass}</div>
+                  )}
+                  <Button
+                    type="submit"
+                    disabled={saving}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+                  >
+                    Guardar Cambios
+                  </Button>
+                </form>
+              )}
+            </div>
+          </Fragment>
+        )}
+      </main>
+      <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
+        <DialogContent className="max-w-md rounded-xl shadow-xl bg-white border border-blue-200 p-6">
+          <DialogHeader>
+            <DialogTitle className="text-blue-700 text-xl font-bold">
+              Confirmar cambios
+            </DialogTitle>
+            <DialogDescription className="text-gray-600">
+              Ingresa tu contraseña actual para guardar los cambios.
+            </DialogDescription>
+          </DialogHeader>
+          <input
+            type="password"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+            placeholder="Contraseña actual"
+            value={passwordInput}
+            onChange={(e) => setPasswordInput(e.target.value)}
+            autoFocus
+          />
+          {errorProfile && (
+            <div className="text-red-500 text-sm mt-2">{errorProfile}</div>
+          )}
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowPasswordModal(false)}
+              className="border-gray-300 text-gray-700 hover:bg-gray-100"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleConfirmSave}
+              disabled={saving}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+            >
+              Confirmar y Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

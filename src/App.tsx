@@ -18,6 +18,7 @@ import PrivacyPolicyPage from "@/pages/PrivacyPolicyPage";
 import TermsOfUsePage from "@/pages/TermsOfUsePage";
 import UserFullSettingsPage from "@/pages/UserFullSettingsPage";
 import SetNewPasswordPage from "@/pages/SetNewPasswordPage";
+import RecentPostsPage from "@/pages/RecentPostsPage";
 import "./App.css";
 
 const libraries: ("places" | "geometry" | "drawing" | "visualization")[] = [
@@ -69,6 +70,7 @@ function App() {
                   path="/set-new-password"
                   element={<SetNewPasswordPage />}
                 />
+                <Route path="/recent-posts" element={<RecentPostsPage />} />
               </Routes>
               <Toaster
                 position="top-right"

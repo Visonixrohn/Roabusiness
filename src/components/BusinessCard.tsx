@@ -1,6 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Star, MapPin, Phone, Globe, Heart, Eye, Mail } from "lucide-react";
+import {
+  Star,
+  MapPin,
+  Phone,
+  Globe,
+  Heart,
+  Eye,
+  Mail,
+  Facebook,
+  Instagram,
+  Twitter,
+} from "lucide-react";
+import TikTokIcon from "@/components/icons/TikTokIcon";
 import { Business } from "@/types/business";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -58,9 +70,11 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
     <>
       <div
         className={cn(
-          "bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group relative cursor-pointer",
-          variant === "compact" ? "max-w-xs" : "max-w-sm"
+          "bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group relative cursor-pointer p-2",
+          "w-full max-w-[170px] min-w-0 mx-auto",
+          variant === "compact" ? "max-w-[170px] p-2" : "max-w-xs"
         )}
+        style={{ minWidth: 0 }}
         onClick={handleViewProfile}
       >
         {/* Header */}
@@ -222,31 +236,37 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
                 </Button>
               )}
             </div>
+            {/* Botón de seguidores alineado abajo, mismo diseño que los otros botones */}
+            <div className="flex space-x-2 mt-2">
+              {typeof followers === "number" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full font-semibold cursor-default select-none"
+                  tabIndex={-1}
+                  aria-disabled="true"
+                  disabled
+                >
+                  <span className="font-bold">{followers}</span> seguidores
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Badge de seguidores en la parte inferior derecha */}
-        {typeof followers === "number" && (
-          <div className="absolute bottom-2 right-4 z-10">
-            <span className="bg-blue-400 text-white px-3 py-1 rounded-full text-xs font-bold shadow">
-              {followers} seguidores
-            </span>
-          </div>
-        )}
+        {/* Modales */}
+        <ContactModal
+          business={business}
+          isOpen={showContactModal}
+          onClose={() => setShowContactModal(false)}
+          contacts={contacts || fallbackContacts}
+        />
+        <GalleryModal
+          business={business}
+          isOpen={showGalleryModal}
+          onClose={() => setShowGalleryModal(false)}
+        />
       </div>
-
-      {/* Modales */}
-      <ContactModal
-        business={business}
-        isOpen={showContactModal}
-        onClose={() => setShowContactModal(false)}
-        contacts={contacts || fallbackContacts}
-      />
-      <GalleryModal
-        business={business}
-        isOpen={showGalleryModal}
-        onClose={() => setShowGalleryModal(false)}
-      />
     </>
   );
 };

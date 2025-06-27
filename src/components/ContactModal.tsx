@@ -11,6 +11,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { Facebook, Instagram, Twitter } from "lucide-react";
+import TikTokIcon from "@/components/icons/TikTokIcon";
 
 interface ContactModalProps {
   business: Business;
@@ -157,6 +159,59 @@ const ContactModal = ({
               </Button>
             )}
           </div>
+
+          {/* Redes sociales desde las columnas principales del negocio */}
+          {(business.facebook ||
+            business.instagram ||
+            business.twitter ||
+            business.tiktok) && (
+            <div className="flex gap-3 mt-2 justify-center">
+              {business.facebook && (
+                <a
+                  href={business.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="hover:scale-110 transition-transform"
+                >
+                  <Facebook className="h-5 w-5 text-blue-600" />
+                </a>
+              )}
+              {business.instagram && (
+                <a
+                  href={business.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="hover:scale-110 transition-transform"
+                >
+                  <Instagram className="h-5 w-5 text-pink-500" />
+                </a>
+              )}
+              {business.twitter && (
+                <a
+                  href={business.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="X"
+                  className="hover:scale-110 transition-transform"
+                >
+                  <Twitter className="h-5 w-5 text-blue-400" />
+                </a>
+              )}
+              {business.tiktok && (
+                <a
+                  href={business.tiktok}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="TikTok"
+                  className="hover:scale-110 transition-transform"
+                >
+                  <TikTokIcon className="h-5 w-5 text-black" />
+                </a>
+              )}
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

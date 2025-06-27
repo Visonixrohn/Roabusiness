@@ -1,3 +1,14 @@
+export interface BusinessContact {
+  phone: string;
+  email: string;
+  website: string;
+  facebook?: string;
+  instagram?: string;
+  twitter?: string;
+  tiktok?: string;
+  whatsapp?: string;
+}
+
 export interface Business {
   id: string;
   name: string;
@@ -5,11 +16,7 @@ export interface Business {
   category: string;
   island: string;
   location: string;
-  contact: {
-    phone: string;
-    email: string;
-    website: string;
-  };
+  contact: BusinessContact;
   coverImage: string;
   logo: string;
   gallery: string[];
@@ -23,6 +30,10 @@ export interface Business {
   featured: boolean;
   is_public?: boolean;
   schedule?: { day: string; open: string; close: string }[];
+  facebook?: string;
+  instagram?: string;
+  twitter?: string;
+  tiktok?: string;
 }
 
 export interface BusinessData {

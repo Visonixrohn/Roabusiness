@@ -1,13 +1,15 @@
 import { Link } from "react-router-dom";
-import { MessageSquare, Heart, Eye } from "lucide-react";
+import { MessageSquare, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
+import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface PostCardProps {
   post: {
-    id: number;
-    business_id: number;
+    id: string;
+    business_id: string;
     title: string;
     content: string;
     image?: string;
@@ -21,21 +23,25 @@ interface PostCardProps {
 }
 
 const PostCard = ({ post }: PostCardProps) => {
+  const { user } = useAuth();
+  const userId = user?.id || "";
+  const [showComments, setShowComments] = useState(false);
+
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div className="bg-white rounded-lg shadow-sm overflow-hidden max-w-xs w-full mx-auto p-2">
       {/* Encabezado del post con info del negocio */}
-      <div className="p-4 flex items-center space-x-3">
+      <div className="p-2 flex items-center space-x-2">
         <Link to={`/negocio/${post.business_id}`}>
           <img
             src={post.business_logo}
             alt={post.business_name}
-            className="w-10 h-10 rounded-full object-cover"
+            className="w-8 h-8 rounded-full object-cover"
           />
         </Link>
         <div>
           <Link
             to={`/negocio/${post.business_id}`}
-            className="font-semibold text-gray-900 hover:text-blue-600"
+            className="font-semibold text-gray-900 hover:text-blue-600 text-sm"
           >
             {post.business_name}
           </Link>
@@ -49,9 +55,11 @@ const PostCard = ({ post }: PostCardProps) => {
       </div>
 
       {/* Contenido del post */}
-      <div className="px-4 pb-3">
-        <h3 className="font-semibold text-gray-900 mb-2">{post.title}</h3>
-        <p className="text-gray-600 text-sm">{post.content}</p>
+      <div className="px-2 pb-2">
+        <h3 className="font-semibold text-gray-900 mb-1 text-base line-clamp-1">
+          {post.title}
+        </h3>
+        <p className="text-gray-600 text-xs line-clamp-2">{post.content}</p>
       </div>
 
       {/* Imagen del post si existe */}
@@ -60,27 +68,23 @@ const PostCard = ({ post }: PostCardProps) => {
           <img
             src={post.image}
             alt={post.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover rounded"
           />
         </div>
       )}
 
       {/* Footer con interacciones */}
-      <div className="px-4 py-3 border-t border-gray-100">
-        <div className="flex items-center justify-between text-sm text-gray-500">
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" className="space-x-1">
+      <div className="px-2 py-2 border-t border-gray-100">
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center space-x-2">
+            <Button variant="ghost" size="icon" className="p-1" disabled>
               <Heart className="h-4 w-4" />
-              <span>{post.likes_count || 0}</span>
+              <span className="ml-1">{post.likes_count || 0}</span>
             </Button>
-            <Button variant="ghost" size="sm" className="space-x-1">
+            <Button variant="ghost" size="icon" className="p-1" disabled>
               <MessageSquare className="h-4 w-4" />
-              <span>{post.comments_count || 0}</span>
+              <span className="ml-1">{post.comments_count || 0}</span>
             </Button>
-          </div>
-          <div className="flex items-center space-x-1 text-xs">
-            <Eye className="h-4 w-4" />
-            <span>{post.views_count || 0} vistas</span>
           </div>
         </div>
       </div>

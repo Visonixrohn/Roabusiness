@@ -144,7 +144,9 @@ const BusinessDashboard = () => {
 
   // Eliminar publicación usando Supabase
   const handleDeletePost = async (postId: string) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar esta publicación?")) {
+    if (
+      window.confirm("¿Estás seguro de que quieres eliminar esta publicación?")
+    ) {
       const { error } = await supabase.from("posts").delete().eq("id", postId);
       if (!error) {
         toast.success("Publicación eliminada");
@@ -405,7 +407,7 @@ const BusinessDashboard = () => {
                       {/* Subir imagen para post */}
                       <div>
                         <ImageUpload
-                          onImageUploaded={url => setNewPostImage(url)}
+                          onImageUploaded={(url) => setNewPostImage(url)}
                           onImageRemoved={() => setNewPostImage("")}
                           currentImage={newPostImage}
                           label="Agregar imagen a la publicación"

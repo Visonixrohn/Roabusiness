@@ -113,8 +113,6 @@ const DirectoryPage = () => {
                     la Bahía
                   </p>
                 </div>
-
-                
               </div>
 
               {/* Búsqueda y filtros */}
@@ -385,14 +383,12 @@ const DirectoryPage = () => {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                   {posts.map((post) => (
                     <PostCard
                       key={post.id}
                       post={{
                         ...post,
-                        id: Number(post.id),
-                        business_id: Number(post.business_id),
                       }}
                     />
                   ))}

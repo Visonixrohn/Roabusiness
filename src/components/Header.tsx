@@ -147,6 +147,20 @@ const Header = () => {
               );
             })}
 
+            {/* Enlace a Publicaciones Recientes */}
+            <Link
+              to="/recent-posts"
+              className={cn(
+                "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
+                isActive("/recent-posts")
+                  ? "bg-blue-50 text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+              )}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Publicaciones Recientes
+            </Link>
+
             {/* Botones de autenticación */}
             {user ? (
               <div className="relative ml-4">
@@ -183,7 +197,7 @@ const Header = () => {
                           className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
                           <Settings className="h-4 w-4 mr-2" />
-                          Panel de Control
+                          Dashboard
                         </Link>
                         <Link
                           to={`/negocio/${user.businessData?.id}`}
@@ -324,6 +338,14 @@ const Header = () => {
                 </Link>
               );
             })}
+
+            {/* Enlace a Publicaciones Recientes - Móvil */}
+            <Link
+              to="/recent-posts"
+              className="text-sm font-semibold text-blue-700 hover:underline"
+            >
+              Publicaciones Recientes
+            </Link>
 
             {/* Sección de autenticación - Móvil */}
             <div className="border-t border-gray-200 pt-2 mt-2">
