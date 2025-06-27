@@ -179,6 +179,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
               priceRange: data.priceRange,
               featured: false,
               owner_id: userData.id,
+              amenities: data.amenities || [], // Guardar amenities como array jsonb
               // Agregar datos de contacto
               contact: {
                 phone: data.phone,

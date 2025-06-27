@@ -64,7 +64,9 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
     Roatán: "bg-teal-100 text-teal-800",
     Utila: "bg-emerald-100 text-emerald-800",
     Guanaja: "bg-indigo-100 text-indigo-800",
+    "Jose Santos Guardiola": "bg-pink-100 text-pink-800",
   };
+  const islands = ["Roatán", "Utila", "Guanaja", "Jose Santos Guardiola"];
 
   return (
     <>
@@ -114,7 +116,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
             <Badge
               className={cn(
                 "font-semibold shadow-sm",
-                islandColors[business.island as keyof typeof islandColors]
+                islandColors[business.island as keyof typeof islandColors] || "bg-gray-200 text-gray-700"
               )}
             >
               {business.island}

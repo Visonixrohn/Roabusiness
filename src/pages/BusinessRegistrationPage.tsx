@@ -79,7 +79,7 @@ const BusinessRegistrationPage = () => {
     confirmPassword: "",
   });
 
-  const islands = ["Roatán", "Utila", "Guanaja"];
+  const islands = ["Roatán", "Utila", "Guanaja","Jose Santos Guardiola"];
   const priceRanges = [
     { value: "$", label: "$ - Económico" },
     { value: "$$", label: "$$ - Moderado" },

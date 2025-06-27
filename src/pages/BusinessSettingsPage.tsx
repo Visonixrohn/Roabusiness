@@ -41,6 +41,7 @@ const days = [
 const menuSections = [
   { key: "name", label: "Nombre del Negocio" },
   { key: "location", label: "Ubicación" },
+  { key: "island", label: "Isla" },
   { key: "contact", label: "Contacto" },
   { key: "category", label: "Categoría" },
   { key: "priceRange", label: "Rango de Precios" },
@@ -889,6 +890,31 @@ export default function BusinessSettingsPage() {
                   </Button>
                 </form>
               )}
+            </div>
+          </Fragment>
+        )}
+        {activeSection === "island" && (
+          <Fragment>
+            <h2 className="text-3xl font-bold mb-6 text-blue-800">Isla</h2>
+            <div className="space-y-4">
+              <select
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                value={form.island}
+                onChange={(e) => handleChange("island", e.target.value)}
+              >
+                <option value="">Selecciona una isla</option>
+                <option value="Roatán">Roatán</option>
+                <option value="Utila">Utila</option>
+                <option value="Guanaja">Guanaja</option>
+                <option value="Jose Santos Guardiola">Jose Santos Guardiola</option>
+              </select>
+              <Button
+                onClick={() => setShowPasswordModal(true)}
+                disabled={saving}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+              >
+                Guardar
+              </Button>
             </div>
           </Fragment>
         )}
