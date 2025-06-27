@@ -13,6 +13,15 @@ const HomePage = () => {
   const installPromptRef = useRef<any>(null);
   const [showTutorial, setShowTutorial] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  // Estado para animación de imagen hero
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [rippleActive, setRippleActive] = useState(false);
+
+  // Al cargar la imagen, activa el ripple
+  const handleImageLoad = () => {
+    setImgLoaded(true);
+    setTimeout(() => setRippleActive(true), 50); // Pequeño delay para el efecto
+  };
 
   useEffect(() => {
     // Detectar si ya está instalada como PWA
@@ -30,30 +39,70 @@ const HomePage = () => {
   return (
     <div className="min-h-screen">
       <Header />
-
-      {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      {/* Hero Section Mejorado */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
+        {/* Imagen de fondo */}
+        <img
+          src="https://i.imgur.com/IyMgElg.jpeg"
+          alt="Islas de la Bahía"
+          className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+          onLoad={handleImageLoad}
+          style={{ zIndex: 1 }}
+        />
+        {/* Ripple SVG animado */}
+        {!rippleActive && (
+          <svg className="absolute inset-0 w-full h-full z-20 pointer-events-none" viewBox="0 0 100 100">
+            <circle
+              cx="50" cy="60" r="1"
+              fill="rgba(255,255,255,0.15)"
+              >
+              <animate
+                attributeName="r"
+                from="1" to="80"
+                dur="1s"
+                begin="0s"
+                fill="freeze"
+                keySplines="0.4 0 0.2 1"
+                calcMode="spline"
+              />
+              <animate
+                attributeName="opacity"
+                from="0.7" to="0"
+                dur="1s"
+                begin="0s"
+                fill="freeze"
+              />
+            </circle>
+          </svg>
+        )}
+        {/* Máscara circular para revelar la imagen */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className={`absolute inset-0 w-full h-full pointer-events-none transition-all duration-1000 ${rippleActive ? 'mask-reveal' : ''}`}
           style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://i.imgur.com/IyMgElg.jpeg')`,
+            background: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6))',
+            zIndex: 2,
+            maskImage: rippleActive
+              ? 'radial-gradient(circle at 50% 60%, white 100%, transparent 100%)'
+              : 'radial-gradient(circle at 50% 60%, white 0%, transparent 0%)',
+            WebkitMaskImage: rippleActive
+              ? 'radial-gradient(circle at 50% 60%, white 100%, transparent 100%)'
+              : 'radial-gradient(circle at 50% 60%, white 0%, transparent 0%)',
+            transition: 'mask-image 1s, -webkit-mask-image 1s',
           }}
         />
-        <div className="relative z-10 text-center text-white px-4 max-w-6xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+        <div className="relative z-10 text-center text-white px-6 max-w-5xl mx-auto">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold mb-6 drop-shadow-lg leading-tight">
             Descubre las
-            <span className="text-blue-400 block">Islas de la Bahía</span>
+            <span className="text-blue-400 block animate-pulse">Islas de la Bahía</span>
           </h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
-            El paraíso caribeño de Honduras te espera. Explora los mejores
-            negocios, restaurantes, hoteles y actividades en Roatán, Utila y
-            Guanaja.
+          <p className="text-lg sm:text-xl md:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed text-gray-100 drop-shadow-md">
+            El paraíso caribeño de Honduras te espera. Explora los mejores negocios, restaurantes, hoteles y actividades en Roatán, Utila y Guanaja.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/directorio">
               <Button
                 size="lg"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg"
+                className="bg-blue-600 hover:bg-blue-700 shadow-xl px-8 py-4 text-lg transition-transform hover:scale-105"
               >
                 <Search className="mr-2 h-5 w-5" />
                 Explorar Directorio
@@ -63,7 +112,7 @@ const HomePage = () => {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-white text-black hover:bg-white hover:text-gray-900 px-8 py-4 text-lg"
+                className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg transition-transform hover:scale-105"
               >
                 <MapPin className="mr-2 h-5 w-5" />
                 Conoce las Islas
@@ -72,27 +121,28 @@ const HomePage = () => {
           </div>
         </div>
       </section>
-
       {/* Estadísticas */}
-      <section className="py-16 bg-white">
+      <section className="py-20 bg-gradient-to-b from-white to-blue-50">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-blue-600">3</div>
-              <div className="text-gray-600">Islas Principales</div>
+          <h2 className="text-3xl font-extrabold text-center text-gray-800 mb-12">
+            Lo que te espera
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 text-center">
+            <div className="space-y-2 hover:scale-105 transition-transform">
+              <div className="text-5xl font-bold text-blue-600">3</div>
+              <p className="text-gray-700">Islas Principales</p>
             </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-blue-600">12+</div>
-              <div className="text-gray-600">Negocios Destacados</div>
+            <div className="space-y-2 hover:scale-105 transition-transform">
+              <div className="text-5xl font-bold text-blue-600">5+</div>
+              <p className="text-gray-700">Negocios Destacados</p>
             </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-blue-600">∞</div>
-              <div className="text-gray-600">Experiencias Únicas</div>
+            <div className="space-y-2 hover:scale-105 transition-transform">
+              <div className="text-5xl font-bold text-blue-600">∞</div>
+              <p className="text-gray-700">Experiencias Únicas</p>
             </div>
           </div>
         </div>
       </section>
-
       {/* Negocios Destacados */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
@@ -217,7 +267,7 @@ const HomePage = () => {
                 }
                 setShowTutorial(true);
               }}
-              className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg rounded flex items-center justify-center gap-2 shadow mt-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg flex items-center justify-center gap-2 shadow-lg mt-2 rounded-full border-2 border-blue-400 hover:border-blue-600 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-200 active:scale-95"
             >
               <Download className="h-5 w-5" />
               Instalar RoaBusiness (Acceso Directo)
@@ -228,16 +278,28 @@ const HomePage = () => {
                   src="https://cdn-icons-png.flaticon.com/512/2288/2288494.png"
                   alt="Icono RoaBusiness"
                   className="w-16 h-16 mb-2 rounded-full shadow"
-                  style={{ background: '#fff' }}
+                  style={{ background: "#fff" }}
                 />
-                <h3 className="font-bold mb-2 text-lg text-center">¿Cómo agregar RoaBusiness a tu pantalla de inicio?</h3>
+                <h3 className="font-bold mb-2 text-lg text-center">
+                  ¿Cómo agregar RoaBusiness a tu pantalla de inicio?
+                </h3>
                 <ol className="list-decimal ml-5 space-y-1 text-left">
-                  <li>Abre el menú <b>⋮</b> o <b>Compartir</b> de tu navegador.</li>
-                  <li>Selecciona <b>"Agregar a pantalla de inicio"</b> o <b>"Instalar app"</b>.</li>
+                  <li>
+                    Abre el menú <b>⋮</b> o <b>Compartir</b> de tu navegador.
+                  </li>
+                  <li>
+                    Selecciona <b>"Agregar a pantalla de inicio"</b> o{" "}
+                    <b>"Instalar app"</b>.
+                  </li>
                   <li>Confirma la instalación. ¡Listo!</li>
                 </ol>
                 <div className="flex justify-end mt-2 w-full">
-                  <button onClick={() => setShowTutorial(false)} className="text-blue-600 hover:underline text-sm">Cerrar</button>
+                  <button
+                    onClick={() => setShowTutorial(false)}
+                    className="text-blue-600 hover:underline text-sm"
+                  >
+                    Cerrar
+                  </button>
                 </div>
               </div>
             )}
