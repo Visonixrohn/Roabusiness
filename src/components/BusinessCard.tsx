@@ -192,20 +192,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
           <div className="border-t border-gray-100 pt-3">
             <div className="flex items-center justify-between mb-3">
               <div className="flex space-x-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsLiked(!isLiked)}
-                  className={cn(
-                    "text-gray-500 hover:text-red-500",
-                    isLiked && "text-red-500"
-                  )}
-                >
-                  <Heart
-                    className={cn("h-4 w-4 mr-1", isLiked && "fill-current")}
-                  />
-                  {isLiked ? "Me gusta" : "Dar me gusta"}
-                </Button>
+                
               </div>
             </div>
 
