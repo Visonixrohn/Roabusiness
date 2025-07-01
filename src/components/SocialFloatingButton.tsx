@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Share2,
   X,
@@ -7,48 +7,63 @@ import {
   Twitter,
   MessageCircle,
   Music2,
-} from 'lucide-react'; // Lucide icons
+} from "lucide-react";
 
-const SocialFloatingButton = () => {
+interface SocialFloatingButtonProps {
+  facebook?: string;
+  instagram?: string;
+  twitter?: string;
+  tiktok?: string;
+  whatsapp?: string;
+}
+
+const SocialFloatingButton = ({
+  facebook,
+  instagram,
+  twitter,
+  tiktok,
+  whatsapp,
+}: SocialFloatingButtonProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const socialLinks = [
-    {
-      name: 'WhatsApp',
+    whatsapp && {
+      name: "WhatsApp",
       icon: MessageCircle,
-      url: 'https://api.whatsapp.com/send/?phone=50488632788&text&type=phone_number&app_absent=0',
-      color: 'bg-green-500 hover:bg-green-600',
-      delay: 'delay-75'
+      url: whatsapp,
+      color: "bg-green-500 hover:bg-green-600",
+      delay: "delay-75",
     },
-    {
-      name: 'Instagram',
+    instagram && {
+      name: "Instagram",
       icon: Instagram,
-      url: 'https://www.instagram.com/visonixro/',
-      color: 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600',
-      delay: 'delay-100'
+      url: instagram,
+      color:
+        "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600",
+      delay: "delay-100",
     },
-    {
-      name: 'Facebook',
+    facebook && {
+      name: "Facebook",
       icon: Facebook,
-      url: 'https://www.facebook.com/people/VisonixRo/61574218733448/',
-      color: 'bg-blue-600 hover:bg-blue-700',
-      delay: 'delay-150'
+      url: facebook,
+      color: "bg-blue-600 hover:bg-blue-700",
+      delay: "delay-150",
     },
-    {
-      name: 'TikTok',
+    tiktok && {
+      name: "TikTok",
       icon: Music2,
-      url: 'https://www.tiktok.com/@visonixro',
-      color: 'bg-black hover:bg-neutral-800',
-      delay: 'delay-200'
+      url: tiktok,
+      color: "bg-black hover:bg-neutral-800",
+      delay: "delay-200",
     },
-    {
-      name: 'Twitter (X)',
+    twitter && {
+      name: "Twitter (X)",
       icon: Twitter,
-      url: 'https://x.com/ViSonixRo',
-      color: 'bg-black hover:bg-gray-800',
-      delay: 'delay-[250ms]'
-    }
-  ];
+      url: twitter,
+      color: "bg-black hover:bg-gray-800",
+      delay: "delay-[250ms]",
+    },
+  ].filter(Boolean);
 
   const toggleExpanded = () => setIsExpanded(!isExpanded);
 
@@ -57,7 +72,9 @@ const SocialFloatingButton = () => {
       {/* Botones sociales */}
       <div
         className={`flex flex-col space-y-3 mb-4 transition-all duration-500 ${
-          isExpanded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'
+          isExpanded
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-8 pointer-events-none"
         }`}
       >
         {socialLinks.map((social) => (
@@ -70,7 +87,7 @@ const SocialFloatingButton = () => {
               w-12 h-12 rounded-full ${social.color} text-white
               flex items-center justify-center shadow-lg
               transform transition-all duration-300 hover:scale-110
-              ${isExpanded ? `animate-bounce-in ${social.delay}` : ''}
+              ${isExpanded ? `animate-bounce-in ${social.delay}` : ""}
             `}
             title={social.name}
           >
@@ -85,13 +102,19 @@ const SocialFloatingButton = () => {
         className={`
           w-14 h-14 rounded-full shadow-lg transition-all duration-300
           flex items-center justify-center text-white font-semibold
-          ${isExpanded
-            ? 'bg-red-500 hover:bg-red-600 transform rotate-180'
-            : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 hover:scale-110'}
+          ${
+            isExpanded
+              ? "bg-red-500 hover:bg-red-600 transform rotate-180"
+              : "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 hover:scale-110"
+          }
         `}
-        title={isExpanded ? 'Cerrar' : 'Redes Sociales'}
+        title={isExpanded ? "Cerrar" : "Redes Sociales"}
       >
-        {isExpanded ? <X className="h-6 w-6" /> : <Share2 className="h-6 w-6" />}
+        {isExpanded ? (
+          <X className="h-6 w-6" />
+        ) : (
+          <Share2 className="h-6 w-6" />
+        )}
       </button>
 
       {/* Efecto pulsante */}

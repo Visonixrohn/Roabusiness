@@ -914,7 +914,13 @@ const BusinessProfilePage = () => {
                 )}
               </div>
               {/* Botón flotante para redes sociales */}
-              <SocialFloatingButton />
+              <SocialFloatingButton
+                facebook={business.facebook}
+                instagram={business.instagram}
+                twitter={business.twitter}
+                tiktok={business.tiktok}
+                whatsapp={business.whatsapp}
+              />
             </div>
 
             {/* Mostrar visualizaciones en el perfil */}
