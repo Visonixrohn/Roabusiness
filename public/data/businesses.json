@@ -1,0 +1,355 @@
+{
+  "businesses": [
+    {
+      "id": "1",
+      "name": "West Bay Beach Resort",
+      "description": "Resort de lujo frente a la playa con vistas espectaculares al mar Caribe. Habitaciones premium con todas las comodidades, restaurante gourmet y acceso privado a la playa. Perfecto para luna de miel y vacaciones familiares.",
+      "category": "Hoteles y Alojamiento",
+      "island": "Roatán",
+      "location": "West Bay Beach",
+      "contact": {
+        "phone": "+504 2445-1234",
+        "email": "reservas@westbayresort.hn",
+        "website": "www.westbayresort.com"
+      },
+      "coverImage": "/images/luxury-resort.jpg",
+      "logo": "/images/hotel-logo.jpg",
+      "gallery": [
+        "/images/luxury-resort.jpg",
+        "/images/roatan-beach.png",
+        "/images/hero-beach.jpg"
+      ],
+      "amenities": ["WiFi Gratis", "Piscina Infinita", "Spa", "Restaurante", "Bar en la Playa", "Aire Acondicionado"],
+      "coordinates": {
+        "lat": 16.3015,
+        "lng": -86.6108
+      },
+      "rating": 4.8,
+      "priceRange": "$$$",
+      "featured": true
+    },
+    {
+      "id": "2",
+      "name": "Caribbean Diving Adventures",
+      "description": "Centro de buceo profesional especializado en inmersiones en el arrecife mesoamericano. Cursos PADI para todos los niveles, equipos de alta calidad y guías expertos. ¡Descubre la vida marina más espectacular del Caribe!",
+      "category": "Tours y Actividades",
+      "island": "Utila",
+      "location": "East Harbour",
+      "contact": {
+        "phone": "+504 2425-3456",
+        "email": "info@caribbeandiving.hn",
+        "website": "www.caribbeandiving.com"
+      },
+      "coverImage": "/images/utila-diving.jpg",
+      "logo": "/images/diving-logo.png",
+      "gallery": [
+        "/images/utila-diving.jpg",
+        "/images/scuba-diving.jpg",
+        "/images/hero-beach.jpg"
+      ],
+      "amenities": ["Certificación PADI", "Equipo Incluido", "Transporte", "Snorkel", "Buceo Nocturno", "Guías Certificados"],
+      "coordinates": {
+        "lat": 16.0972,
+        "lng": -86.8958
+      },
+      "rating": 4.9,
+      "priceRange": "$$",
+      "featured": true
+    },
+    {
+      "id": "3",
+      "name": "Caracola Beach Restaurant",
+      "description": "Restaurante gourmet con vista al mar especializado en mariscos frescos y cocina caribeña auténtica. Ambiente romántico con mesas en la arena, perfecto para cenas al atardecer. Especialidades: langosta, caracola y pescado a la plancha.",
+      "category": "Restaurantes",
+      "island": "Roatán",
+      "location": "West End Village",
+      "contact": {
+        "phone": "+504 2445-7890",
+        "email": "reservas@caracolarestaurant.hn",
+        "website": "www.caracolarestaurant.com"
+      },
+      "coverImage": "/images/caribbean-restaurant.jpeg",
+      "logo": "/images/restaurant-logo.jpg",
+      "gallery": [
+        "/images/caribbean-restaurant.jpeg",
+        "/images/beach-bar.jpg",
+        "/images/hero-sunset.jpg"
+      ],
+      "amenities": ["Vista al Mar", "Terraza", "Bar", "Música en Vivo", "WiFi", "Parking"],
+      "coordinates": {
+        "lat": 16.2989,
+        "lng": -86.6069
+      },
+      "rating": 4.7,
+      "priceRange": "$$$",
+      "featured": false
+    },
+    {
+      "id": "4",
+      "name": "Island Hopping Tours",
+      "description": "Tours en catamarán para explorar las tres islas de la bahía. Incluye snorkel, almuerzo, bebidas y paradas en playas vírgenes. Especialistas en tours personalizados y excursiones de pesca deportiva. ¡Vive la aventura completa!",
+      "category": "Tours y Actividades",
+      "island": "Roatán",
+      "location": "Sandy Bay",
+      "contact": {
+        "phone": "+504 2445-2468",
+        "email": "tours@islandhopping.hn",
+        "website": "www.islandhoppingbayislands.com"
+      },
+      "coverImage": "/images/catamaran-tour.jpg",
+      "logo": "/images/tour-logo.jpg",
+      "gallery": [
+        "/images/catamaran-tour.jpg",
+        "/images/fishing-charter.webp",
+        "/images/hero-beach.jpg"
+      ],
+      "amenities": ["Snorkel Incluido", "Almuerzo", "Bebidas", "Guía Bilingüe", "Transporte", "Equipo de Pesca"],
+      "coordinates": {
+        "lat": 16.3156,
+        "lng": -86.5889
+      },
+      "rating": 4.6,
+      "priceRange": "$$",
+      "featured": true
+    },
+    {
+      "id": "5",
+      "name": "Guanaja Eco Lodge",
+      "description": "Lodge ecológico en la isla más verde de las Bahías. Cabañas sobre el agua con arquitectura sostenible, ideal para ecoturismo y desconexión digital. Rodeado de manglares y vida silvestre única.",
+      "category": "Hoteles y Alojamiento",
+      "island": "Guanaja",
+      "location": "Mangrove Bight",
+      "contact": {
+        "phone": "+504 2453-1357",
+        "email": "reservas@guanajaeco.hn",
+        "website": "www.guanajaecological.com"
+      },
+      "coverImage": "/images/guanaja-beach.jpeg",
+      "logo": "/images/hotel-logo.jpg",
+      "gallery": [
+        "/images/guanaja-beach.jpeg",
+        "/images/kayak-tour.jpg",
+        "/images/villa-rental.jpg"
+      ],
+      "amenities": ["Cabañas sobre Agua", "Kayaks", "Tours Ecológicos", "Restaurante", "WiFi Limitado", "Energía Solar"],
+      "coordinates": {
+        "lat": 16.4456,
+        "lng": -85.9064
+      },
+      "rating": 4.5,
+      "priceRange": "$$",
+      "featured": false
+    },
+    {
+      "id": "6",
+      "name": "Tropical Vibes Spa",
+      "description": "Spa de lujo con tratamientos inspirados en tradiciones caribeñas. Masajes con aceites tropicales, tratamientos faciales y corporales en ambiente natural. Perfecto para relajación y renovación total.",
+      "category": "Bienestar y Spa",
+      "island": "Roatán",
+      "location": "French Harbour",
+      "contact": {
+        "phone": "+504 2445-9876",
+        "email": "relax@tropicalvibesspa.hn",
+        "website": "www.tropicalvibesspa.com"
+      },
+      "coverImage": "/images/spa-wellness.jpg",
+      "logo": "/images/hotel-logo.jpg",
+      "gallery": [
+        "/images/spa-wellness.jpg",
+        "/images/luxury-resort.jpg",
+        "/images/hero-sunset.jpg"
+      ],
+      "amenities": ["Masajes", "Tratamientos Faciales", "Sauna", "Jacuzzi", "Yoga", "Meditación"],
+      "coordinates": {
+        "lat": 16.3239,
+        "lng": -86.5467
+      },
+      "rating": 4.8,
+      "priceRange": "$$$",
+      "featured": false
+    },
+    {
+      "id": "7",
+      "name": "Sunset Beach Bar",
+      "description": "El mejor lugar para disfrutar los atardeceres de Utila con cócteles tropicales y música caribeña. Ambiente relajado con hamacas en la playa, happy hour diario y noches de baile bajo las estrellas.",
+      "category": "Bares y Vida Nocturna",
+      "island": "Utila",
+      "location": "Utila Town Beach",
+      "contact": {
+        "phone": "+504 2425-5555",
+        "email": "party@sunsetbeachbar.hn",
+        "website": "www.sunsetutila.com"
+      },
+      "coverImage": "/images/nightlife-bar.jpg",
+      "logo": "/images/restaurant-logo.jpg",
+      "gallery": [
+        "/images/nightlife-bar.jpg",
+        "/images/beach-bar.jpg",
+        "/images/hero-sunset.jpg"
+      ],
+      "amenities": ["Happy Hour", "Música en Vivo", "DJ", "Hamacas", "WiFi", "Vista al Atardecer"],
+      "coordinates": {
+        "lat": 16.0992,
+        "lng": -86.8844
+      },
+      "rating": 4.4,
+      "priceRange": "$",
+      "featured": false
+    },
+    {
+      "id": "8",
+      "name": "Mangrove Kayak Adventures",
+      "description": "Tours en kayak por los manglares de Guanaja, explorando canales naturales y observando aves exóticas. Guías especializados en ecoturismo y conservación. Tours al amanecer y atardecer disponibles.",
+      "category": "Tours y Actividades",
+      "island": "Guanaja",
+      "location": "Savannah Bight",
+      "contact": {
+        "phone": "+504 2453-7777",
+        "email": "adventures@mangrovekayak.hn",
+        "website": "www.mangroveguanaja.com"
+      },
+      "coverImage": "/images/kayak-tour.jpg",
+      "logo": "/images/tour-logo.jpg",
+      "gallery": [
+        "/images/kayak-tour.jpg",
+        "/images/guanaja-beach.jpeg",
+        "/images/hero-beach.jpg"
+      ],
+      "amenities": ["Kayaks Incluidos", "Guía Naturalista", "Observación de Aves", "Snorkel", "Desayuno", "Transporte"],
+      "coordinates": {
+        "lat": 16.4589,
+        "lng": -85.8767
+      },
+      "rating": 4.7,
+      "priceRange": "$$",
+      "featured": false
+    },
+    {
+      "id": "9",
+      "name": "Island Treasures Gift Shop",
+      "description": "Tienda de souvenirs auténticos y artesanías locales. Encuentra productos únicos hechos por artistas locales: joyería de coral, textiles, arte en madera y productos gastronómicos típicos de Honduras.",
+      "category": "Tiendas y Comercios",
+      "island": "Roatán",
+      "location": "Coxen Hole",
+      "contact": {
+        "phone": "+504 2445-3210",
+        "email": "treasures@islandgifts.hn",
+        "website": "www.islandtreasuresroatan.com"
+      },
+      "coverImage": "/images/gift-shop.jpg",
+      "logo": "/images/restaurant-logo.jpg",
+      "gallery": [
+        "/images/gift-shop.jpg",
+        "/images/honduras-flag.jpg",
+        "/images/roatan-beach.png"
+      ],
+      "amenities": ["Artesanías Locales", "Envío Internacional", "WiFi", "Aire Acondicionado", "Parking", "Tarjetas de Crédito"],
+      "coordinates": {
+        "lat": 16.3033,
+        "lng": -86.5400
+      },
+      "rating": 4.3,
+      "priceRange": "$",
+      "featured": false
+    },
+    {
+      "id": "10",
+      "name": "Blue Waters Coffee House",
+      "description": "Cafetería boutique con café hondureño de origen y vista panorámica al puerto. Desayunos gourmet, repostería artesanal y ambiente acogedor para trabajar o relajarse. WiFi de alta velocidad incluido.",
+      "category": "Cafeterías",
+      "island": "Utila",
+      "location": "Utila Harbour",
+      "contact": {
+        "phone": "+504 2425-4444",
+        "email": "coffee@bluewaters.hn",
+        "website": "www.bluewatersutila.com"
+      },
+      "coverImage": "/images/coffee-shop.png",
+      "logo": "/images/restaurant-logo.jpg",
+      "gallery": [
+        "/images/coffee-shop.png",
+        "/images/utila-diving.jpg",
+        "/images/hero-beach.jpg"
+      ],
+      "amenities": ["Café Especial", "WiFi Rápido", "Desayunos", "Repostería", "Vista al Puerto", "Espacio de Trabajo"],
+      "coordinates": {
+        "lat": 16.0978,
+        "lng": -86.8922
+      },
+      "rating": 4.6,
+      "priceRange": "$",
+      "featured": false
+    },
+    {
+      "id": "11",
+      "name": "Villa Paradise Rentals",
+      "description": "Villas de lujo para alquiler vacacional con piscina privada y vista al mar. Completamente equipadas con cocina gourmet, múltiples habitaciones y servicio de limpieza. Ideal para grupos y familias grandes.",
+      "category": "Alquiler Vacacional",
+      "island": "Roatán",
+      "location": "Pristine Bay",
+      "contact": {
+        "phone": "+504 2445-8888",
+        "email": "reservas@villaparadise.hn",
+        "website": "www.villaparadiseroatan.com"
+      },
+      "coverImage": "/images/villa-rental.jpg",
+      "logo": "/images/hotel-logo.jpg",
+      "gallery": [
+        "/images/villa-rental.jpg",
+        "/images/luxury-resort.jpg",
+        "/images/roatan-beach.png"
+      ],
+      "amenities": ["Piscina Privada", "Cocina Completa", "WiFi", "Servicio de Limpieza", "Vista al Mar", "Parking"],
+      "coordinates": {
+        "lat": 16.3178,
+        "lng": -86.4856
+      },
+      "rating": 4.9,
+      "priceRange": "$$$$",
+      "featured": true
+    },
+    {
+      "id": "12",
+      "name": "Deep Blue Fishing Charters",
+      "description": "Excursiones de pesca deportiva en alta mar con capitanes experimentados. Pesca de marlín, atún, mahi-mahi y wahoo. Incluye equipo profesional, cebo y bebidas. Medio día y día completo disponibles.",
+      "category": "Tours y Actividades",
+      "island": "Guanaja",
+      "location": "Bonacca Town",
+      "contact": {
+        "phone": "+504 2453-6666",
+        "email": "fishing@deepblue.hn",
+        "website": "www.deepblueguanaja.com"
+      },
+      "coverImage": "/images/fishing-charter.webp",
+      "logo": "/images/tour-logo.jpg",
+      "gallery": [
+        "/images/fishing-charter.webp",
+        "/images/guanaja-beach.jpeg",
+        "/images/hero-sunset.jpg"
+      ],
+      "amenities": ["Equipo Profesional", "Capitán Experimentado", "Bebidas", "Cebo Incluido", "Licencia de Pesca", "Fotos"],
+      "coordinates": {
+        "lat": 16.4344,
+        "lng": -85.8956
+      },
+      "rating": 4.8,
+      "priceRange": "$$$",
+      "featured": false
+    }
+  ],
+  "categories": [
+    "Hoteles y Alojamiento",
+    "Restaurantes", 
+    "Tours y Actividades",
+    "Bares y Vida Nocturna",
+    "Bienestar y Spa",
+    "Tiendas y Comercios",
+    "Cafeterías",
+    "Alquiler Vacacional"
+  ],
+  "islands": [
+    "Roatán",
+    "Utila", 
+    "Guanaja"
+  ]
+}
