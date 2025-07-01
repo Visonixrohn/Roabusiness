@@ -914,12 +914,7 @@ const BusinessProfilePage = () => {
                 )}
               </div>
               {/* Botón flotante para redes sociales */}
-              <SocialFloatingButton
-                facebook={business.facebook}
-                instagram={business.instagram}
-                twitter={business.twitter}
-                tiktok={business.tiktok}
-              />
+              <SocialFloatingButton />
             </div>
 
             {/* Mostrar visualizaciones en el perfil */}
@@ -1111,7 +1106,7 @@ const BusinessProfilePage = () => {
                   </div>
                 )}
                 <div className="flex items-center">
-                  <MapPin className="h-5 w-5 text-gray-400 mr-3" />
+                  <MapPin className="h-5 w-5 mr-3 text-gray-500" />
                   <span className="text-gray-700">
                     {business.location}, {business.island}
                   </span>
