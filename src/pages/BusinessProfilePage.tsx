@@ -919,7 +919,7 @@ const BusinessProfilePage = () => {
                 instagram={business.instagram}
                 twitter={business.twitter}
                 tiktok={business.tiktok}
-                whatsapp={business.whatsapp}
+                whatsapp={business.contact?.whatsapp}
               />
             </div>
 
