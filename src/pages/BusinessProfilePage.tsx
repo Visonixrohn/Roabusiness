@@ -904,6 +904,15 @@ const BusinessProfilePage = () => {
               </Button>
             )}
           </div>
+          {/* Contact Modal controlado por showContactModal */}
+          {showContactModal && (
+            <ContactModal
+              isOpen={showContactModal}
+              onClose={() => setShowContactModal(false)}
+              business={business}
+              contacts={business.contact}
+            />
+          )}
           {/* Botón flotante para redes sociales */}
           <SocialFloatingButton
             facebook={business.facebook}
