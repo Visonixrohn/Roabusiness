@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import ImageUpload from "@/components/ImageUpload";
 import { toast } from "sonner";
 import PrivacyPolicyPage from "./PrivacyPolicyPage";
+import { signInWithGoogle } from "@/lib/googleAuth";
 
 const UserRegistrationPage = () => {
   const [formData, setFormData] = useState({
@@ -247,6 +248,22 @@ const UserRegistrationPage = () => {
             </Button>
           </div>
         </form>
+
+        {/* Google Auth */}
+        <div className="my-8 flex flex-col items-center">
+          <button
+            type="button"
+            onClick={signInWithGoogle}
+            className="w-full max-w-xs flex items-center justify-center gap-3 bg-white border border-gray-200 rounded-3xl shadow-md hover:shadow-lg py-3.5 px-5 text-gray-800 font-semibold transition-all duration-200 hover:bg-white/90"
+ >
+            <img
+              src="https://www.svgrepo.com/show/475656/google-color.svg"
+              alt="Google"
+              className="h-6 w-6"
+            />
+            Registrarse con Google
+          </button>
+        </div>
 
         {/* Enlaces adicionales */}
         <div className="mt-8 text-center">

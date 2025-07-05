@@ -19,6 +19,9 @@ import TermsOfUsePage from "@/pages/TermsOfUsePage";
 import UserFullSettingsPage from "@/pages/UserFullSettingsPage";
 import SetNewPasswordPage from "@/pages/SetNewPasswordPage";
 import RecentPostsPage from "@/pages/RecentPostsPage";
+import GoogleCallbackPage from "@/pages/google-callback";
+import UserProfilePage from "@/pages/UserProfilePage";
+import UserSettingsPage from "@/pages/UserSettingsPage";
 import "./App.css";
 
 const libraries: ("places" | "geometry" | "drawing" | "visualization")[] = [
@@ -71,6 +74,12 @@ function App() {
                   element={<SetNewPasswordPage />}
                 />
                 <Route path="/recent-posts" element={<RecentPostsPage />} />
+                <Route
+                  path="/google-callback"
+                  element={<GoogleCallbackPage />}
+                />
+                <Route path="/user/profile" element={<UserProfilePage />} />
+                <Route path="/user/settings" element={<UserSettingsPage />} />
               </Routes>
               <Toaster
                 position="top-right"

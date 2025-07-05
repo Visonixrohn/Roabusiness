@@ -37,7 +37,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
         placeholder={placeholder}
         value={inputValue !== undefined ? inputValue : value}
         onFocus={() => setOpen(true)}
-        onChange={e => {
+        onChange={(e) => {
           onInputChange?.(e.target.value);
           setOpen(true);
         }}
@@ -61,10 +61,12 @@ export const Combobox: React.FC<ComboboxProps> = ({
           {options.length === 0 ? (
             <div className="px-4 py-2 text-gray-500">Sin resultados</div>
           ) : (
-            options.map(option => (
+            options.map((option) => (
               <div
                 key={option}
-                className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${option === value ? "bg-blue-100 text-blue-700" : ""}`}
+                className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
+                  option === value ? "bg-blue-100 text-blue-700" : ""
+                }`}
                 onMouseDown={() => {
                   onChange(option);
                   setOpen(false);

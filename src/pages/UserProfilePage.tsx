@@ -53,6 +53,16 @@ const UserProfilePage = () => {
           </Link>
         </div>
       </div>
+      <div className="flex gap-4 mb-8">
+        <Link to="/">
+          <Button
+            variant="outline"
+            className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+          >
+            Ir al Directorio
+          </Button>
+        </Link>
+      </div>
       <div className="bg-white rounded shadow p-6">
         <h2 className="text-lg font-semibold mb-4">Negocios que sigues</h2>
         {following.length === 0 ? (

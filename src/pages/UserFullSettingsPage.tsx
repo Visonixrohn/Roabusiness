@@ -1,9 +1,10 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import ImageUpload from "@/components/ImageUpload";
 import { useNavigate } from "react-router-dom";
 import { updatePassword, signInWithEmail } from "@/lib/auth";
+import { isGoogleUser } from "@/lib/isGoogleUser";
 
 const UserFullSettingsPage = () => {
   const { user, updateProfile, isBusiness } = useAuth();
@@ -21,6 +22,7 @@ const UserFullSettingsPage = () => {
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [errorProfile, setErrorProfile] = useState("");
   const [errorPass, setErrorPass] = useState("");
+  const [isGoogle, setIsGoogle] = useState(false);
 
   if (!user || isBusiness) {
     return (
@@ -33,6 +35,13 @@ const UserFullSettingsPage = () => {
     );
   }
 
+  // Detectar si es usuario de Google
+  useEffect(() => {
+    if (user) {
+      isGoogleUser(user.email).then(setIsGoogle);
+    }
+  }, [user]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -41,22 +50,24 @@ const UserFullSettingsPage = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorProfile("");
-    if (!currentPasswordProfile) {
+    if (!isGoogle && !currentPasswordProfile) {
       setErrorProfile(
         "Debes ingresar tu contraseña actual para guardar cambios."
       );
       return;
     }
     setSaving(true);
-    // Validar contraseña actual
-    const { error: authError } = await signInWithEmail(
-      user.email,
-      currentPasswordProfile
-    );
-    if (authError) {
-      setErrorProfile("Contraseña actual incorrecta.");
-      setSaving(false);
-      return;
+    // Validar contraseña actual solo si NO es Google
+    if (!isGoogle) {
+      const { error: authError } = await signInWithEmail(
+        user.email,
+        currentPasswordProfile
+      );
+      if (authError) {
+        setErrorProfile("Contraseña actual incorrecta.");
+        setSaving(false);
+        return;
+      }
     }
     // Actualizar datos
     await updateProfile(form);
@@ -153,18 +164,20 @@ const UserFullSettingsPage = () => {
               required
             />
           </div>
-          <div>
-            <label className="block font-semibold mb-1">
-              Contraseña actual <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="password"
-              value={currentPasswordProfile}
-              onChange={(e) => setCurrentPasswordProfile(e.target.value)}
-              className="w-full border rounded-xl px-3 py-2"
-              required
-            />
-          </div>
+          {!isGoogle && (
+            <div>
+              <label className="block font-semibold mb-1">
+                Contraseña actual <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                value={currentPasswordProfile}
+                onChange={(e) => setCurrentPasswordProfile(e.target.value)}
+                className="w-full border rounded-xl px-3 py-2"
+                required
+              />
+            </div>
+          )}
           {errorProfile && (
             <div className="text-red-500 text-sm">{errorProfile}</div>
           )}

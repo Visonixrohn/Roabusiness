@@ -67,31 +67,7 @@ const HomePage = () => {
     <div className="min-h-screen">
       <Header />
  <HeroSection/>
-      {/* Estadísticas */}
-      <section className="py-20 bg-gradient-to-b from-white to-blue-50">
-        <div className="container mx-auto px-4">
-       <h2 className="text-5xl font-extrabold text-center text-gray-800 mb-12 tracking-tight font-display">
-  Lo que te espera
-</h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 text-center">
-            <div className="space-y-2 hover:scale-105 transition-transform">
-              <div className="text-5xl font-bold text-blue-600">3</div>
-              <p className="text-gray-700">Islas Principales</p>
-            </div>
-            <div className="space-y-2 hover:scale-105 transition-transform">
-              <div className="text-5xl font-bold text-blue-600">
-                {displayedCount}
-              </div>
-              <p className="text-gray-700">Negocios Destacados</p>
-            </div>
-            <div className="space-y-2 hover:scale-105 transition-transform">
-              <div className="text-5xl font-bold text-blue-600">∞</div>
-              <p className="text-gray-700">Experiencias Únicas</p>
-            </div>
-          </div>
-        </div>
-      </section>
       {/* Negocios Destacados */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">

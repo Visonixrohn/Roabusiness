@@ -243,7 +243,9 @@ const PostCard = ({
       <div className="px-4 py-3 border-t border-gray-100">
         <div className="flex items-center space-x-6">
           <button
-            className={`flex items-center text-gray-600 hover:text-red-500 transition-colors ${liked ? "text-red-500" : ""}`}
+            className={`flex items-center text-gray-600 hover:text-red-500 transition-colors ${
+              liked ? "text-red-500" : ""
+            }`}
             onClick={handleToggleLike}
             disabled={!user}
           >
@@ -775,7 +777,7 @@ const BusinessProfilePage = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <div className="container mx-auto px-2 sm:px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 py-4 w-full">
+      <div className="container mx-auto px-2 sm:px-4 md:px-8 lg:px-24 xl:px-40 2xl:px-64 py-4 w-full">
         {/* Navigation */}
         <div className="mb-6">
           <Link
@@ -835,217 +837,348 @@ const BusinessProfilePage = () => {
 
           {/* Profile Header */}
           <div className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <img
-                  src={business.logo}
-                  alt={`${business.name} logo`}
-                  className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg -mt-8"
-                />
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    {business.name}
-                  </h2>
-                  <div className="flex items-center text-gray-600 text-sm">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    <span>
-                      {business.location}, {business.island}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Botones Contactar, Seguir y Redes Sociales responsivos */}
-              <div className="flex flex-col sm:flex-row flex-wrap gap-2 mt-4 sm:mt-0 w-full items-stretch">
-                <div className="flex-1 min-w-[180px] flex">
-                  <Button
-                    variant={isFollowing ? "default" : "outline"}
-                    onClick={() => {
-                      if (!user) {
-                        toast.error(
-                          "Debes iniciar sesión para seguir negocios"
-                        );
-                        return;
-                      }
-                      toggleFollow();
-                    }}
-                    className="w-full h-full"
-                  >
-                    <Heart className="h-4 w-4 mr-2" />
-                    {isFollowing ? "Dejar de seguir" : "Seguir"}
-                    <span className="ml-2">({followersCount})</span>
-                  </Button>
-                </div>
-                <div className="flex-1 min-w-[180px] flex">
-                  <Button
-                    onClick={() => setShowContactModal(true)}
-                    className="bg-blue-600 hover:bg-blue-700 w-full h-full"
-                  >
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Contactar
-                  </Button>
-                </div>
-                {business.contact?.phone && (
-                  <div className="flex-1 min-w-[180px] flex">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        const phone = (business.contact?.phone || "").replace(
-                          /\D/g,
-                          ""
-                        );
-                        window.open(`https://wa.me/${phone}`);
-                      }}
-                      style={{ backgroundColor: "#25D366", color: "white" }}
-                      className="flex items-center gap-2 w-full h-full"
-                    >
-                      <svg
-                        viewBox="0 0 32 32"
-                        width="20"
-                        height="20"
-                        fill="currentColor"
-                      >
-                        <path d="M16 3C9.373 3 4 8.373 4 15c0 2.637.86 5.08 2.34 7.09L4 29l7.18-2.31A12.93 12.93 0 0 0 16 27c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 22c-1.98 0-3.89-.52-5.54-1.5l-.39-.23-4.27 1.37 1.4-4.15-.25-.4A9.93 9.93 0 0 1 6 15c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10zm5.07-7.75c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.44-2.25-1.4-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.34.42-.51.14-.17.18-.29.28-.48.09-.19.05-.36-.02-.5-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.62-.47-.16-.01-.36-.01-.56-.01-.19 0-.5.07-.76.36-.26.28-1 1-.97 2.43.03 1.43 1.03 2.81 1.18 3.01.15.2 2.03 3.1 4.93 4.22.69.3 1.23.48 1.65.61.69.22 1.32.19 1.82.12.56-.08 1.65-.67 1.88-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.33z"></path>
-                      </svg>
-                      WhatsApp
-                    </Button>
-                  </div>
-                )}
-              </div>
-              {/* Botón flotante para redes sociales */}
-              <SocialFloatingButton
-                facebook={business.facebook}
-                instagram={business.instagram}
-                twitter={business.twitter}
-                tiktok={business.tiktok}
-                whatsapp={business.contact?.whatsapp}
+            <div className="flex items-center space-x-4">
+              <img
+                src={business.logo}
+                alt={`${business.name} logo`}
+                className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg -mt-8"
               />
-            </div>
-
-            {/* Mostrar visualizaciones en el perfil */}
-            <div className="flex items-center text-gray-500 text-sm mt-2">
-              <Eye className="h-4 w-4 mr-1" />
-              <span>{viewsCount} visualizaciones</span>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {business.name}
+                </h2>
+                <div className="flex items-center text-gray-600 text-sm">
+                  <MapPin className="h-4 w-4 mr-1" />
+                  <span>
+                    {business.location}, {business.island}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
+          {/* Botones Contactar, Seguir y WhatsApp debajo de la card */}
+          <div className="flex flex-col sm:flex-row flex-wrap gap-2 w-full items-stretch px-6 pb-4">
+            <Button
+              variant={isFollowing ? "default" : "outline"}
+              onClick={() => {
+                if (!user) {
+                  toast.error("Debes iniciar sesión para seguir negocios");
+                  return;
+                }
+                toggleFollow();
+              }}
+              className="flex-1 min-w-[120px] w-full h-full"
+            >
+              <Heart className="h-4 w-4 mr-2" />
+              {isFollowing ? "Dejar de seguir" : "Seguir"}
+              <span className="ml-2">({followersCount})</span>
+            </Button>
+            <Button
+              onClick={() => setShowContactModal(true)}
+              className="flex-1 min-w-[120px] bg-blue-600 hover:bg-blue-700 w-full h-full"
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Contactar
+            </Button>
+            {business.contact?.phone && (
+              <Button
+                onClick={() => {
+                  const phone = (business.contact?.phone || "").replace(
+                    /\D/g,
+                    ""
+                  );
+                  window.open(`https://wa.me/${phone}`);
+                }}
+                className="flex-1 min-w-[120px] w-full h-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1DA851] text-white"
+                style={{}}
+              >
+                <svg
+                  viewBox="0 0 32 32"
+                  width="20"
+                  height="20"
+                  fill="currentColor"
+                >
+                  <path d="M16 3C9.373 3 4 8.373 4 15c0 2.637.86 5.08 2.34 7.09L4 29l7.18-2.31A12.93 12.93 0 0 0 16 27c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 22c-1.98 0-3.89-.52-5.54-1.5l-.39-.23-4.27 1.37 1.4-4.15-.25-.4A9.93 9.93 0 0 1 6 15c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10zm5.07-7.75c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.44-2.25-1.4-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.34.42-.51.14-.17.18-.29.28-.48.09-.19.05-.36-.02-.5-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.62-.47-.16-.01-.36-.01-.56-.01-.19 0-.5.07-.76.36-.26.28-1 1-.97 2.43.03 1.43 1.03 2.81 1.18 3.01.15.2 2.03 3.1 4.93 4.22.69.3 1.23.48 1.65.61.69.22 1.32.19 1.82.12.56-.08 1.65-.67 1.88-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.33z"></path>
+                </svg>
+                WhatsApp
+              </Button>
+            )}
+          </div>
+          {/* Botón flotante para redes sociales */}
+          <SocialFloatingButton
+            facebook={business.facebook}
+            instagram={business.instagram}
+            twitter={business.twitter}
+            tiktok={business.tiktok}
+            whatsapp={business.contact?.whatsapp}
+          />
+
+          {/* Mostrar visualizaciones en el perfil */}
+          <div className="flex items-center text-gray-500 text-sm mt-2">
+            <Eye className="h-4 w-4 mr-1" />
+            <span>{viewsCount} visualizaciones</span>
+          </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          <div className="md:col-span-2 space-y-6">
-            {/* About Section */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold mb-4">Acerca de nosotros</h3>
-              <p className="text-gray-600 mb-4">{business.description}</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <div className="md:col-span-2 space-y-6">
+          {/* About Section */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Acerca de nosotros</h3>
+            <p className="text-gray-600 mb-4">{business.description}</p>
 
-              {/* Amenities */}
-              <h3 className="text-xl font-bold text-blue-600 border-b-4 border-blue-300 pb-1 mb-4 drop-shadow-sm tracking-wide">
-                Nuestros Servicios
-              </h3>
+            {/* Amenities */}
+            <h3 className="text-xl font-bold text-blue-600 border-b-4 border-blue-300 pb-1 mb-4 drop-shadow-sm tracking-wide">
+              Nuestros Servicios
+            </h3>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {Array.isArray(business.amenities) &&
-                business.amenities.length > 0 ? (
-                  business.amenities.map((amenity, index) => (
-                    <Badge
-                      key={index}
-                      variant="secondary"
-                      className="justify-center"
-                    >
-                      {amenity}
-                    </Badge>
-                  ))
-                ) : (
-                  <span className="text-xs text-gray-400">Sin amenidades</span>
-                )}
-              </div>
-            </div>
-
-            {/* Posts Section */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold">Publicaciones</h3>
-
-              {/* Botón para crear publicación, solo visible para el dueño */}
-              {user &&
-                user.type === "business" &&
-                user.businessData?.id === business.id && (
-                  <div className="mb-4">
-                    <Button
-                      onClick={() => setShowCreateModal(true)}
-                      className="bg-green-600 hover:bg-green-700"
-                      disabled={posts.length >= 3}
-                    >
-                      + Crear publicación
-                    </Button>
-                    {posts.length >= 3 && (
-                      <div className="text-red-500 text-sm mt-2 font-semibold">
-                        Solo puedes tener hasta 3 publicaciones activas.
-                      </div>
-                    )}
-                  </div>
-                )}
-
-              {safeArray(posts).length === 0 ? (
-                <div className="text-gray-500 text-center py-8">
-                  No hay publicaciones aún.
-                </div>
-              ) : (
-                safeArray(posts).map((post) => (
-                  <PostCard
-                    key={post.id}
-                    post={post}
-                    business={business}
-                    user={user}
-                    comments={commentsByPost[post.id] || []}
-                    likes={likesByPost[post.id] || []}
-                    setAllComments={setAllComments}
-                    setAllLikes={setAllLikes}
-                  />
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {Array.isArray(business.amenities) &&
+              business.amenities.length > 0 ? (
+                business.amenities.map((amenity, index) => (
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="justify-center"
+                  >
+                    {amenity}
+                  </Badge>
                 ))
+              ) : (
+                <span className="text-xs text-gray-400">Sin amenidades</span>
               )}
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="md:col-span-1 space-y-6">
-            {/* Contact Info */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold mb-4">
-                Información de Contacto
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center">
-                  <Phone className="h-5 w-5 text-gray-400 mr-3" />
+          {/* Posts Section */}
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold">Publicaciones</h3>
+
+            {/* Botón para crear publicación, solo visible para el dueño */}
+            {user &&
+              user.type === "business" &&
+              user.businessData?.id === business.id && (
+                <div className="mb-4">
+                  <Button
+                    onClick={() => setShowCreateModal(true)}
+                    className="bg-green-600 hover:bg-green-700"
+                    disabled={posts.length >= 3}
+                  >
+                    + Crear publicación
+                  </Button>
+                  {posts.length >= 3 && (
+                    <div className="text-red-500 text-sm mt-2 font-semibold">
+                      Solo puedes tener hasta 3 publicaciones activas.
+                    </div>
+                  )}
+                </div>
+              )}
+
+            {safeArray(posts).length === 0 ? (
+              <div className="text-gray-500 text-center py-8">
+                No hay publicaciones aún.
+              </div>
+            ) : (
+              safeArray(posts).map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  business={business}
+                  user={user}
+                  comments={commentsByPost[post.id] || []}
+                  likes={likesByPost[post.id] || []}
+                  setAllComments={setAllComments}
+                  setAllLikes={setAllLikes}
+                />
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Sidebar */}
+        <div className="md:col-span-1 space-y-6">
+          {/* Contact Info */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">
+              Información de Contacto
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center">
+                <Phone className="h-5 w-5 text-gray-400 mr-3" />
+                <a
+                  href={`tel:${business.contact?.phone || ""}`}
+                  className="text-blue-600 hover:underline"
+                >
+                  {business.contact?.phone || "No disponible"}
+                </a>
+              </div>
+              <div className="flex items-center">
+                <Mail className="h-5 w-5 text-gray-400 mr-3" />
+                <div>
                   <a
-                    href={`tel:${business.contact?.phone || ""}`}
+                    href={`mailto:${business.contact?.email || ""}`}
                     className="text-blue-600 hover:underline"
                   >
-                    {business.contact?.phone || "No disponible"}
+                    {business.contact?.email || "No disponible"}
                   </a>
-                </div>
-                <div className="flex items-center">
-                  <Mail className="h-5 w-5 text-gray-400 mr-3" />
-                  <div>
-                    <a
-                      href={`mailto:${business.contact?.email || ""}`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      {business.contact?.email || "No disponible"}
-                    </a>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {business.contact?.email || ""}
-                    </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {business.contact?.email || ""}
                   </div>
                 </div>
-                {business.contact?.website && (
-                  <div className="flex items-center">
-                    <Globe className="h-5 w-5 text-gray-400 mr-3" />
+              </div>
+              {business.contact?.website && (
+                <div className="flex items-center">
+                  <Globe className="h-5 w-5 text-gray-400 mr-3" />
+                  <a
+                    href={
+                      business.contact.website.startsWith("http")
+                        ? business.contact.website
+                        : `https://${business.contact.website}`
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    {business.contact.website}
+                  </a>
+                </div>
+              )}
+              {/* Redes Sociales SOLO en perfil público, con efectos visuales */}
+              {(business.contact?.facebook ||
+                business.contact?.instagram ||
+                business.contact?.twitter ||
+                business.contact?.tiktok) && (
+                <div className="flex flex-col gap-2 mt-4">
+                  <h3 className="text-lg font-semibold mb-2">Redes sociales</h3>
+                  <div className="flex gap-4">
+                    {business.contact?.facebook && (
+                      <a
+                        href={business.contact.facebook}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="transition-transform hover:scale-110 hover:shadow-lg rounded-full p-2 bg-[#f3f4f6] text-[#1877f3] hover:bg-[#e7f0fd] hover:text-[#1456a0]"
+                        title="Facebook"
+                      >
+                        <FacebookIcon size={28} />
+                      </a>
+                    )}
+                    {business.contact?.instagram && (
+                      <a
+                        href={business.contact.instagram}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="transition-transform hover:scale-110 hover:shadow-lg rounded-full p-2 bg-[#f3f4f6] text-[#e1306c] hover:bg-[#fce4ef] hover:text-[#a81d4d]"
+                        title="Instagram"
+                      >
+                        <InstagramIcon size={28} />
+                      </a>
+                    )}
+                    {business.contact?.twitter && (
+                      <a
+                        href={business.contact.twitter}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="transition-transform hover:scale-110 hover:shadow-lg rounded-full p-2 bg-[#f3f4f6] text-[#1da1f2] hover:bg-[#e5f6fd] hover:text-[#0d6fa1]"
+                        title="X (Twitter)"
+                      >
+                        <XIcon size={28} />
+                      </a>
+                    )}
+                    {business.contact?.tiktok && (
+                      <a
+                        href={business.contact.tiktok}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="transition-transform hover:scale-110 hover:shadow-lg rounded-full p-2 bg-[#f3f4f6] text-black hover:bg-[#eaeaea] hover:text-[#ff0050]"
+                        title="TikTok"
+                      >
+                        <TikTokIcon size={28} />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+              <div className="flex items-center">
+                <MapPin className="h-5 w-5 mr-3 text-gray-500" />
+                <span className="text-gray-700">
+                  {business.location}, {business.island}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Business Stats */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Datos</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between"></div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Users className="h-5 w-5 text-green-500 mr-2" />
+                  <span className="text-gray-700">Seguidores</span>
+                </div>
+                <span className="font-semibold text-gray-900">
+                  {followersCount}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Opening Hours */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Horarios</h3>
+            <div className="space-y-2 text-sm">
+              {business.schedule && business.schedule.length > 0
+                ? weekDaysOrder.map((day) => {
+                    const sch = business.schedule.find(
+                      (sch: any) => sch.day === day
+                    );
+                    return sch ? (
+                      <div key={sch.day} className="flex justify-between">
+                        <span className="text-gray-700">{sch.day}</span>
+                        <span className="text-gray-900">
+                          {sch.open && sch.close
+                            ? `${sch.open} - ${sch.close}`
+                            : "Cerrado"}
+                        </span>
+                      </div>
+                    ) : null;
+                  })
+                : weekDaysOrder.map((day, index) => (
+                    <div key={day} className="flex justify-between">
+                      <span className="text-gray-700">{day}</span>
+                      <span className="text-gray-900">
+                        {index < 5 ? "8:00 AM - 6:00 PM" : "9:00 AM - 8:00 PM"}
+                      </span>
+                    </div>
+                  ))}
+            </div>
+            <div className="mt-3 flex items-center text-green-600">
+              <Clock className="h-4 w-4 mr-2" />
+              <span className="text-sm font-medium">Abierto ahora</span>
+            </div>
+          </div>
+
+          {/* Información de contacto y ubicación */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-bold mb-4">Contacto y Ubicación</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <div className="flex items-center mb-2">
+                  <Phone className="h-5 w-5 mr-2 text-gray-500" />
+                  <span>{business?.contact?.phone || "No disponible"}</span>
+                </div>
+                <div className="flex items-center mb-2">
+                  <Mail className="h-5 w-5 mr-2 text-gray-500" />
+                  <span>{business?.contact?.email || "No disponible"}</span>
+                </div>
+                {business?.contact?.website && (
+                  <div className="flex items-center mb-2">
+                    <Globe className="h-5 w-5 mr-2 text-gray-500" />
                     <a
-                      href={
-                        business.contact.website.startsWith("http")
-                          ? business.contact.website
-                          : `https://${business.contact.website}`
-                      }
+                      href={`https://${business.contact.website}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"
@@ -1054,249 +1187,31 @@ const BusinessProfilePage = () => {
                     </a>
                   </div>
                 )}
-                {/* Redes Sociales SOLO en perfil público, con efectos visuales */}
-                {(business.contact?.facebook ||
-                  business.contact?.instagram ||
-                  business.contact?.twitter ||
-                  business.contact?.tiktok) && (
-                  <div className="flex flex-col gap-2 mt-4">
-                    <h3 className="text-lg font-semibold mb-2">
-                      Redes sociales
-                    </h3>
-                    <div className="flex gap-4">
-                      {business.contact?.facebook && (
-                        <a
-                          href={business.contact.facebook}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="transition-transform hover:scale-110 hover:shadow-lg rounded-full p-2 bg-[#f3f4f6] text-[#1877f3] hover:bg-[#e7f0fd] hover:text-[#1456a0]"
-                          title="Facebook"
-                        >
-                          <FacebookIcon size={28} />
-                        </a>
-                      )}
-                      {business.contact?.instagram && (
-                        <a
-                          href={business.contact.instagram}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="transition-transform hover:scale-110 hover:shadow-lg rounded-full p-2 bg-[#f3f4f6] text-[#e1306c] hover:bg-[#fce4ef] hover:text-[#a81d4d]"
-                          title="Instagram"
-                        >
-                          <InstagramIcon size={28} />
-                        </a>
-                      )}
-                      {business.contact?.twitter && (
-                        <a
-                          href={business.contact.twitter}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="transition-transform hover:scale-110 hover:shadow-lg rounded-full p-2 bg-[#f3f4f6] text-[#1da1f2] hover:bg-[#e5f6fd] hover:text-[#0d6fa1]"
-                          title="X (Twitter)"
-                        >
-                          <XIcon size={28} />
-                        </a>
-                      )}
-                      {business.contact?.tiktok && (
-                        <a
-                          href={business.contact.tiktok}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="transition-transform hover:scale-110 hover:shadow-lg rounded-full p-2 bg-[#f3f4f6] text-black hover:bg-[#eaeaea] hover:text-[#ff0050]"
-                          title="TikTok"
-                        >
-                          <TikTokIcon size={28} />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                )}
-                <div className="flex items-center">
-                  <MapPin className="h-5 w-5 mr-3 text-gray-500" />
+                <div className="flex items-center mb-2">
+                  <MapPin className="h-5 w-5 mr-2 text-gray-500" />
                   <span className="text-gray-700">
-                    {business.location}, {business.island}
+                    {business?.location || "No disponible"}
                   </span>
                 </div>
               </div>
-            </div>
-
-           
-            {/* Business Stats */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold mb-4">Datos</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between"></div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Users className="h-5 w-5 text-green-500 mr-2" />
-                    <span className="text-gray-700">Seguidores</span>
-                  </div>
-                  <span className="font-semibold text-gray-900">
-                    {followersCount}
-                  </span>
+              {/* Mapa Google Maps */}
+              {business?.coordinates && (
+                <div className="w-full rounded overflow-hidden relative flex items-center justify-between">
+                  <span className="text-gray-600">Ubicación:</span>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${business.coordinates.lat},${business.coordinates.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-2 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition-colors text-sm font-semibold"
+                  >
+                    Ver en Google Maps
+                  </a>
                 </div>
-              </div>
-            </div>
-
-            {/* Opening Hours */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold mb-4">Horarios</h3>
-              <div className="space-y-2 text-sm">
-                {business.schedule && business.schedule.length > 0
-                  ? weekDaysOrder.map((day) => {
-                      const sch = business.schedule.find(
-                        (sch: any) => sch.day === day
-                      );
-                      return sch ? (
-                        <div key={sch.day} className="flex justify-between">
-                          <span className="text-gray-700">{sch.day}</span>
-                          <span className="text-gray-900">
-                            {sch.open && sch.close
-                              ? `${sch.open} - ${sch.close}`
-                              : "Cerrado"}
-                          </span>
-                        </div>
-                      ) : null;
-                    })
-                  : weekDaysOrder.map((day, index) => (
-                      <div key={day} className="flex justify-between">
-                        <span className="text-gray-700">{day}</span>
-                        <span className="text-gray-900">
-                          {index < 5
-                            ? "8:00 AM - 6:00 PM"
-                            : "9:00 AM - 8:00 PM"}
-                        </span>
-                      </div>
-                    ))}
-              </div>
-              <div className="mt-3 flex items-center text-green-600">
-                <Clock className="h-4 w-4 mr-2" />
-                <span className="text-sm font-medium">Abierto ahora</span>
-              </div>
-            </div>
-
-            {/* Información de contacto y ubicación */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <h2 className="text-xl font-bold mb-4">Contacto y Ubicación</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <div className="flex items-center mb-2">
-                    <Phone className="h-5 w-5 mr-2 text-gray-500" />
-                    <span>{business?.contact?.phone || "No disponible"}</span>
-                  </div>
-                  <div className="flex items-center mb-2">
-                    <Mail className="h-5 w-5 mr-2 text-gray-500" />
-                    <span>{business?.contact?.email || "No disponible"}</span>
-                  </div>
-                  {business?.contact?.website && (
-                    <div className="flex items-center mb-2">
-                      <Globe className="h-5 w-5 mr-2 text-gray-500" />
-                      <a
-                        href={`https://${business.contact.website}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
-                      >
-                        {business.contact.website}
-                      </a>
-                    </div>
-                  )}
-                  <div className="flex items-center mb-2">
-                    <MapPin className="h-5 w-5 mr-2 text-gray-500" />
-                    <span className="text-gray-700">
-                      {business?.location || "No disponible"}
-                    </span>
-                  </div>
-                </div>
-                {/* Mapa Google Maps */}
-                {business?.coordinates && (
-                  <div className="w-full rounded overflow-hidden relative flex items-center justify-between">
-                    <span className="text-gray-600">Ubicación:</span>
-                    <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${business.coordinates.lat},${business.coordinates.lng}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ml-2 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition-colors text-sm font-semibold"
-                    >
-                      Ver en Google Maps
-                    </a>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           </div>
         </div>
       </div>
-
-      {/* Modales */}
-      <ContactModal
-        business={business}
-        isOpen={showContactModal}
-        onClose={() => setShowContactModal(false)}
-        contacts={business.contact}
-      />
-      <GalleryModal
-        business={business}
-        isOpen={showGalleryModal}
-        onClose={() => setShowGalleryModal(false)}
-      />
-      {/* Modal de creación de publicación */}
-      {showCreateModal && (
-        <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-            <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-              <h2 className="text-xl font-bold mb-4">Crear publicación</h2>
-              <form onSubmit={handleCreatePost}>
-                <input
-                  className="w-full border rounded px-3 py-2 mb-3"
-                  placeholder="Título de la publicación"
-                  value={newPost.title}
-                  onChange={(e) =>
-                    setNewPost((prev) => ({ ...prev, title: e.target.value }))
-                  }
-                  maxLength={80}
-                  required
-                  autoFocus
-                />
-                <textarea
-                  className="w-full border rounded px-3 py-2"
-                  placeholder="Contenido"
-                  value={newPost.content}
-                  onChange={(e) =>
-                    setNewPost((prev) => ({ ...prev, content: e.target.value }))
-                  }
-                  required
-                />
-                {/* Subida de imagen */}
-                <ImageUpload
-                  onImageUploaded={(url) =>
-                    setNewPost((prev) => ({ ...prev, image: url }))
-                  }
-                  onImageRemoved={() =>
-                    setNewPost((prev) => ({ ...prev, image: "" }))
-                  }
-                  currentImage={newPost.image}
-                  label="Subir imagen para la publicación"
-                  maxSize={5}
-                />
-                <div className="flex justify-end space-x-2 mt-6">
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={() => setShowCreateModal(false)}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={isPosting}>
-                    {isPosting ? "Publicando..." : "Publicar"}
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </Dialog>
-      )}
     </div>
   );
 };

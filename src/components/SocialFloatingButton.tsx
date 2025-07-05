@@ -27,13 +27,7 @@ const SocialFloatingButton = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   const socialLinks = [
-    whatsapp && {
-      name: "WhatsApp",
-      icon: MessageCircle,
-      url: whatsapp,
-      color: "bg-green-500 hover:bg-green-600",
-      delay: "delay-75",
-    },
+    
     instagram && {
       name: "Instagram",
       icon: Instagram,

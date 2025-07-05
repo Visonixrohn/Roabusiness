@@ -1,9 +1,10 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import ImageUpload from "@/components/ImageUpload";
 import { updatePassword, signInWithEmail } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
+import { isGoogleUser } from "@/lib/isGoogleUser";
 
 const UserSettingsPage = () => {
   const { user, updateProfile } = useAuth();
@@ -14,6 +15,7 @@ const UserSettingsPage = () => {
   const [saving, setSaving] = useState(false);
   const [showWait, setShowWait] = useState(false);
   const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [isGoogle, setIsGoogle] = useState(false);
   // Estados independientes para cada formulario
   const [currentPasswordProfile, setCurrentPasswordProfile] = useState("");
   const [currentPasswordPass, setCurrentPasswordPass] = useState("");
@@ -23,6 +25,12 @@ const UserSettingsPage = () => {
   const [errorPass, setErrorPass] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (user) {
+      isGoogleUser(user.email).then(setIsGoogle);
+    }
+  }, [user]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -31,22 +39,24 @@ const UserSettingsPage = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorProfile("");
-    if (!currentPasswordProfile) {
+    if (!isGoogle && !currentPasswordProfile) {
       setErrorProfile(
         "Debes ingresar tu contraseña actual para guardar cambios."
       );
       return;
     }
     setSaving(true);
-    // Validar contraseña actual
-    const { error: authError } = await signInWithEmail(
-      user.email,
-      currentPasswordProfile
-    );
-    if (authError) {
-      setErrorProfile("Contraseña actual incorrecta.");
-      setSaving(false);
-      return;
+    // Validar contraseña actual solo si NO es Google
+    if (!isGoogle) {
+      const { error: authError } = await signInWithEmail(
+        user.email,
+        currentPasswordProfile
+      );
+      if (authError) {
+        setErrorProfile("Contraseña actual incorrecta.");
+        setSaving(false);
+        return;
+      }
     }
     // Actualizar datos
     await updateProfile(form);
@@ -130,7 +140,7 @@ const UserSettingsPage = () => {
             name="name"
             value={form.name}
             onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
+            className="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
@@ -144,18 +154,20 @@ const UserSettingsPage = () => {
             maxSize={2}
           />
         </div>
-        <div>
-          <label className="block font-semibold mb-1">
-            Contraseña actual <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="password"
-            value={currentPasswordProfile}
-            onChange={(e) => setCurrentPasswordProfile(e.target.value)}
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-        </div>
+        {!isGoogle && (
+          <div>
+            <label className="block font-semibold mb-1">
+              Contraseña actual <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              value={currentPasswordProfile}
+              onChange={(e) => setCurrentPasswordProfile(e.target.value)}
+              className="w-full border rounded-xl px-3 py-2"
+              required
+            />
+          </div>
+        )}
         {errorProfile && (
           <div className="text-red-500 text-sm">{errorProfile}</div>
         )}
@@ -184,7 +196,7 @@ const UserSettingsPage = () => {
               type="password"
               value={currentPasswordPass}
               onChange={(e) => setCurrentPasswordPass(e.target.value)}
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded-xl px-3 py-2"
               required
             />
           </div>
@@ -194,7 +206,7 @@ const UserSettingsPage = () => {
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded-xl px-3 py-2"
               required
             />
           </div>
@@ -206,7 +218,7 @@ const UserSettingsPage = () => {
               type="password"
               value={confirmNewPassword}
               onChange={(e) => setConfirmNewPassword(e.target.value)}
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded-xl px-3 py-2"
               required
             />
           </div>

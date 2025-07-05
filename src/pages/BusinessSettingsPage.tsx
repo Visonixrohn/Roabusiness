@@ -181,8 +181,10 @@ export default function BusinessSettingsPage() {
       return;
     }
     try {
+      // No enviar open247 a la base de datos
+      const { open247, ...formToSave } = form;
       const toSave = {
-        ...form,
+        ...formToSave,
         contact: {
           ...form.contact,
           phone: `${form.contact?.countryCode || ""}${
@@ -397,6 +399,34 @@ export default function BusinessSettingsPage() {
         <Menu className="h-6 w-6" />
       </button>
       <main className="flex-1 p-6 md:p-10 ml-0 md:ml-72 max-w-4xl mx-auto">
+        {activeSection === "island" && (
+          <Fragment>
+            <h2 className="text-3xl font-bold mb-6 text-blue-800">Isla</h2>
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Selecciona la isla donde se ubica tu negocio
+              </label>
+              <select
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                value={form.island || ""}
+                onChange={(e) => handleChange("island", e.target.value)}
+                required
+              >
+                <option value="">Selecciona una isla</option>
+                <option value="Roatán">Roatán</option>
+                <option value="Utila">Utila</option>
+                <option value="Guanaja">Guanaja</option>
+              </select>
+              <Button
+                onClick={() => setShowPasswordModal(true)}
+                disabled={saving}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200"
+              >
+                Guardar
+              </Button>
+            </div>
+          </Fragment>
+        )}
         {activeSection === "name" && (
           <Fragment>
             <h2 className="text-3xl font-bold mb-6 text-blue-800">
@@ -773,30 +803,84 @@ export default function BusinessSettingsPage() {
           <Fragment>
             <h2 className="text-3xl font-bold mb-6 text-blue-800">Horario</h2>
             <div className="space-y-4">
-              {form.schedule?.map((s, idx) => (
-                <div key={s.day} className="flex items-center gap-3">
-                  <span className="w-24 font-medium text-gray-700">
-                    {s.day}
-                  </span>
-                  <input
-                    type="time"
-                    className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                    value={s.open}
-                    onChange={(e) =>
-                      handleScheduleChange(idx, "open", e.target.value)
-                    }
-                  />
-                  <span className="text-gray-600">a</span>
-                  <input
-                    type="time"
-                    className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                    value={s.close}
-                    onChange={(e) =>
-                      handleScheduleChange(idx, "close", e.target.value)
-                    }
-                  />
-                </div>
-              ))}
+              <div className="flex items-center gap-3 mb-4">
+                <input
+                  id="open247"
+                  type="checkbox"
+                  className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  checked={form.open247 || false}
+                  onChange={(e) => {
+                    setForm((prev) => ({
+                      ...prev,
+                      open247: e.target.checked,
+                      schedule: e.target.checked
+                        ? days.map((day) => ({
+                            day,
+                            open: "00:00",
+                            close: "00:00",
+                          }))
+                        : days.map((day) => ({ day, open: "07:00", close: "08:00" })),
+                    }));
+                  }}
+                />
+                <label
+                  htmlFor="open247"
+                  className="text-blue-700 font-medium select-none cursor-pointer"
+                >
+                  Abierto 24/7 todos los días
+                </label>
+              </div>
+              {form.open247
+                ? form.schedule?.map((s, idx) => (
+                    <div
+                      key={s.day}
+                      className="flex items-center gap-3 opacity-70"
+                    >
+                      <span className="w-24 font-medium text-gray-700">
+                        {s.day}
+                      </span>
+                      <input
+                        type="time"
+                        className="p-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+                        value={s.open}
+                        disabled
+                      />
+                      <span className="text-gray-600">a</span>
+                      <input
+                        type="time"
+                        className="p-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+                        value={s.close}
+                        disabled
+                      />
+                      <span className="ml-2 text-xs text-gray-500">
+                        (12:00 am a 12:00 am)
+                      </span>
+                    </div>
+                  ))
+                : form.schedule?.map((s, idx) => (
+                    <div key={s.day} className="flex items-center gap-3">
+                      <span className="w-24 font-medium text-gray-700">
+                        {s.day}
+                      </span>
+                      <input
+                        type="time"
+                        className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                        value={s.open}
+                        onChange={(e) =>
+                          handleScheduleChange(idx, "open", e.target.value)
+                        }
+                      />
+                      <span className="text-gray-600">a</span>
+                      <input
+                        type="time"
+                        className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                        value={s.close}
+                        onChange={(e) =>
+                          handleScheduleChange(idx, "close", e.target.value)
+                        }
+                      />
+                    </div>
+                  ))}
               <Button
                 onClick={() => setShowPasswordModal(true)}
                 disabled={saving}
