@@ -2,22 +2,16 @@ import { supabase } from "./supabaseClient";
 
 export function getGoogleRedirectUrl() {
   if (typeof window !== "undefined") {
-    if (window.location.hostname === "roabusiness.com") {
-      return "https://roabusiness.com";
-    }
-    if (window.location.hostname.endsWith(".vercel.app")) {
-      return window.location.origin;
-    }
-    return window.location.origin;
+    return window.location.origin; // ya incluye https:// y el dominio correcto
   }
-  return "https://roabusiness.com";
+  return "https://roabusiness.com"; // fallback para SSR
 }
 
 export async function signInWithGoogle() {
   return await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: getGoogleRedirectUrl() + "/google-callback",
+      redirectTo: `${getGoogleRedirectUrl()}/google-callback`,
     },
   });
 }
