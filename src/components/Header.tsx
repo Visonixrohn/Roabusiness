@@ -44,7 +44,6 @@ const Header = () => {
   const navigation = [
     { name: "Inicio", href: "/", icon: Home },
     { name: "Directorio", href: "/directorio", icon: Users },
-   
   ];
 
   const isActive = (href: string) => location.pathname === href;
@@ -316,143 +315,142 @@ const Header = () => {
       </div>
 
       {/* Menú móvil */}
-    {/* Menú móvil */}
-{isMenuOpen && (
-  <div className="md:hidden bg-white border-t border-gray-200">
-    <nav className="px-4 py-3 space-y-1">
-      {/* Navegación principal */}
-      {navigation.map((item) => {
-        const Icon = item.icon;
-        return (
-          <Link
-            key={item.name}
-            to={item.href}
-            onClick={() => setIsMenuOpen(false)}
-            className={cn(
-              "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
-              isActive(item.href)
-                ? "bg-blue-50 text-blue-600"
-                : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-            )}
-          >
-            <Icon className="h-4 w-4 mr-3" />
-            {item.name}
-          </Link>
-        );
-      })}
-
-      {/* Publicaciones Recientes - rediseñado */}
-      <Link
-        to="/recent-posts"
-        onClick={() => setIsMenuOpen(false)}
-        className={cn(
-          "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
-          isActive("/recent-posts")
-            ? "bg-blue-50 text-blue-600"
-            : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-        )}
-      >
-        <Plus className="h-4 w-4 mr-3" />
-        Publicaciones Recientes
-      </Link>
-
-      {/* Autenticación */}
-      <div className="border-t border-gray-200 pt-3 mt-3 space-y-1">
-        {user ? (
-          <>
-            <div className="flex items-center px-3 py-2 mb-2">
-              <img
-                src={
-                  user.type === "business"
-                    ? user.businessData?.logo
-                    : user.userData?.avatar ||
-                      "https://via.placeholder.com/32x32"
-                }
-                alt="Profile"
-                className="w-8 h-8 rounded-full object-cover mr-3"
-              />
-              <div>
-                <p className="text-sm font-medium text-gray-900">
-                  {user.type === "business"
-                    ? user.businessData?.name
-                    : user.userData?.name}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {user.type === "business" ? "Negocio" : "Usuario"}
-                </p>
-              </div>
-            </div>
-
-            {/* Links según tipo */}
-            {user.type === "business" && (
-              <>
+      {/* Menú móvil */}
+      {isMenuOpen && (
+        <div className="md:hidden bg-white border-t border-gray-200">
+          <nav className="px-4 py-3 space-y-1">
+            {/* Navegación principal */}
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              return (
                 <Link
-                  to="/dashboard"
+                  key={item.name}
+                  to={item.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg"
+                  className={cn(
+                    "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
+                    isActive(item.href)
+                      ? "bg-blue-50 text-blue-600"
+                      : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+                  )}
                 >
-                  <Settings className="h-4 w-4 mr-3" />
-                  Panel de Control
+                  <Icon className="h-4 w-4 mr-3" />
+                  {item.name}
                 </Link>
-                <Link
-                  to={`/negocio/${user.businessData?.id}`}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg"
-                >
-                  <Building2 className="h-4 w-4 mr-3" />
-                  Ver Perfil Público
-                </Link>
-              </>
-            )}
+              );
+            })}
 
-            {user.type === "user" && (
-              <Link
-                to="/user/full-settings"
-                onClick={() => setIsMenuOpen(false)}
-                className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg"
-              >
-                <Settings className="h-4 w-4 mr-3" />
-                Editar toda mi información
-              </Link>
-            )}
-
-            {/* Cerrar sesión */}
-            <button
-              onClick={() => {
-                setShowLogoutModal(true);
-                setIsMenuOpen(false);
-              }}
-              className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg"
-            >
-              <LogOut className="h-4 w-4 mr-3" />
-              Cerrar Sesión
-            </button>
-          </>
-        ) : (
-          <>
+            {/* Publicaciones Recientes - rediseñado */}
             <Link
-              to="/login"
+              to="/recent-posts"
               onClick={() => setIsMenuOpen(false)}
-              className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg"
-            >
-              <User className="h-4 w-4 mr-3" />
-              Iniciar Sesión
-            </Link>
-            <Link
-              to="/registrar-usuario"
-              onClick={() => setIsMenuOpen(false)}
-              className="flex items-center px-3 py-2 text-sm font-medium text-green-600 hover:bg-green-50 rounded-lg"
+              className={cn(
+                "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
+                isActive("/recent-posts")
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+              )}
             >
               <Plus className="h-4 w-4 mr-3" />
-              Registrarse como Usuario
+              Publicaciones Recientes
             </Link>
-          </>
-        )}
-      </div>
-    </nav>
-  </div>
-)}
 
+            {/* Autenticación */}
+            <div className="border-t border-gray-200 pt-3 mt-3 space-y-1">
+              {user ? (
+                <>
+                  <div className="flex items-center px-3 py-2 mb-2">
+                    <img
+                      src={
+                        user.type === "business"
+                          ? user.businessData?.logo
+                          : user.userData?.avatar ||
+                            "https://via.placeholder.com/32x32"
+                      }
+                      alt="Profile"
+                      className="w-8 h-8 rounded-full object-cover mr-3"
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        {user.type === "business"
+                          ? user.businessData?.name
+                          : user.userData?.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {user.type === "business" ? "Negocio" : "Usuario"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Links según tipo */}
+                  {user.type === "business" && (
+                    <>
+                      <Link
+                        to="/dashboard"
+                        onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg"
+                      >
+                        <Settings className="h-4 w-4 mr-3" />
+                        Panel de Control
+                      </Link>
+                      <Link
+                        to={`/negocio/${user.businessData?.id}`}
+                        onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg"
+                      >
+                        <Building2 className="h-4 w-4 mr-3" />
+                        Ver Perfil Público
+                      </Link>
+                    </>
+                  )}
+
+                  {user.type === "user" && (
+                    <Link
+                      to="/user/full-settings"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg"
+                    >
+                      <Settings className="h-4 w-4 mr-3" />
+                      Editar toda mi información
+                    </Link>
+                  )}
+
+                  {/* Cerrar sesión */}
+                  <button
+                    onClick={() => {
+                      setShowLogoutModal(true);
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                  >
+                    <LogOut className="h-4 w-4 mr-3" />
+                    Cerrar Sesión
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg"
+                  >
+                    <User className="h-4 w-4 mr-3" />
+                    Iniciar Sesión
+                  </Link>
+                  <Link
+                    to="/registrar-usuario"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center px-3 py-2 text-sm font-medium text-green-600 hover:bg-green-50 rounded-lg"
+                  >
+                    <Plus className="h-4 w-4 mr-3" />
+                    Registrarse como Usuario
+                  </Link>
+                </>
+              )}
+            </div>
+          </nav>
+        </div>
+      )}
 
       {/* Modal de confirmación de cierre de sesión */}
       <Dialog open={showLogoutModal} onOpenChange={setShowLogoutModal}>

@@ -24,6 +24,7 @@ import UserProfilePage from "@/pages/UserProfilePage";
 import UserSettingsPage from "@/pages/UserSettingsPage";
 
 import MobileBottomBar from "@/components/MobileBottomBar";
+import MobileTopBar from "@/components/MobileTopBar";
 import "./App.css";
 
 const libraries: ("places" | "geometry" | "drawing" | "visualization")[] = [
@@ -45,6 +46,8 @@ function App() {
         >
           <Router>
             <div className="min-h-screen bg-gray-50">
+              {/* Top bar solo móvil */}
+              <MobileTopBar />
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/directorio" element={<DirectoryPage />} />
