@@ -22,6 +22,8 @@ import RecentPostsPage from "@/pages/RecentPostsPage";
 import GoogleCallbackPage from "@/pages/google-callback";
 import UserProfilePage from "@/pages/UserProfilePage";
 import UserSettingsPage from "@/pages/UserSettingsPage";
+
+import MobileBottomBar from "@/components/MobileBottomBar";
 import "./App.css";
 
 const libraries: ("places" | "geometry" | "drawing" | "visualization")[] = [
@@ -91,11 +93,14 @@ function App() {
                   },
                 }}
               />
-            </div>
-          </Router>
-        </LoadScript>
-      </InteractionsProvider>
-    </AuthProvider>
+
+            {/* Barra inferior solo en móvil */}
+            <MobileBottomBar />
+          </div>
+        </Router>
+      </LoadScript>
+    </InteractionsProvider>
+  </AuthProvider>
   );
 }
 

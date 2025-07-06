@@ -1,3 +1,8 @@
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 4rem; /* espacio para la bottom bar */
+  }
+}
 #root {
   margin: 0 auto;
 }

@@ -51,8 +51,13 @@ export default function FacebookCallbackPage() {
             .select()
             .single();
           if (insertError) {
-            console.error("Error insertando usuario en tabla users:", insertError);
-            alert("Error creando usuario en tabla users: " + insertError.message);
+            console.error(
+              "Error insertando usuario en tabla users:",
+              insertError
+            );
+            alert(
+              "Error creando usuario en tabla users: " + insertError.message
+            );
             return;
           }
           // Guardar en localStorage/contexto
@@ -75,7 +80,10 @@ export default function FacebookCallbackPage() {
         }
       } catch (err) {
         console.error("Error en handleFacebookUser:", err);
-        alert("Error inesperado en el registro con Facebook: " + (err?.message || err));
+        alert(
+          "Error inesperado en el registro con Facebook: " +
+            (err?.message || err)
+        );
       }
     }
     handleFacebookUser();

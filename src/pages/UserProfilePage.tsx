@@ -1,11 +1,13 @@
+
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LogOut } from "lucide-react";
 
 const UserProfilePage = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [following, setFollowing] = useState([]);
 
   useEffect(() => {
@@ -63,6 +65,19 @@ const UserProfilePage = () => {
           </Button>
         </Link>
       </div>
+
+      {/* Botón cerrar sesión solo en móvil y solo para usuarios no negocio */}
+      {user.type !== "business" && (
+        <div className="block md:hidden mb-8">
+          <button
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-red-600 text-white font-semibold shadow hover:bg-red-700 transition"
+            onClick={logout}
+          >
+            <LogOut className="w-5 h-5" />
+            Cerrar sesión
+          </button>
+        </div>
+      )}
       <div className="bg-white rounded shadow p-6">
         <h2 className="text-lg font-semibold mb-4">Negocios que sigues</h2>
         {following.length === 0 ? (

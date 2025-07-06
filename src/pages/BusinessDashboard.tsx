@@ -603,6 +603,17 @@ const BusinessDashboard = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Botón de cerrar sesión solo en móvil */}
+                <div className="block md:hidden mt-6">
+                  <button
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-red-600 text-white font-semibold shadow hover:bg-red-700 transition"
+                    onClick={() => setShowLogoutModal(true)}
+                  >
+                    <LogOut className="w-5 h-5" />
+                    Cerrar sesión
+                  </button>
+                </div>
               </div>
             )}
           </div>
