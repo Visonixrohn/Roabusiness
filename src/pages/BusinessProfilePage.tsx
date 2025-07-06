@@ -1205,13 +1205,44 @@ const BusinessProfilePage = () => {
               </div>
               {/* Mapa Google Maps */}
               {business?.coordinates && (
-                <div className="w-full rounded overflow-hidden relative flex items-center justify-between">
-                  <span className="text-gray-600">Ubicación:</span>
+                <div className="w-full rounded overflow-hidden relative flex flex-col items-center justify-center">
+                  <span className="text-gray-600 mb-2">Ubicación en el mapa:</span>
+                  <div className="w-full h-56 md:h-64 rounded-lg overflow-hidden border border-gray-300">
+                    <GoogleMap
+                      mapContainerStyle={{ width: "100%", height: "100%" }}
+                      center={{
+                        lat: business.coordinates.lat,
+                        lng: business.coordinates.lng,
+                      }}
+                      zoom={16}
+                      options={{
+                        disableDefaultUI: true,
+                        draggable: false,
+                        scrollwheel: false,
+                        mapTypeId: "satellite",
+                      }}
+                    >
+                      <Marker
+                        position={{
+                          lat: business.coordinates.lat,
+                          lng: business.coordinates.lng,
+                        }}
+                        icon={{
+                          url: "https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.png",
+                          scaledSize:
+                            window.google && window.google.maps
+                              ? new window.google.maps.Size(40, 40)
+                              : undefined,
+                        }}
+                        draggable={false}
+                      />
+                    </GoogleMap>
+                  </div>
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query=${business.coordinates.lat},${business.coordinates.lng}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="ml-2 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition-colors text-sm font-semibold"
+                    className="mt-2 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition-colors text-sm font-semibold"
                   >
                     Ver en Google Maps
                   </a>
