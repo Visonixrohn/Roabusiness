@@ -273,7 +273,6 @@ const BusinessDashboard = () => {
               onClick={() => navigate(`/negocio/${user.businessData?.id}`)}
             >
               <Eye className="h-4 w-4 mr-2" />
-              Ver Perfil Público
             </Button>
             {/* Botón de configuración */}
             <Button
@@ -283,11 +282,9 @@ const BusinessDashboard = () => {
               }
             >
               <Settings className="h-4 w-4 mr-2" />
-              Configurar
             </Button>
             <Button variant="outline" onClick={() => setShowLogoutModal(true)}>
               <LogOut className="h-4 w-4 mr-2" />
-              Salir
             </Button>
           </div>
         </div>
