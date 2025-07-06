@@ -36,7 +36,7 @@ function App() {
     <AuthProvider>
       <InteractionsProvider>
         <LoadScript
-          googleMapsApiKey={GOOGLE_MAPS_CONFIG.apiKey}
+          googleMapsApiKey="AIzaSyA-Jv8AMyTySXYsd8rY2kEdNhhotdNWolg"
           libraries={libraries}
           loadingElement={
             <div className="flex items-center justify-center min-h-screen">
@@ -97,13 +97,13 @@ function App() {
                 }}
               />
 
-            {/* Barra inferior solo en móvil */}
-            <MobileBottomBar />
-          </div>
-        </Router>
-      </LoadScript>
-    </InteractionsProvider>
-  </AuthProvider>
+              {/* Barra inferior solo en móvil */}
+              <MobileBottomBar />
+            </div>
+          </Router>
+        </LoadScript>
+      </InteractionsProvider>
+    </AuthProvider>
   );
 }
 

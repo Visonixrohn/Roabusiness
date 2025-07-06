@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/contexts/AuthContext";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -41,7 +40,9 @@ export default function MobileTopBar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 flex items-center justify-between h-14 px-4 md:hidden shadow-sm transition-transform duration-300 ${scrollDirection === "down" ? "-translate-y-full" : "translate-y-0"}`}
+        className={`fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 flex items-center justify-between h-14 px-4 md:hidden shadow-sm transition-transform duration-300 ${
+          scrollDirection === "down" ? "-translate-y-full" : "translate-y-0"
+        }`}
         style={{ willChange: "transform" }}
       >
         {/* Avatar usuario */}
@@ -73,7 +74,13 @@ export default function MobileTopBar() {
           onClick={() => setShowSearch((v) => !v)}
           aria-label="Buscar"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
@@ -89,7 +96,7 @@ export default function MobileTopBar() {
               className="flex-1 px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Buscar negocios, hoteles, restaurantes..."
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
               autoFocus
             />
             <button
@@ -97,7 +104,13 @@ export default function MobileTopBar() {
               onClick={() => setShowSearch(false)}
               aria-label="Cerrar búsqueda"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
@@ -126,16 +139,18 @@ export default function MobileTopBar() {
                       alt={b.name}
                       className="w-8 h-8 rounded-full object-cover border border-gray-200"
                     />
-                    <span className="font-medium text-gray-800">
-                      {b.name}
-                    </span>
+                    <span className="font-medium text-gray-800">{b.name}</span>
                     <span className="ml-auto text-xs text-gray-500">
                       {b.island}
                     </span>
                   </button>
                 ))}
-              {businesses.filter((b) => b.name.toLowerCase().includes(search.toLowerCase())).length === 0 && (
-                <div className="px-4 py-2 text-gray-500">No se encontraron resultados</div>
+              {businesses.filter((b) =>
+                b.name.toLowerCase().includes(search.toLowerCase())
+              ).length === 0 && (
+                <div className="px-4 py-2 text-gray-500">
+                  No se encontraron resultados
+                </div>
               )}
             </div>
           )}

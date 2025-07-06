@@ -1206,7 +1206,9 @@ const BusinessProfilePage = () => {
               {/* Mapa Google Maps */}
               {business?.coordinates && (
                 <div className="w-full rounded overflow-hidden relative flex flex-col items-center justify-center">
-                  <span className="text-gray-600 mb-2">Ubicación en el mapa:</span>
+                  <span className="text-gray-600 mb-2">
+                    Ubicación en el mapa:
+                  </span>
                   <div className="w-full h-56 md:h-64 rounded-lg overflow-hidden border border-gray-300">
                     <GoogleMap
                       mapContainerStyle={{ width: "100%", height: "100%" }}
