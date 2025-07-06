@@ -356,6 +356,9 @@ export default function BusinessSettingsPage() {
     );
   }
 
+  // Detectar si es móvil
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-gray-100">
       <aside
@@ -391,13 +394,24 @@ export default function BusinessSettingsPage() {
           ))}
         </nav>
       </aside>
-      <button
-        className="fixed top-4 left-4 z-40 md:hidden bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors duration-200"
-        onClick={() => setSidebarOpen(true)}
-        aria-label="Abrir menú"
-      >
-        <Menu className="h-6 w-6" />
-      </button>
+      {/* Botón menú móvil: abajo a la derecha */}
+      {isMobile ? (
+        <button
+          className="fixed bottom-20 right-4 z-50 md:hidden bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors duration-200"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Abrir menú"
+        >
+          <Menu className="h-7 w-7" />
+        </button>
+      ) : (
+        <button
+          className="fixed top-4 left-4 z-40 md:hidden bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors duration-200"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Abrir menú"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+      )}
       <main className="flex-1 p-6 md:p-10 ml-0 md:ml-72 max-w-4xl mx-auto">
         {activeSection === "island" && (
           <Fragment>
@@ -518,6 +532,7 @@ export default function BusinessSettingsPage() {
                       disableDefaultUI: true,
                       draggable: true,
                       scrollwheel: true,
+                      mapTypeId: "satellite",
                     }}
                     onClick={(e) => {
                       if (e.latLng) {
@@ -528,19 +543,29 @@ export default function BusinessSettingsPage() {
                       }
                     }}
                   >
-                    <Marker
-                      position={{
-                        lat: form.coordinates.lat,
-                        lng: form.coordinates.lng,
-                      }}
-                      draggable={true}
-                      onDragEnd={(e) => {
-                        handleChange("coordinates", {
-                          lat: e.latLng.lat(),
-                          lng: e.latLng.lng(),
-                        });
-                      }}
-                    />
+                    {/* Marker solo si hay coordenadas */}
+                    {form.coordinates && (
+                      <Marker
+                        position={{
+                          lat: form.coordinates.lat,
+                          lng: form.coordinates.lng,
+                        }}
+                        icon={{
+                          url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                          scaledSize:
+                            window.google && window.google.maps
+                              ? new window.google.maps.Size(40, 40)
+                              : undefined,
+                        }}
+                        draggable={true}
+                        onDragEnd={(e) => {
+                          handleChange("coordinates", {
+                            lat: e.latLng.lat(),
+                            lng: e.latLng.lng(),
+                          });
+                        }}
+                      />
+                    )}
                   </GoogleMap>
                 </div>
               )}
@@ -819,7 +844,11 @@ export default function BusinessSettingsPage() {
                             open: "00:00",
                             close: "00:00",
                           }))
-                        : days.map((day) => ({ day, open: "07:00", close: "08:00" })),
+                        : days.map((day) => ({
+                            day,
+                            open: "07:00",
+                            close: "08:00",
+                          })),
                     }));
                   }}
                 />
