@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import { toast } from "sonner";
-import { signInWithGoogle } from "@/lib/googleAuth";
+import { signInWithGoogle, signInWithFacebook } from "@/lib/googleAuth";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -155,19 +155,32 @@ const LoginPage = () => {
             </Button>
           </div>
         </form>
-        {/* Google Auth */}
-        <div className="my-8 flex flex-col items-center">
+        {/* Google y Facebook Auth */}
+        <div className="my-8 flex flex-col items-center gap-4">
           <button
             type="button"
             onClick={signInWithGoogle}
             className="w-full max-w-xs flex items-center justify-center gap-3 bg-white border border-gray-200 rounded-3xl shadow-md hover:shadow-lg py-3.5 px-5 text-gray-800 font-semibold transition-all duration-200 hover:bg-white/90"
-       >
+          >
             <img
               src="https://www.svgrepo.com/show/475656/google-color.svg"
               alt="Google"
               className="h-6 w-6"
             />
             Iniciar sesión con Google
+          </button>
+          <button
+            type="button"
+            onClick={signInWithFacebook}
+            className="w-full max-w-xs flex items-center justify-center gap-3 bg-white border border-blue-200 rounded-3xl shadow-md hover:shadow-lg py-3.5 px-5 text-blue-800 font-semibold transition-all duration-200 hover:bg-blue-50"
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
+              alt="Facebook"
+              className="h-6 w-6 rounded"
+              style={{ background: "#fff" }}
+            />
+            Iniciar sesión con Facebook
           </button>
         </div>
 

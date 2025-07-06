@@ -11,7 +11,16 @@ export async function signInWithGoogle() {
   return await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `https://roabusiness.com/google-callback`,
+      redirectTo: `${window.location.origin}/google-callback`,
+    },
+  });
+}
+
+export async function signInWithFacebook() {
+  return await supabase.auth.signInWithOAuth({
+    provider: "facebook",
+    options: {
+      redirectTo: `${window.location.origin}/facebook-callback`,
     },
   });
 }
