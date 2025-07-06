@@ -1,5 +1,5 @@
 export const GOOGLE_MAPS_CONFIG = {
-  apiKey: 'AIzaSyBWXNE96Eb23e16DCw7Zfb9rkYwxRiTUfQ',
+  apiKey: 'AIzaSyA-Jv8AMyTySXYsd8rY2kEdNhhotdNWolg',
   defaultCenter: {
     lat: 16.3156, // Coordenadas de Roatán
     lng: -86.5889
