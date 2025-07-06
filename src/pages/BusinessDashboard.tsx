@@ -636,7 +636,12 @@ const BusinessDashboard = () => {
                 variant="destructive"
                 onClick={() => {
                   setShowLogoutModal(false);
-                  logout();
+                  setShowWaitModal(true);
+                  setTimeout(() => {
+                    logout();
+                    navigate("/");
+                    setShowWaitModal(false);
+                  }, 1000);
                 }}
               >
                 Sí, cerrar sesión
