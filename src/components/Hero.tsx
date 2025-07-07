@@ -71,6 +71,7 @@ const HeroSection = () => {
   }; // <-- cierre correcto de la función
 
   useEffect(() => {
+    // Bloquear Ctrl+U
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && (e.key === "u" || e.key === "U")) {
         e.preventDefault();
@@ -78,7 +79,17 @@ const HeroSection = () => {
       }
     };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    // Bloquear clic derecho sobre imágenes
+    const handleContextMenu = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).tagName === "IMG") {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("contextmenu", handleContextMenu);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("contextmenu", handleContextMenu);
+    };
   }, []);
 
   return (

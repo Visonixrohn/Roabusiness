@@ -26,12 +26,35 @@ import UserSettingsPage from "@/pages/UserSettingsPage";
 import MobileBottomBar from "@/components/MobileBottomBar";
 import MobileTopBar from "@/components/MobileTopBar";
 import "./App.css";
+import { useEffect } from "react";
 
 const libraries: ("places" | "geometry" | "drawing" | "visualization")[] = [
   "places",
 ];
 
 function App() {
+  useEffect(() => {
+    // Bloquear Ctrl+U
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && (e.key === "u" || e.key === "U")) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    // Bloquear clic derecho sobre imágenes
+    const handleContextMenu = (e) => {
+      if ((e.target && e.target.tagName === "IMG")) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("contextmenu", handleContextMenu);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("contextmenu", handleContextMenu);
+    };
+  }, []);
+
   return (
     <AuthProvider>
       <InteractionsProvider>
