@@ -44,7 +44,7 @@ function App() {
     window.addEventListener("keydown", handleKeyDown);
     // Bloquear clic derecho sobre imágenes
     const handleContextMenu = (e) => {
-      if ((e.target && e.target.tagName === "IMG")) {
+      if (e.target && e.target.tagName === "IMG") {
         e.preventDefault();
       }
     };
