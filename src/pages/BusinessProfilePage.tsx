@@ -33,6 +33,7 @@ import Header from "@/components/Header";
 import ContactModal from "@/components/ContactModal";
 import GalleryModal from "@/components/GalleryModal";
 import { Dialog } from "@/components/ui/dialog";
+import AuthRequiredModal from "@/components/AuthRequiredModal";
 import { toast } from "sonner";
 import ImageUpload from "@/components/ImageUpload";
 import { GoogleMap, Marker } from "@react-google-maps/api";
@@ -64,6 +65,7 @@ const PostCard = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isCommenting, setIsCommenting] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Likes y comentarios del post
   const postComments = comments || [];
@@ -116,7 +118,7 @@ const PostCard = ({
   const handleCreateComment = async () => {
     if (!commentText.trim()) return;
     if (!user) {
-      toast.error("Debes iniciar sesión para comentar");
+      setShowAuthModal(true);
       return;
     }
     setIsCommenting(true);
@@ -146,7 +148,7 @@ const PostCard = ({
   // Like/Unlike
   const handleToggleLike = async () => {
     if (!user) {
-      toast.error("Debes iniciar sesión para dar like");
+      setShowAuthModal(true);
       return;
     }
     setIsLiking(true);
@@ -184,6 +186,10 @@ const PostCard = ({
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+      <AuthRequiredModal
+        open={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
       {/* Opciones de publicación (solo dueño) */}
       {user &&
         user.type === "business" &&
@@ -247,14 +253,20 @@ const PostCard = ({
               liked ? "text-red-500" : ""
             }`}
             onClick={handleToggleLike}
-            disabled={!user}
+            // Quitar el disabled para permitir mostrar el modal
           >
             <Heart className={`h-5 w-5 mr-2 ${liked ? "fill-current" : ""}`} />
             <span>{likesCount}</span>
           </button>
           <button
             className="flex items-center text-gray-600 hover:text-blue-600 transition-colors"
-            onClick={() => setOpenCommentsModal(true)}
+            onClick={() => {
+              if (!user) {
+                setShowAuthModal(true);
+                return;
+              }
+              setOpenCommentsModal(true);
+            }}
           >
             <MessageCircle className="h-5 w-5 mr-2" />
             <span>{Array.isArray(comments) ? comments.length : 0}</span>
@@ -618,9 +630,10 @@ const BusinessProfilePage = () => {
   };
 
   // Seguir/deseguir negocio
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const handleFollow = async () => {
     if (!user) {
-      toast.error("Debes iniciar sesión para seguir negocios");
+      setShowAuthModal(true);
       return;
     }
     try {
@@ -711,6 +724,11 @@ const BusinessProfilePage = () => {
     addView();
   }, [id]);
 
+  // Hacer scroll al inicio de la página cada vez que se monta o cambia el id del negocio en el perfil.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [id]);
+
   // Loader visual solo con postsLoading
   if (postsLoading || loadingBusiness) {
     return (
@@ -769,9 +787,6 @@ const BusinessProfilePage = () => {
       ))
     );
   }
-
-  // DEBUG: Mostrar en consola los datos de contacto para verificar
-  console.log("DEBUG business.contact", business.contact);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -860,15 +875,14 @@ const BusinessProfilePage = () => {
           <div className="flex flex-col sm:flex-row flex-wrap gap-2 w-full items-stretch px-6 pb-4">
             <Button
               variant={isFollowing ? "default" : "outline"}
-              onClick={() => {
-                if (!user) {
-                  toast.error("Debes iniciar sesión para seguir negocios");
-                  return;
-                }
-                toggleFollow();
-              }}
+              onClick={handleFollow}
               className="flex-1 min-w-[120px] w-full h-full"
             >
+              {/* Modal de autenticación requerido para seguir */}
+              <AuthRequiredModal
+                open={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+              />
               <Heart className="h-4 w-4 mr-2" />
               {isFollowing ? "Dejar de seguir" : "Seguir"}
               <span className="ml-2">({followersCount})</span>

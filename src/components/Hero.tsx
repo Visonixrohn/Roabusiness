@@ -4,6 +4,7 @@ import { Search, MapPin } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useBusinesses } from "@/hooks/useBusinesses";
+import { useAuth } from "@/contexts/AuthContext";
 
 const HeroSection = () => {
   const fullTitle = "Descubre las Islas de la Bahía";
@@ -18,6 +19,7 @@ const HeroSection = () => {
 
   const installPromptRef = useRef<any>(null); // aún no se usa
   const { businesses } = useBusinesses();
+  const { user } = useAuth();
   const publicCount = businesses.filter((b) => b.is_public !== false).length;
 
   // Animación para contar negocios públicos
@@ -67,6 +69,17 @@ const HeroSection = () => {
     setImgLoaded(true);
     setTimeout(() => setRippleActive(true), 600);
   }; // <-- cierre correcto de la función
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && (e.key === "u" || e.key === "U")) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <>
@@ -152,7 +165,6 @@ const HeroSection = () => {
             negocios, restaurantes, hoteles y actividades en Roatán, Utila y
             Guanaja.
           </p>
-          
 
           <div
             className={`flex flex-col sm:flex-row gap-4 justify-center transform transition-opacity duration-900 ${
@@ -181,28 +193,28 @@ const HeroSection = () => {
                 Conoce las Islas
               </Button>
             </Link>
+            {!user && (
+              <Link to="/login" aria-label="Iniciar sesión">
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="group relative inline-flex items-center justify-center px-8 py-4 border-2 border-blue-600 text-blue-600 bg-white rounded-full text-lg font-bold transition-all duration-300 hover:bg-blue-50 hover:text-blue-800 hover:scale-105 shadow-md focus:outline-none focus:ring-4 focus:ring-blue-200"
+                >
+                  Iniciar sesión
+                </Button>
+              </Link>
+            )}
           </div>
-             <div className="text-base xs:text-lg sm:text-2xl md:text-4xl font-bold text-blue-200 drop-shadow">
-                  {displayedCount}
-                </div>
-                <p className="text-white text-[10px] xs:text-xs sm:text-base md:text-xl leading-tight">
-                  Negocios Destacados
-                </p>
-                
+          <div className="text-base xs:text-lg sm:text-2xl md:text-4xl font-bold text-blue-200 drop-shadow">
+            {displayedCount}
+          </div>
+          <p className="text-white text-[10px] xs:text-xs sm:text-base md:text-xl leading-tight">
+            Negocios Destacados
+          </p>
         </div>
-
-         
-         
-
-        
       </section>
-
-      
     </>
   );
 };
 
 export default HeroSection;
-
-
-     
