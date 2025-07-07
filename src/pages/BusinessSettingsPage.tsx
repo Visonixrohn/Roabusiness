@@ -430,7 +430,7 @@ export default function BusinessSettingsPage() {
                 <option value="Roatán">Roatán</option>
                 <option value="Utila">Utila</option>
                 <option value="Guanaja">Guanaja</option>
-                <option value="Guanaja">Jose Santos Guardiola</option>
+                <option value="Jose Santos Guardiola">Jose Santos Guardiola</option>
               </select>
               <Button
                 onClick={() => setShowPasswordModal(true)}

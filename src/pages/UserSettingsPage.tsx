@@ -40,7 +40,9 @@ const UserFullSettingsPage = () => {
             "contraseña_incorrecta_123456"
           );
           // Solo si el error es exactamente "Invalid login credentials" asumimos que tiene contraseña
-          setHasPassword(error && error.message === "Invalid login credentials");
+          setHasPassword(
+            error && error.message === "Invalid login credentials"
+          );
         } catch {
           setHasPassword(false);
         }
