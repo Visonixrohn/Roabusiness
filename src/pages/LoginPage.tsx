@@ -269,9 +269,27 @@ const LoginPage = () => {
 
         {/* Footer / branding */}
         <div className="mt-12 text-center border-t border-gray-100 pt-6 text-sm">
-          <div className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-bold text-lg">
-            VISONIXRO
-          </div>
+         <div className="text-center mt-12">
+  {/* Logo */}
+  <a href="https://visonixro.com" target="_blank" rel="noopener noreferrer" className="inline-block mb-2">
+    <img
+      src="https://i.imgur.com/6Ua5WQl.png"
+      alt="VISONIXRO Logo"
+      className="h-10 w-10 mx-auto object-contain"
+    />
+  </a>
+
+  {/* Texto con gradiente */}
+  <a
+    href="https://visonixro.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-bold text-lg hover:underline transition-all duration-200"
+  >
+    VISONIXRO
+  </a>
+</div>
+
           <p className="text-xs text-gray-500 mt-1">
             Desarrollo y soluciones digitales
           </p>

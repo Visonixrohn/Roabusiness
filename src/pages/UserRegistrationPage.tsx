@@ -7,7 +7,7 @@ import Header from "@/components/Header";
 import ImageUpload from "@/components/ImageUpload";
 import { toast } from "sonner";
 import PrivacyPolicyPage from "./PrivacyPolicyPage";
-import { signInWithGoogle, signInWithFacebook } from "@/lib/googleAuth";
+import { signInWithGoogle } from "@/lib/googleAuth";
 
 const UserRegistrationPage = () => {
   const [formData, setFormData] = useState({
@@ -249,7 +249,7 @@ const UserRegistrationPage = () => {
           </div>
         </form>
 
-        {/* Google y Facebook Auth */}
+        {/* Google Auth */}
         <div className="my-8 flex flex-col items-center gap-4">
           <button
             type="button"
@@ -262,19 +262,6 @@ const UserRegistrationPage = () => {
               className="h-6 w-6"
             />
             Registrarse con Google
-          </button>
-          <button
-            type="button"
-            onClick={signInWithFacebook}
-            className="w-full max-w-xs flex items-center justify-center gap-3 bg-white border border-blue-200 rounded-3xl shadow-md hover:shadow-lg py-3.5 px-5 text-blue-800 font-semibold transition-all duration-200 hover:bg-blue-50"
-          >
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png"
-              alt="Facebook"
-              className="h-6 w-6 rounded"
-              style={{ background: "#fff" }}
-            />
-            Registrarse con Facebook
           </button>
         </div>
 
