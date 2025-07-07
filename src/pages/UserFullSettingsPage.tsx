@@ -24,52 +24,45 @@ const UserFullSettingsPage = () => {
   const [errorPass, setErrorPass] = useState("");
   const [isGoogle, setIsGoogle] = useState(false);
 
-  if (!user || isBusiness) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="bg-white p-8 rounded shadow text-center">
-          <h2 className="text-xl font-bold mb-4">Acceso no autorizado</h2>
-          <Button onClick={() => navigate("/")}>Ir al inicio</Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Detectar si es usuario de Google
   useEffect(() => {
     if (user) {
       isGoogleUser(user.email).then(setIsGoogle);
     }
   }, [user]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (!user || isBusiness) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-700 text-white">
+        <div className="bg-slate-800 p-10 rounded-3xl shadow-2xl text-center max-w-md w-full">
+          <h2 className="text-3xl font-extrabold text-red-500 mb-6">Acceso denegado</h2>
+          <Button onClick={() => navigate("/")} className="bg-red-600 hover:bg-red-700 text-white rounded-full px-6 py-3 font-bold shadow-xl">
+            Volver al inicio
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Guardar datos de perfil
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     setErrorProfile("");
     if (!isGoogle && !currentPasswordProfile) {
-      setErrorProfile(
-        "Debes ingresar tu contraseña actual para guardar cambios."
-      );
+      setErrorProfile("Ingresa tu contraseña actual para continuar.");
       return;
     }
     setSaving(true);
-    // Validar contraseña actual solo si NO es Google
     if (!isGoogle) {
-      const { error: authError } = await signInWithEmail(
-        user.email,
-        currentPasswordProfile
-      );
+      const { error: authError } = await signInWithEmail(user.email, currentPasswordProfile);
       if (authError) {
-        setErrorProfile("Contraseña actual incorrecta.");
+        setErrorProfile("Contraseña incorrecta.");
         setSaving(false);
         return;
       }
     }
-    // Actualizar datos
     await updateProfile(form);
     setShowWait(true);
     setTimeout(() => {
@@ -79,8 +72,7 @@ const UserFullSettingsPage = () => {
     setSaving(false);
   };
 
-  // Cambiar contraseña
-  const handlePasswordUpdate = async (e: React.FormEvent) => {
+  const handlePasswordUpdate = async (e) => {
     e.preventDefault();
     setErrorPass("");
     if (!currentPasswordPass) {
@@ -92,24 +84,19 @@ const UserFullSettingsPage = () => {
       return;
     }
     if (newPassword !== confirmNewPassword) {
-      setErrorPass("Las contraseñas nuevas no coinciden.");
+      setErrorPass("Las contraseñas no coinciden.");
       return;
     }
     setSaving(true);
-    // Reautenticación
-    const { error: authError } = await signInWithEmail(
-      user.email,
-      currentPasswordPass
-    );
+    const { error: authError } = await signInWithEmail(user.email, currentPasswordPass);
     if (authError) {
-      setErrorPass("Contraseña actual incorrecta.");
+      setErrorPass("Contraseña incorrecta.");
       setSaving(false);
       return;
     }
-    // Cambiar contraseña
     const { error: passError } = await updatePassword(newPassword);
     if (passError) {
-      setErrorPass(passError.message || "No se pudo actualizar la contraseña.");
+      setErrorPass(passError.message || "Error al actualizar contraseña.");
       setSaving(false);
       return;
     }
@@ -128,129 +115,110 @@ const UserFullSettingsPage = () => {
 
   if (showWait) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-        <h1 className="text-4xl font-extrabold text-blue-700 mb-4 animate-pulse">
-          RoaBusiness
-        </h1>
-        <p className="text-gray-500">Guardando cambios...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 to-purple-900 text-white">
+        <h1 className="text-5xl font-extrabold mb-4 animate-pulse">RoaBusiness</h1>
+        <p className="text-lg">Guardando cambios...</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-10 px-4 flex flex-col gap-8 md:flex-row md:gap-12 items-start">
-      <div className="w-full md:w-1/2 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
-        <h1 className="text-2xl font-bold mb-6 text-blue-700">
-          Editar información
-        </h1>
-        <form onSubmit={handleSave} className="space-y-6">
-          <div className="flex flex-col items-center mb-4">
-            <ImageUpload
-              currentImage={form.avatar}
-              onImageUploaded={(url) => setForm((f) => ({ ...f, avatar: url }))}
-              onImageRemoved={() => setForm((f) => ({ ...f, avatar: "" }))}
-              label="Foto de perfil"
-              maxSize={2}
-            />
-          </div>
-          <div>
-            <label className="block font-semibold mb-1">Nombre</label>
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              className="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          {!isGoogle && (
-            <div>
-              <label className="block font-semibold mb-1">
-                Contraseña actual <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="password"
-                value={currentPasswordProfile}
-                onChange={(e) => setCurrentPasswordProfile(e.target.value)}
-                className="w-full border rounded-xl px-3 py-2"
-                required
-              />
-            </div>
-          )}
-          {errorProfile && (
-            <div className="text-red-500 text-sm">{errorProfile}</div>
-          )}
-          <Button
-            type="submit"
-            disabled={saving}
-            className="w-full py-3 text-lg font-bold bg-blue-600 hover:bg-blue-700"
-          >
-            {saving ? "Guardando..." : "Guardar cambios"}
-          </Button>
-        </form>
-      </div>
-      <div className="w-full md:w-1/2 bg-white p-6 rounded-2xl shadow-xl border border-gray-100 mt-8 md:mt-0">
-        <h2 className="text-xl font-bold mb-4 text-blue-700">
-          Actualizar contraseña
-        </h2>
-        <Button
-          variant="outline"
-          onClick={() => setShowPasswordFields(!showPasswordFields)}
-          className="mb-4 w-full"
-        >
-          {showPasswordFields ? "Cancelar" : "Actualizar contraseña"}
-        </Button>
-        {showPasswordFields && (
-          <form onSubmit={handlePasswordUpdate} className="space-y-4">
-            <div>
-              <label className="block font-semibold mb-1">
-                Contraseña actual <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="password"
-                value={currentPasswordPass}
-                onChange={(e) => setCurrentPasswordPass(e.target.value)}
-                className="w-full border rounded-xl px-3 py-2"
-                required
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-blue-900 text-white py-16 px-4 sm:px-8 md:px-16">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="bg-slate-800 p-8 rounded-3xl shadow-2xl border border-slate-700">
+          <h2 className="text-3xl font-extrabold mb-6">Editar perfil</h2>
+          <form onSubmit={handleSave} className="space-y-6">
+            <div className="flex flex-col items-center">
+              <ImageUpload
+                currentImage={form.avatar}
+                onImageUploaded={(url) => setForm((f) => ({ ...f, avatar: url }))}
+                onImageRemoved={() => setForm((f) => ({ ...f, avatar: "" }))}
+                label="Avatar"
+                maxSize={2}
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1">
-                Nueva contraseña
-              </label>
+              <label className="block text-sm font-semibold mb-1">Nombre completo</label>
               <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full border rounded-xl px-3 py-2"
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                className="w-full bg-slate-700 text-white border border-slate-600 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:outline-none"
                 required
               />
             </div>
-            <div>
-              <label className="block font-semibold mb-1">
-                Confirmar nueva contraseña
-              </label>
-              <input
-                type="password"
-                value={confirmNewPassword}
-                onChange={(e) => setConfirmNewPassword(e.target.value)}
-                className="w-full border rounded-xl px-3 py-2"
-                required
-              />
-            </div>
-            {errorPass && (
-              <div className="text-red-500 text-sm">{errorPass}</div>
+            {!isGoogle && (
+              <div>
+                <label className="block text-sm font-semibold mb-1">Contraseña actual</label>
+                <input
+                  type="password"
+                  value={currentPasswordProfile}
+                  onChange={(e) => setCurrentPasswordProfile(e.target.value)}
+                  className="w-full bg-slate-700 text-white border border-slate-600 rounded-xl px-4 py-3"
+                />
+              </div>
             )}
+            {errorProfile && <p className="text-red-400 text-sm">{errorProfile}</p>}
             <Button
               type="submit"
               disabled={saving}
-              className="w-full py-3 text-lg font-bold bg-blue-600 hover:bg-blue-700"
+              className="w-full py-3 text-lg font-bold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-blue-600 hover:to-purple-600 rounded-xl transition-transform hover:scale-105"
             >
-              {saving ? "Guardando..." : "Actualizar contraseña"}
+              {saving ? "Guardando..." : "Guardar cambios"}
             </Button>
           </form>
-        )}
+        </div>
+
+        <div className="bg-slate-800 p-8 rounded-3xl shadow-2xl border border-slate-700">
+          <h2 className="text-2xl font-extrabold mb-4">Actualizar contraseña</h2>
+          <Button
+            variant="outline"
+            onClick={() => setShowPasswordFields(!showPasswordFields)}
+            className="mb-4 w-full border border-purple-500 text-purple-300 hover:bg-purple-800 rounded-xl"
+          >
+            {showPasswordFields ? "Cancelar" : "Actualizar contraseña"}
+          </Button>
+          {showPasswordFields && (
+            <form onSubmit={handlePasswordUpdate} className="space-y-5">
+              <div>
+                <label className="block text-sm font-semibold mb-1">Contraseña actual</label>
+                <input
+                  type="password"
+                  value={currentPasswordPass}
+                  onChange={(e) => setCurrentPasswordPass(e.target.value)}
+                  className="w-full bg-slate-700 text-white border border-slate-600 rounded-xl px-4 py-3"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Nueva contraseña</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full bg-slate-700 text-white border border-slate-600 rounded-xl px-4 py-3"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Confirmar nueva contraseña</label>
+                <input
+                  type="password"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  className="w-full bg-slate-700 text-white border border-slate-600 rounded-xl px-4 py-3"
+                />
+              </div>
+              {errorPass && <p className="text-red-400 text-sm">{errorPass}</p>}
+              <Button
+                type="submit"
+                disabled={saving}
+                className="w-full py-3 text-lg font-bold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-blue-600 hover:to-purple-600 rounded-xl transition-transform hover:scale-105"
+              >
+                {saving ? "Guardando..." : "Actualizar contraseña"}
+              </Button>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );
