@@ -636,39 +636,15 @@ const BusinessProfilePage = () => {
       setShowAuthModal(true);
       return;
     }
-    try {
-      let res;
-      if (isFollowing) {
-        res = await fetch(
-          `http://localhost:3001/api/businesses/${business.id}/unfollow`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: user.id }),
-          }
-        );
-      } else {
-        res = await fetch(
-          `http://localhost:3001/api/businesses/${business.id}/follow`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: user.id }),
-          }
-        );
-      }
-      const data = await res.json();
-      if (!data.success) {
-        toast.error(data.error || "No se pudo actualizar el seguimiento");
-        return;
-      }
+    const ok = await toggleFollow();
+    if (ok) {
       toast.success(
         isFollowing
           ? "Has dejado de seguir este negocio"
           : "Ahora sigues este negocio"
       );
-    } catch (err) {
-      toast.error("Error de red al intentar seguir/deseguir");
+    } else {
+      toast.error("No se pudo actualizar el seguimiento. Intenta de nuevo.");
     }
   };
 
