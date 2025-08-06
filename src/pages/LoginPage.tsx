@@ -177,7 +177,7 @@ const LoginPage = () => {
               className="h-6 w-6"
             />
           </button>
-          <p>Iniciar con Google</p>
+          <p>Iniciar con Google como usuario</p>
           <button
             type="button"
             onClick={() => setShowRegisterModal(true)}
@@ -186,6 +186,15 @@ const LoginPage = () => {
             Crear cuenta
           </button>
         </div>
+        {/* Botón registrar negocio */}
+        <div className="mt-4 flex justify-center">
+          <Link to="/registrar-negocio">
+            <Button className="w-40 bg-gradient-to-r from-green-600 to-teal-600 text-white font-bold py-2 rounded-2xl shadow-lg hover:shadow-xl transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 text-sm">
+              Registrar tu negocio
+            </Button>
+          </Link>
+        </div>
+
         {/* Modal de registro */}
         {showRegisterModal && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
@@ -269,26 +278,31 @@ const LoginPage = () => {
 
         {/* Footer / branding */}
         <div className="mt-12 text-center border-t border-gray-100 pt-6 text-sm">
-         <div className="text-center mt-12">
-  {/* Logo */}
-  <a href="https://visonixro.com" target="_blank" rel="noopener noreferrer" className="inline-block mb-2">
-    <img
-      src="https://i.imgur.com/6Ua5WQl.png"
-      alt="VISONIXRO Logo"
-      className="h-10 w-10 mx-auto object-contain"
-    />
-  </a>
+          <div className="text-center mt-12">
+            {/* Logo */}
+            <a
+              href="https://visonixro.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mb-2"
+            >
+              <img
+                src="https://i.imgur.com/6Ua5WQl.png"
+                alt="VISONIXRO Logo"
+                className="h-10 w-10 mx-auto object-contain"
+              />
+            </a>
 
-  {/* Texto con gradiente */}
-  <a
-    href="https://visonixro.com"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-bold text-lg hover:underline transition-all duration-200"
-  >
-    VISONIXRO
-  </a>
-</div>
+            {/* Texto con gradiente */}
+            <a
+              href="https://visonixro.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-bold text-lg hover:underline transition-all duration-200"
+            >
+              VISONIXRO
+            </a>
+          </div>
 
           <p className="text-xs text-gray-500 mt-1">
             Desarrollo y soluciones digitales

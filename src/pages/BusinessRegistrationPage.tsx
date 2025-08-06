@@ -294,7 +294,7 @@ const BusinessRegistrationPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <Header />
 
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -302,17 +302,17 @@ const BusinessRegistrationPage = () => {
         <div className="mb-8">
           <Link
             to="/directorio"
-            className="flex items-center text-blue-600 hover:text-blue-800 mb-6"
+            className="flex items-center text-blue-600 hover:text-blue-800 mb-6 transition-colors duration-300"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Volver al directorio
           </Link>
 
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-4xl font-extrabold text-gray-900 mb-2 drop-shadow-md animate-fade-in">
               Registra tu Negocio
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-lg">
               Únete al directorio más importante de las Islas de la Bahía y
               conecta con miles de visitantes
             </p>
@@ -322,7 +322,7 @@ const BusinessRegistrationPage = () => {
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="bg-white rounded-lg shadow-lg p-8 transition-shadow duration-300 hover:shadow-xl">
           {/* Paso 1: Información Básica */}
           {currentStep === 1 && (
             <div className="space-y-6">
@@ -339,7 +339,7 @@ const BusinessRegistrationPage = () => {
                       onChange={(e) =>
                         handleInputChange("name", e.target.value)
                       }
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
                       placeholder="Ej: Hotel Paradise Bay"
                     />
                   </div>
@@ -355,7 +355,7 @@ const BusinessRegistrationPage = () => {
                     onChange={(e) =>
                       handleInputChange("category", e.target.value)
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
                     placeholder="Escribe o selecciona una categoría"
                     required
                   />
@@ -375,7 +375,7 @@ const BusinessRegistrationPage = () => {
                     onChange={(e) =>
                       handleInputChange("island", e.target.value)
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
                   >
                     <option value="">Selecciona una isla</option>
                     {islands.map((island) => (
@@ -398,7 +398,7 @@ const BusinessRegistrationPage = () => {
                       onChange={(e) =>
                         handleInputChange("location", e.target.value)
                       }
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
                       placeholder="Ej: West Bay Beach"
                     />
                   </div>
@@ -420,7 +420,7 @@ const BusinessRegistrationPage = () => {
                     handleInputChange("description", e.target.value)
                   }
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
                   placeholder="Describe tu negocio, servicios especiales, lo que te hace único..."
                 />
               </div>
@@ -438,7 +438,7 @@ const BusinessRegistrationPage = () => {
                       onChange={(e) =>
                         handleInputChange("email", e.target.value)
                       }
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
                       placeholder="contacto@tunegocio.com"
                     />
                   </div>
@@ -456,7 +456,7 @@ const BusinessRegistrationPage = () => {
                       onChange={(e) =>
                         handleInputChange("phone", e.target.value)
                       }
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
                       placeholder="+504 2445-1234"
                     />
                   </div>
@@ -474,7 +474,7 @@ const BusinessRegistrationPage = () => {
                       onChange={(e) =>
                         handleInputChange("website", e.target.value)
                       }
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
                       placeholder="www.tunegocio.com"
                     />
                   </div>
@@ -759,7 +759,7 @@ const BusinessRegistrationPage = () => {
                       onChange={(e) =>
                         handleInputChange("password", e.target.value)
                       }
-                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
                       placeholder="Mínimo 6 caracteres"
                     />
                     <button
@@ -789,7 +789,7 @@ const BusinessRegistrationPage = () => {
                       onChange={(e) =>
                         handleInputChange("confirmPassword", e.target.value)
                       }
-                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
                       placeholder="Repite la contraseña"
                     />
                     <button
@@ -935,13 +935,13 @@ const BusinessRegistrationPage = () => {
         </div>
 
         {/* Benefits Section */}
-        <div className="mt-12 bg-blue-50 rounded-lg p-8">
+        <div className="mt-12 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-8 shadow-md hover:shadow-lg transition-shadow duration-300">
           <h3 className="text-xl font-semibold text-center text-gray-900 mb-6">
             ¿Por qué registrar tu negocio con nosotros?
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
-              <div className="bg-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <div className="bg-blue-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Eye className="h-8 w-8 text-white" />
               </div>
               <h4 className="font-semibold text-gray-900 mb-2">
@@ -952,7 +952,7 @@ const BusinessRegistrationPage = () => {
               </p>
             </div>
             <div className="text-center">
-              <div className="bg-green-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <div className="bg-green-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Users className="h-8 w-8 text-white" />
               </div>
               <h4 className="font-semibold text-gray-900 mb-2">Más Clientes</h4>
@@ -961,7 +961,7 @@ const BusinessRegistrationPage = () => {
               </p>
             </div>
             <div className="text-center">
-              <div className="bg-purple-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <div className="bg-purple-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Building className="h-8 w-8 text-white" />
               </div>
               <h4 className="font-semibold text-gray-900 mb-2">
