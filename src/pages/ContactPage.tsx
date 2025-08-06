@@ -31,6 +31,7 @@ const ContactPage = () => {
     subject: "",
     message: "",
     businessType: "",
+    website: "", // Se agrega el campo website
   });
 
   const formatUrl = (url) => {
@@ -63,6 +64,7 @@ const ContactPage = () => {
       subject: "",
       message: "",
       businessType: "",
+      website: "", // Limpiar también el campo website
     });
   };
 
@@ -348,6 +350,23 @@ const ContactPage = () => {
                     onChange={handleChange}
                     placeholder="Escribe tu mensaje detallado aquí..."
                     rows={6}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="website"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Sitio web
+                  </label>
+                  <Input
+                    id="website"
+                    name="website"
+                    type="url"
+                    value={formData.website}
+                    onChange={handleChange}
+                    placeholder="https://tusitio.com"
                   />
                 </div>
 
