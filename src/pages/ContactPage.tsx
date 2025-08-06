@@ -36,10 +36,8 @@ const ContactPage = () => {
 
   const formatUrl = (url) => {
     if (!url) return "";
-    if (url.startsWith("http://") || url.startsWith("https://")) {
-      return url;
-    }
-    return `https://${url}`;
+    const normalizedUrl = url.replace(/^https?:\/\//, ""); // Elimina cualquier esquema existente
+    return `https://${normalizedUrl}`;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
