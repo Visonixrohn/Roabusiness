@@ -1,110 +1,145 @@
-import { useState } from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { Mail, Phone, MapPin, Clock, Send, Building, Users, HeadphonesIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
+import { useState } from "react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Clock,
+  Send,
+  Building,
+  Users,
+  HeadphonesIcon,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: '',
-    businessType: ''
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+    businessType: "",
   });
+
+  const formatUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+    return `https://${url}`;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Formatear URL si es necesario
+    const formattedData = {
+      ...formData,
+      website: formatUrl(formData.website), // Asegúrate de que el campo website exista en formData
+    };
+
     // Simular envío del formulario
-    toast.success('¡Mensaje enviado exitosamente! Nos pondremos en contacto contigo pronto.');
-    
+    toast.success(
+      "¡Mensaje enviado exitosamente! Nos pondremos en contacto contigo pronto."
+    );
+
     // Limpiar formulario
     setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: '',
-      businessType: ''
+      name: "",
+      email: "",
+      phone: "",
+      subject: "",
+      message: "",
+      businessType: "",
     });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
   const contactMethods = [
     {
       icon: Mail,
-      title: 'Correo Electrónico',
-      content: 'info@bayislandsdirectory.com',
-      description: 'Envíanos un email y te responderemos en 24 horas'
+      title: "Correo Electrónico",
+      content: "info@bayislandsdirectory.com",
+      description: "Envíanos un email y te responderemos en 24 horas",
     },
     {
       icon: Phone,
-      title: 'Teléfono',
-      content: '+504 2445-0000',
-      description: 'Llámanos de lunes a viernes, 8:00 AM - 6:00 PM'
+      title: "Teléfono",
+      content: "+504 2445-0000",
+      description: "Llámanos de lunes a viernes, 8:00 AM - 6:00 PM",
     },
     {
       icon: MapPin,
-      title: 'Ubicación',
-      content: 'Roatán, Islas de la Bahía, Honduras',
-      description: 'Oficina principal en West End Village'
+      title: "Ubicación",
+      content: "Roatán, Islas de la Bahía, Honduras",
+      description: "Oficina principal en West End Village",
     },
     {
       icon: Clock,
-      title: 'Horario de Atención',
-      content: 'Lunes a Domingo: 8:00 AM - 8:00 PM',
-      description: 'Soporte disponible todos los días del año'
-    }
+      title: "Horario de Atención",
+      content: "Lunes a Domingo: 8:00 AM - 8:00 PM",
+      description: "Soporte disponible todos los días del año",
+    },
   ];
 
   const services = [
     {
       icon: Building,
-      title: 'Registra tu Negocio',
-      description: 'Incluye tu empresa en nuestro directorio y alcanza más clientes'
+      title: "Registra tu Negocio",
+      description:
+        "Incluye tu empresa en nuestro directorio y alcanza más clientes",
     },
     {
       icon: Users,
-      title: 'Información Turística',
-      description: 'Obtén consejos y recomendaciones para tu visita a las islas'
+      title: "Información Turística",
+      description:
+        "Obtén consejos y recomendaciones para tu visita a las islas",
     },
     {
       icon: HeadphonesIcon,
-      title: 'Soporte Técnico',
-      description: 'Ayuda con el uso de nuestra plataforma y servicios digitales'
-    }
+      title: "Soporte Técnico",
+      description:
+        "Ayuda con el uso de nuestra plataforma y servicios digitales",
+    },
   ];
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       {/* Hero Section */}
       <section className="relative h-64 flex items-center justify-center overflow-hidden">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/images/hero-beach.jpg')`
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/images/hero-beach.jpg')`,
           }}
         />
         <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl font-bold mb-4">
-            Contáctanos
-          </h1>
+          <h1 className="text-4xl font-bold mb-4">Contáctanos</h1>
           <p className="text-xl max-w-2xl mx-auto">
-            Estamos aquí para ayudarte con cualquier pregunta sobre las Islas de la Bahía
+            Estamos aquí para ayudarte con cualquier pregunta sobre las Islas de
+            la Bahía
           </p>
         </div>
       </section>
@@ -117,7 +152,7 @@ const ContactPage = () => {
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 ¿Cómo podemos ayudarte?
               </h2>
-              
+
               <div className="space-y-6">
                 {contactMethods.map((method, index) => {
                   const Icon = method.icon;
@@ -130,9 +165,14 @@ const ContactPage = () => {
                         <h3 className="font-semibold text-gray-900 mb-1">
                           {method.title}
                         </h3>
-                        <p className="text-blue-600 font-medium mb-1">
+                        <a
+                          href={formatUrl(method.content)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 font-medium mb-1 block"
+                        >
                           {method.content}
-                        </p>
+                        </a>
                         <p className="text-sm text-gray-600">
                           {method.description}
                         </p>
@@ -148,7 +188,7 @@ const ContactPage = () => {
               <h3 className="text-xl font-bold text-gray-900 mb-6">
                 Nuestros Servicios
               </h3>
-              
+
               <div className="space-y-4">
                 {services.map((service, index) => {
                   const Icon = service.icon;
@@ -178,11 +218,14 @@ const ContactPage = () => {
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 Envíanos un Mensaje
               </h2>
-              
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Nombre completo *
                     </label>
                     <Input
@@ -197,7 +240,10 @@ const ContactPage = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Correo electrónico *
                     </label>
                     <Input
@@ -214,7 +260,10 @@ const ContactPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="phone"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Teléfono
                     </label>
                     <Input
@@ -228,19 +277,38 @@ const ContactPage = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="businessType" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                      htmlFor="businessType"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                       Tipo de consulta
                     </label>
-                    <Select value={formData.businessType} onValueChange={(value) => setFormData(prev => ({ ...prev, businessType: value }))}>
+                    <Select
+                      value={formData.businessType}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          businessType: value,
+                        }))
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecciona una opción" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="tourism">Información Turística</SelectItem>
-                        <SelectItem value="business">Registrar Negocio</SelectItem>
-                        <SelectItem value="partnership">Alianzas Comerciales</SelectItem>
+                        <SelectItem value="tourism">
+                          Información Turística
+                        </SelectItem>
+                        <SelectItem value="business">
+                          Registrar Negocio
+                        </SelectItem>
+                        <SelectItem value="partnership">
+                          Alianzas Comerciales
+                        </SelectItem>
                         <SelectItem value="support">Soporte Técnico</SelectItem>
-                        <SelectItem value="media">Medios de Comunicación</SelectItem>
+                        <SelectItem value="media">
+                          Medios de Comunicación
+                        </SelectItem>
                         <SelectItem value="other">Otro</SelectItem>
                       </SelectContent>
                     </Select>
@@ -248,7 +316,10 @@ const ContactPage = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="subject"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Asunto *
                   </label>
                   <Input
@@ -263,7 +334,10 @@ const ContactPage = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Mensaje *
                   </label>
                   <Textarea
@@ -278,9 +352,7 @@ const ContactPage = () => {
                 </div>
 
                 <div className="flex items-center justify-between pt-4">
-                  <p className="text-sm text-gray-600">
-                    * Campos obligatorios
-                  </p>
+                  <p className="text-sm text-gray-600">* Campos obligatorios</p>
                   <Button
                     type="submit"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-8"
@@ -298,16 +370,15 @@ const ContactPage = () => {
                 ¿Tienes un negocio en las Islas de la Bahía?
               </h3>
               <p className="text-gray-600 mb-6">
-                Únete a nuestro directorio y conecta con miles de turistas que visitan las islas cada año. 
-                Ofrecemos diferentes planes para adaptarnos a las necesidades de tu negocio.
+                Únete a nuestro directorio y conecta con miles de turistas que
+                visitan las islas cada año. Ofrecemos diferentes planes para
+                adaptarnos a las necesidades de tu negocio.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                   Registrar mi Negocio
                 </Button>
-                <Button variant="outline">
-                  Ver Planes y Precios
-                </Button>
+                <Button variant="outline">Ver Planes y Precios</Button>
               </div>
             </div>
           </div>
@@ -319,45 +390,45 @@ const ContactPage = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
               Preguntas Frecuentes
             </h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">
                   ¿Cómo puedo registrar mi negocio?
                 </h3>
                 <p className="text-gray-600 text-sm">
-                  Contáctanos a través del formulario o llámanos directamente. 
+                  Contáctanos a través del formulario o llámanos directamente.
                   Te guiaremos en el proceso de registro paso a paso.
                 </p>
               </div>
-              
+
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">
                   ¿Qué información necesito de las islas?
                 </h3>
                 <p className="text-gray-600 text-sm">
-                  Podemos ayudarte con información sobre transporte, alojamiento, 
-                  actividades y recomendaciones locales.
+                  Podemos ayudarte con información sobre transporte,
+                  alojamiento, actividades y recomendaciones locales.
                 </p>
               </div>
-              
+
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">
                   ¿Tienen oficina física?
                 </h3>
                 <p className="text-gray-600 text-sm">
-                  Nuestra oficina principal está en West End Village, Roatán. 
+                  Nuestra oficina principal está en West End Village, Roatán.
                   También ofrecemos atención virtual para mayor comodidad.
                 </p>
               </div>
-              
+
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">
                   ¿En qué idiomas atienden?
                 </h3>
                 <p className="text-gray-600 text-sm">
-                  Ofrecemos atención en español e inglés para adaptarnos 
-                  a todos nuestros visitantes y empresarios locales.
+                  Ofrecemos atención en español e inglés para adaptarnos a todos
+                  nuestros visitantes y empresarios locales.
                 </p>
               </div>
             </div>
