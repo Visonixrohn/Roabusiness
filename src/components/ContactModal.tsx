@@ -50,6 +50,12 @@ const ContactModal = ({
     }));
   };
 
+  const formatUrl = (url: string) => {
+    if (!url) return "";
+    const normalizedUrl = url.replace(/^https?:\/\//, ""); // Elimina cualquier esquema existente
+    return `https://${normalizedUrl}`;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg px-6 py-5 rounded-2xl">
@@ -95,7 +101,7 @@ const ContactModal = ({
               <div className="flex items-center gap-2">
                 <Globe className="h-4 w-4 text-gray-500" />
                 <a
-                  href={`https://${contacts.website}`}
+                  href={formatUrl(contacts.website)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline"
@@ -129,7 +135,7 @@ const ContactModal = ({
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  window.open(`https://${contacts.website}`, "_blank")
+                  window.open(formatUrl(contacts.website), "_blank")
                 }
                 className="flex-1 flex items-center justify-center gap-2"
               >
