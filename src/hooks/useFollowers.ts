@@ -21,24 +21,28 @@ export function useFollowers(businessId: string, userId: string) {
       return;
     }
     setFollowersCount(count || 0);
-    // Verificar si el usuario ya sigue
-    const { data, error: followError } = await supabase
-      .from("followers")
-      .select("id")
-      .eq("business_id", businessId)
-      .eq("user_id", userId)
-      .maybeSingle();
-    if (followError && followError.code !== "PGRST116") {
-      setError(followError.message);
-      setLoading(false);
-      return;
+    // Verificar si el usuario ya sigue (si userId disponible)
+    if (userId) {
+      const { data, error: followError } = await supabase
+        .from("followers")
+        .select("id")
+        .eq("business_id", businessId)
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (followError && followError.code !== "PGRST116") {
+        setError(followError.message);
+        setLoading(false);
+        return;
+      }
+      setIsFollowing(!!data);
+    } else {
+      setIsFollowing(false);
     }
-    setIsFollowing(!!data);
     setLoading(false);
   }
 
   useEffect(() => {
-    if (!businessId || !userId) return;
+    if (!businessId) return;
     fetchFollowers();
     // eslint-disable-next-line
   }, [businessId, userId]);
@@ -48,11 +52,9 @@ export function useFollowers(businessId: string, userId: string) {
     setError(null);
     if (isFollowing) {
       // Dejar de seguir
-      const { error } = await supabase
-        .from("followers")
-        .delete()
-        .eq("business_id", businessId)
-        .eq("user_id", userId);
+      const query = supabase.from("followers").delete().eq("business_id", businessId);
+      const res = userId ? query.eq("user_id", userId) : query.is("user_id", null);
+      const { error } = await res;
       if (error) {
         setError(error.message);
         setLoading(false);
@@ -60,9 +62,10 @@ export function useFollowers(businessId: string, userId: string) {
       }
     } else {
       // Seguir
-      const { error } = await supabase
-        .from("followers")
-        .insert([{ business_id: businessId, user_id: userId }]);
+      const insertObj: any = { business_id: businessId };
+      if (userId) insertObj.user_id = userId;
+      else insertObj.user_id = null;
+      const { error } = await supabase.from("followers").insert([insertObj]);
       if (error) {
         setError(error.message);
         setLoading(false);

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+// Auth removed: no login required
 import {
   Search,
   Menu,
@@ -10,7 +10,7 @@ import {
   Users,
   Phone,
   Plus,
-  User,
+  
   LogOut,
   Settings,
   Building2,
@@ -34,11 +34,10 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [showLoading, setShowLoading] = useState(false);
+  // removed logout/modal related states
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const user = null;
   const { businesses, loading } = useBusinesses();
 
   const navigation = [
@@ -146,107 +145,10 @@ const Header = () => {
               );
             })}
 
-            {/* Enlace a Publicaciones Recientes */}
-            <Link
-              to="/recent-posts"
-              className={cn(
-                "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
-                isActive("/recent-posts")
-                  ? "bg-blue-50 text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-              )}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Publicaciones Recientes
-            </Link>
+       
+            
 
-            {/* Botones de autenticación */}
-            {user ? (
-              <div className="relative ml-4">
-                {/* Usuario logueado */}
-                <button
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors"
-                >
-                  <img
-                    src={
-                      user.type === "business"
-                        ? user.businessData?.logo
-                        : user.userData?.avatar ||
-                          "https://via.placeholder.com/32x32"
-                    }
-                    alt="Profile"
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                  <span className="text-sm font-medium text-gray-700">
-                    {user.type === "business"
-                      ? user.businessData?.name
-                      : user.userData?.name}
-                  </span>
-                </button>
-
-                {/* Menú desplegable del usuario */}
-                {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                    {user.type === "business" ? (
-                      <>
-                        <Link
-                          to="/dashboard"
-                          onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          <Settings className="h-4 w-4 mr-2" />
-                          Dashboard
-                        </Link>
-                        <Link
-                          to={`/negocio/${user.businessData?.id}`}
-                          onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          <Building2 className="h-4 w-4 mr-2" />
-                          Ver Perfil Público
-                        </Link>
-                      </>
-                    ) : (
-                      <>
-                        {/* Solo para usuarios normales */}
-                        {user.type === "user" && (
-                          <Link
-                            to="/user/full-settings"
-                            onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center px-4 py-2 text-sm text-blue-700 hover:bg-blue-50"
-                          >
-                            <Settings className="h-4 w-4 mr-2" />
-                            Editar toda mi información
-                          </Link>
-                        )}
-                      </>
-                    )}
-                    <button
-                      onClick={() => {
-                        setShowLogoutModal(true);
-                        setIsUserMenuOpen(false);
-                      }}
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Cerrar Sesión
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="ml-4 flex items-center space-x-3">
-                {/* Botón Login */}
-                <Link
-                  to="/login"
-                  className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  Iniciar Sesión
-                </Link>
-              </div>
-            )}
+            {/* Authentication removed: no login/profile buttons shown */}
           </nav>
 
           {/* Menú móvil - Botón */}
@@ -340,177 +242,15 @@ const Header = () => {
               );
             })}
 
-            {/* Publicaciones Recientes - rediseñado */}
-            <Link
-              to="/recent-posts"
-              onClick={() => setIsMenuOpen(false)}
-              className={cn(
-                "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
-                isActive("/recent-posts")
-                  ? "bg-blue-50 text-blue-600"
-                  : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
-              )}
-            >
-              <Plus className="h-4 w-4 mr-3" />
-              Publicaciones Recientes
-            </Link>
+          
+         
 
-            {/* Autenticación */}
-            <div className="border-t border-gray-200 pt-3 mt-3 space-y-1">
-              {user ? (
-                <>
-                  <div className="flex items-center px-3 py-2 mb-2">
-                    <img
-                      src={
-                        user.type === "business"
-                          ? user.businessData?.logo
-                          : user.userData?.avatar ||
-                            "https://via.placeholder.com/32x32"
-                      }
-                      alt="Profile"
-                      className="w-8 h-8 rounded-full object-cover mr-3"
-                    />
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        {user.type === "business"
-                          ? user.businessData?.name
-                          : user.userData?.name}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {user.type === "business" ? "Negocio" : "Usuario"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Links según tipo */}
-                  {user.type === "business" && (
-                    <>
-                      <Link
-                        to="/dashboard"
-                        onClick={() => setIsMenuOpen(false)}
-                        className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg"
-                      >
-                        <Settings className="h-4 w-4 mr-3" />
-                        Panel de Control
-                      </Link>
-                      <Link
-                        to={`/negocio/${user.businessData?.id}`}
-                        onClick={() => setIsMenuOpen(false)}
-                        className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg"
-                      >
-                        <Building2 className="h-4 w-4 mr-3" />
-                        Ver Perfil Público
-                      </Link>
-                    </>
-                  )}
-
-                  {user.type === "user" && (
-                    <Link
-                      to="/user/full-settings"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg"
-                    >
-                      <Settings className="h-4 w-4 mr-3" />
-                      Editar toda mi información
-                    </Link>
-                  )}
-
-                  {/* Cerrar sesión */}
-                  <button
-                    onClick={() => {
-                      setShowLogoutModal(true);
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg"
-                  >
-                    <LogOut className="h-4 w-4 mr-3" />
-                    Cerrar Sesión
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/login"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg"
-                  >
-                    <User className="h-4 w-4 mr-3" />
-                    Iniciar Sesión
-                  </Link>
-                  <Link
-                    to="/registrar-usuario"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center px-3 py-2 text-sm font-medium text-green-600 hover:bg-green-50 rounded-lg"
-                  >
-                    <Plus className="h-4 w-4 mr-3" />
-                    Registrarse como Usuario
-                  </Link>
-                </>
-              )}
-            </div>
+            {/* Authentication removed from mobile menu */}
           </nav>
         </div>
       )}
 
-      {/* Modal de confirmación de cierre de sesión */}
-      <Dialog open={showLogoutModal} onOpenChange={setShowLogoutModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>¿Cerrar sesión?</DialogTitle>
-            <DialogDescription>
-              ¿Estás seguro de que deseas cerrar tu sesión?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowLogoutModal(false)}>
-              Cancelar
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={async () => {
-                setShowLogoutModal(false);
-                setShowLoading(true);
-                setTimeout(() => {
-                  setShowLoading(false);
-                  logout();
-                }, 1000);
-              }}
-            >
-              Sí, cerrar sesión
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      {/* Pantalla de carga */}
-      {showLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg p-8 flex flex-col items-center shadow-lg">
-            <svg
-              className="animate-spin h-8 w-8 text-blue-600 mb-4"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v8z"
-              ></path>
-            </svg>
-            <span className="text-gray-700 font-semibold">
-              Cerrando sesión...
-            </span>
-          </div>
-        </div>
-      )}
+      {/* Auth UI removed */}
     </header>
   );
 };

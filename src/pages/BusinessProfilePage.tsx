@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useParams, Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+// Auth removed: no login required
 import { useBusinesses } from "@/hooks/useBusinesses";
+import { useAuth } from "@/contexts/AuthContext";
 import { usePosts } from "@/hooks/usePosts";
 import { useFollowers } from "@/hooks/useFollowers";
 import { useViews } from "@/hooks/useViews";
@@ -33,7 +34,6 @@ import Header from "@/components/Header";
 import ContactModal from "@/components/ContactModal";
 import GalleryModal from "@/components/GalleryModal";
 import { Dialog } from "@/components/ui/dialog";
-import AuthRequiredModal from "@/components/AuthRequiredModal";
 import { toast } from "sonner";
 import ImageUpload from "@/components/ImageUpload";
 import { GoogleMap, Marker } from "@react-google-maps/api";
@@ -65,7 +65,6 @@ const PostCard = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isCommenting, setIsCommenting] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Likes y comentarios del post
   const postComments = comments || [];
@@ -117,14 +116,10 @@ const PostCard = ({
   // Crear comentario
   const handleCreateComment = async () => {
     if (!commentText.trim()) return;
-    if (!user) {
-      setShowAuthModal(true);
-      return;
-    }
     setIsCommenting(true);
     const { error } = await supabase.from("comments").insert([
       {
-        user_id: user.id,
+        user_id: user?.id || null,
         business_id: business.id,
         post_id: post.id,
         content: commentText,
@@ -147,21 +142,17 @@ const PostCard = ({
 
   // Like/Unlike
   const handleToggleLike = async () => {
-    if (!user) {
-      setShowAuthModal(true);
-      return;
-    }
     setIsLiking(true);
     if (liked) {
       await supabase
         .from("likes")
         .delete()
         .eq("post_id", post.id)
-        .eq("user_id", user.id);
+        .eq("user_id", user?.id || null);
     } else {
       await supabase
         .from("likes")
-        .insert([{ post_id: post.id, user_id: user.id }]);
+        .insert([{ post_id: post.id, user_id: user?.id || null }]);
     }
     setIsLiking(false);
     // Refrescar likes globales
@@ -186,10 +177,7 @@ const PostCard = ({
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
-      <AuthRequiredModal
-        open={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-      />
+      {/* auth modal removed - comments/likes allowed without login */}
       {/* Opciones de publicación (solo dueño) */}
       {user &&
         user.type === "business" &&
@@ -260,13 +248,7 @@ const PostCard = ({
           </button>
           <button
             className="flex items-center text-gray-600 hover:text-blue-600 transition-colors"
-            onClick={() => {
-              if (!user) {
-                setShowAuthModal(true);
-                return;
-              }
-              setOpenCommentsModal(true);
-            }}
+            onClick={() => setOpenCommentsModal(true)}
           >
             <MessageCircle className="h-5 w-5 mr-2" />
             <span>{Array.isArray(comments) ? comments.length : 0}</span>
@@ -378,18 +360,11 @@ const PostCard = ({
             type="text"
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
-            placeholder={
-              user ? "Escribe un comentario..." : "Inicia sesión para comentar"
-            }
-            disabled={!user}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+            placeholder="Escribe un comentario..."
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             onKeyPress={(e) => e.key === "Enter" && handleCreateComment()}
           />
-          <Button
-            size="sm"
-            onClick={handleCreateComment}
-            disabled={!commentText.trim() || !user}
-          >
+          <Button size="sm" onClick={handleCreateComment} disabled={!commentText.trim()}>
             Comentar
           </Button>
         </div>
@@ -474,20 +449,11 @@ const PostCard = ({
                   type="text"
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
-                  placeholder={
-                    user
-                      ? "Escribe un comentario..."
-                      : "Inicia sesión para comentar"
-                  }
-                  disabled={!user}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+                  placeholder="Escribe un comentario..."
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   autoFocus
                 />
-                <Button
-                  size="sm"
-                  type="submit"
-                  disabled={!commentText.trim() || !user}
-                >
+                <Button size="sm" type="submit" disabled={!commentText.trim()}>
                   Comentar
                 </Button>
               </form>
@@ -629,19 +595,12 @@ const BusinessProfilePage = () => {
     setNewPost((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Seguir/deseguir negocio
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  // Seguir/deseguir negocio (sin requerir login)
   const handleFollow = async () => {
-    if (!user) {
-      setShowAuthModal(true);
-      return;
-    }
     const ok = await toggleFollow();
     if (ok) {
       toast.success(
-        isFollowing
-          ? "Has dejado de seguir este negocio"
-          : "Ahora sigues este negocio"
+        isFollowing ? "Has dejado de seguir este negocio" : "Ahora sigues este negocio"
       );
     } else {
       toast.error("No se pudo actualizar el seguimiento. Intenta de nuevo.");
@@ -854,11 +813,7 @@ const BusinessProfilePage = () => {
               onClick={handleFollow}
               className="flex-1 min-w-[120px] w-full h-full"
             >
-              {/* Modal de autenticación requerido para seguir */}
-              <AuthRequiredModal
-                open={showAuthModal}
-                onClose={() => setShowAuthModal(false)}
-              />
+              {/* auth modal removed - follow allowed without login */}
               <Heart className="h-4 w-4 mr-2" />
               {isFollowing ? "Dejar de seguir" : "Seguir"}
               <span className="ml-2">({followersCount})</span>

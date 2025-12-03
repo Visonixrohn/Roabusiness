@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
 
 interface PostCardProps {
   post: {
@@ -23,8 +22,7 @@ interface PostCardProps {
 }
 
 const PostCard = ({ post }: PostCardProps) => {
-  const { user } = useAuth();
-  const userId = user?.id || "";
+  // Auth removed: actions available without login
   const [showComments, setShowComments] = useState(false);
 
   return (

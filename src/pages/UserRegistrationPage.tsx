@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { ArrowLeft, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Mail, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import ImageUpload from "@/components/ImageUpload";
@@ -13,15 +12,10 @@ const UserRegistrationPage = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    password: "",
-    confirmPassword: "",
     avatar: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPolicy, setShowPolicy] = useState(true); // Mostrar política primero
-  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleAcceptPolicy = () => setShowPolicy(false);
@@ -31,36 +25,27 @@ const UserRegistrationPage = () => {
     e.preventDefault();
 
     // Validaciones
-    if (!formData.name || !formData.email || !formData.password) {
+    if (!formData.name || !formData.email) {
       toast.error("Por favor completa todos los campos obligatorios");
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Las contraseñas no coinciden");
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      toast.error("La contraseña debe tener al menos 6 caracteres");
-      return;
-    }
-
     setLoading(true);
-
     try {
-      const result = await register(formData, "user");
-
-      if (result.success) {
-        toast.success(
-          "¡Registro exitoso! Revisa tu correo para confirmar tu cuenta."
-        );
-        navigate("/login");
+      const res = await fetch('/api/register-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user: formData }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        toast.error(json?.message || 'Error al registrar usuario');
       } else {
-        toast.error(result.message);
+        toast.success('Registro de usuario completado');
+        navigate('/');
       }
-    } catch (error) {
-      toast.error("Error inesperado. Intenta nuevamente.");
+    } catch (err) {
+      toast.error('Error inesperado. Intenta nuevamente.');
     } finally {
       setLoading(false);
     }
@@ -176,67 +161,7 @@ const UserRegistrationPage = () => {
               </div>
             </div>
 
-            {/* Contraseña */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contraseña *
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={formData.password}
-                  onChange={(e) =>
-                    handleInputChange("password", e.target.value)
-                  }
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Mínimo 6 caracteres"
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Confirmar Contraseña */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Confirmar Contraseña *
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={formData.confirmPassword}
-                  onChange={(e) =>
-                    handleInputChange("confirmPassword", e.target.value)
-                  }
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Repite la contraseña"
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-            </div>
+            {/* Contraseñas eliminadas: registro directo en tabla `users` (sin Auth) */}
 
             {/* Botón de envío */}
             <Button
@@ -249,33 +174,11 @@ const UserRegistrationPage = () => {
           </div>
         </form>
 
-        {/* Google Auth */}
-        <div className="my-8 flex flex-col items-center gap-4">
-          <button
-            type="button"
-            onClick={signInWithGoogle}
-            className="w-full max-w-xs flex items-center justify-center gap-3 bg-white border border-gray-200 rounded-3xl shadow-md hover:shadow-lg py-3.5 px-5 text-gray-800 font-semibold transition-all duration-200 hover:bg-white/90"
-          >
-            <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
-              alt="Google"
-              className="h-6 w-6"
-            />
-            Registrarse con Google
-          </button>
-        </div>
+        {/* Google Auth eliminado (auth deshabilitado) */}
 
         {/* Enlaces adicionales */}
         <div className="mt-8 text-center">
-          <p className="text-gray-600 text-sm">
-            ¿Ya tienes cuenta?{" "}
-            <Link
-              to="/login"
-              className="text-blue-600 hover:underline font-medium"
-            >
-              Iniciar sesión
-            </Link>
-          </p>
+          <p className="text-gray-600 text-sm">Registro creado correctamente.</p>
         </div>
 
         {/* Beneficios */}

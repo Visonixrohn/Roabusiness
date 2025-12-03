@@ -22,6 +22,7 @@ import RecentPostsPage from "@/pages/RecentPostsPage";
 import GoogleCallbackPage from "@/pages/google-callback";
 import UserProfilePage from "@/pages/UserProfilePage";
 import UserSettingsPage from "@/pages/UserSettingsPage";
+import AdminPanel from "@/pages/AdminPanel";
 
 import MobileBottomBar from "@/components/MobileBottomBar";
 import MobileTopBar from "@/components/MobileTopBar";
@@ -108,6 +109,7 @@ function App() {
                 />
                 <Route path="/user/profile" element={<UserProfilePage />} />
                 <Route path="/user/settings" element={<UserSettingsPage />} />
+                <Route path="/adminroa" element={<AdminPanel />} />
               </Routes>
               <Toaster
                 position="top-right"

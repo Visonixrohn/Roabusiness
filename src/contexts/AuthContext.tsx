@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { signUpWithEmail, signInWithEmail, resetPassword } from "@/lib/auth";
 
 export interface User {
   id: string;
@@ -87,27 +86,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     password: string
   ): Promise<{ success: boolean; message: string }> => {
     try {
-      // Login con Supabase Auth
-      const { data, error } = await signInWithEmail(email, password);
-      if (error) {
-        return { success: false, message: error.message };
-      }
-      // Buscar datos adicionales en tabla users
+      // Login sin Auth: buscar usuario por email en la tabla `users`
       const { data: userData, error: userError } = await supabase
         .from("users")
         .select("*")
         .eq("email", email)
         .maybeSingle();
       if (userError || !userData) {
-        return {
-          success: false,
-          message: "No se encontraron datos de usuario",
-        };
+        return { success: false, message: "No se encontraron datos de usuario" };
       }
-      let userObj: any = {
-        ...userData,
-        userData: { name: userData.name, avatar: userData.avatar },
-      };
+      // Buscar datos adicionales en tabla users
+      let userObj: any = { ...userData, userData: { name: userData.name, avatar: userData.avatar } };
       // Si es negocio, buscar datos del negocio
       if (userData.type === "business") {
         const { data: businessData } = await supabase
@@ -133,15 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     type: "business" | "user"
   ): Promise<{ success: boolean; message: string }> => {
     try {
-      // 1. Crear usuario en Supabase Auth
-      const { data: authData, error: authError } = await signUpWithEmail(
-        data.email,
-        data.password
-      );
-      if (authError) {
-        return { success: false, message: authError.message };
-      }
-      // 2. Insertar datos adicionales en tabla users
+      // Crear registro en tabla `users` sin usar Supabase Auth
       const { data: userData, error: userError } = await supabase
         .from("users")
         .insert([
@@ -154,14 +135,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         ])
         .select()
         .single();
+
       if (userError || !userData) {
         return {
           success: false,
-          message:
-            userError?.message || "Error al crear usuario en tabla users",
+          message: userError?.message || "Error al crear usuario en tabla users",
         };
       }
-      // Si es negocio, crear el negocio
+
+      // Si es negocio, crear el negocio con owner_id apuntando al users.id
       let businessData = null;
       if (type === "business") {
         const { data: business, error: businessError } = await supabase
@@ -180,7 +162,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
               featured: false,
               owner_id: userData.id,
               amenities: data.amenities || [],
-              // Agregar datos de contacto y redes sociales
               contact: {
                 phone: data.phone,
                 email: data.email,
@@ -199,6 +180,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           ])
           .select()
           .single();
+
         if (businessError || !business) {
           return {
             success: false,
@@ -207,29 +189,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         }
         businessData = business;
       }
-      setUser(
+
+      const userObj =
         type === "business"
           ? { ...userData, businessData }
-          : {
-              ...userData,
-              userData: { name: userData.name, avatar: userData.avatar },
-            }
-      );
-      localStorage.setItem(
-        "currentUser",
-        JSON.stringify(
-          type === "business"
-            ? { ...userData, businessData }
-            : {
-                ...userData,
-                userData: { name: userData.name, avatar: userData.avatar },
-              }
-        )
-      );
+          : { ...userData, userData: { name: userData.name, avatar: userData.avatar } };
+
+      setUser(userObj);
+      localStorage.setItem("currentUser", JSON.stringify(userObj));
+
       return {
         success: true,
-        message:
-          "Usuario registrado exitosamente. Revisa tu correo para confirmar tu cuenta.",
+        message: "Registro completado correctamente.",
       };
     } catch (error: any) {
       return {
@@ -270,9 +241,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.removeItem("currentUser");
   };
 
-  // Nueva función para recuperación de contraseña
+  // Recuperación de contraseña deshabilitada (no hay Auth)
   const recoverPassword = async (email: string) => {
-    return await resetPassword(email);
+    return { error: new Error('Recuperación de contraseña deshabilitada') };
   };
 
   return (

@@ -23,13 +23,16 @@ function getRedirectOrigin() {
 // Registro de usuario con verificación de email
 // envía un correo de confirmación automáticamente
 export async function signUpWithEmail(email: string, password: string) {
-  return await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: getRedirectOrigin() + "/login", // Redirige tras confirmar email
-    },
-  });
+  // Registro por correo/deshabilitado en este proyecto.
+  // Para evitar envíos automáticos de correo (y errores de límite),
+  // esta función ahora devuelve un error indicando que el registro
+  // via Supabase Auth está deshabilitado.
+  return {
+    data: null,
+    error: new Error(
+      "Registro vía Supabase Auth deshabilitado. Usar endpoint server-side o crear usuario en tabla 'users'."
+    ),
+  };
 }
 
 // Login de usuario

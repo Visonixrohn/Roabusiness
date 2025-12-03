@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabaseClient";
 import {
   ArrowLeft,
   Upload,
@@ -14,8 +14,7 @@ import {
   Building,
   Eye,
   Users,
-  Lock,
-  EyeOff,
+  
   Facebook,
   Instagram,
   Twitter,
@@ -54,22 +53,15 @@ interface FormData {
   coverImage: string;
   logo: string;
 
-  // Autenticación
-  password: string;
-  confirmPassword: string;
+  // No auth fields here; admin will create users directly
 }
 
 const BusinessRegistrationPage = () => {
   const navigate = useNavigate();
-  const { register, recoverPassword } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newAmenity, setNewAmenity] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showReset, setShowReset] = useState(false);
-  const [resetEmail, setResetEmail] = useState("");
-  const [resetLoading, setResetLoading] = useState(false);
+  // password/reset UI removed — admin registers businesses via this URL
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -89,8 +81,7 @@ const BusinessRegistrationPage = () => {
     amenities: [],
     coverImage: "",
     logo: "",
-    password: "",
-    confirmPassword: "",
+    
   });
 
   const islands = ["Roatán", "Utila", "Guanaja", "Jose Santos Guardiola"];
@@ -103,7 +94,7 @@ const BusinessRegistrationPage = () => {
 
   const categories = businessCategories;
 
-  const totalSteps = 5;
+  const totalSteps = 4;
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({
@@ -162,13 +153,6 @@ const BusinessRegistrationPage = () => {
         return formData.amenities.length > 0;
       case 4:
         return true; // Imágenes opcionales
-      case 5:
-        return !!(
-          formData.password &&
-          formData.confirmPassword &&
-          formData.password === formData.confirmPassword &&
-          formData.password.length >= 6
-        );
       default:
         return false;
     }
@@ -191,22 +175,64 @@ const BusinessRegistrationPage = () => {
       toast.error("Por favor completa todos los campos requeridos");
       return;
     }
-
     setIsSubmitting(true);
     try {
-      // Usar el método register del contexto de autenticación
-      const result = await register(formData, "business");
-      if (result.success) {
-        toast.success(
-          "¡Negocio registrado exitosamente! Revisa tu correo para confirmar tu cuenta antes de iniciar sesión."
-        );
-        // Limpiar cualquier sesión activa y redirigir al login
-        setTimeout(() => {
-          window.location.href = "/login";
-        }, 3500);
-      } else {
-        toast.error(result.message || "Error al registrar el negocio.");
+      // Insertar negocio directamente en la tabla `businesses`
+      const { data: businessData, error: businessError } = await supabase
+        .from("businesses")
+        .insert([
+          {
+            name: formData.name,
+            category: formData.category,
+            island: formData.island,
+            location: formData.location,
+            description: formData.description,
+            contact: {
+              email: formData.email,
+              phone: formData.phone,
+              website: formData.website,
+              facebook: formData.facebook,
+              instagram: formData.instagram,
+              twitter: formData.twitter,
+              tiktok: formData.tiktok,
+              whatsapp: formData.whatsapp,
+            },
+            price_range: formData.priceRange,
+            amenities: formData.amenities,
+            cover_image: formData.coverImage,
+            logo: formData.logo,
+          },
+        ])
+        .select()
+        .single();
+
+      if (businessError || !businessData) {
+        toast.error(businessError?.message || "Error al crear el negocio");
+        setIsSubmitting(false);
+        return;
       }
+
+      // Insertar usuario en la tabla `users` sin auth (administrador)
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .insert([
+          {
+            email: formData.email,
+            name: formData.name,
+            type: "business",
+            business_id: businessData.id,
+          },
+        ])
+        .select()
+        .single();
+
+      if (userError) {
+        toast.error(userError.message || "Negocio creado, pero usuario no creado");
+      } else {
+        toast.success("Negocio y usuario creados correctamente");
+      }
+
+      setTimeout(() => navigate("/directorio"), 1200);
     } catch (error) {
       toast.error("Error al registrar el negocio. Intenta nuevamente.");
     } finally {
@@ -214,23 +240,7 @@ const BusinessRegistrationPage = () => {
     }
   };
 
-  const handleResetPassword = async () => {
-    setResetLoading(true);
-    try {
-      const { error } = await recoverPassword(resetEmail);
-      if (error) {
-        toast.error(error.message || "No se pudo enviar el correo");
-      } else {
-        toast.success("Enlace de recuperación enviado. Revisa tu correo.");
-        setShowReset(false);
-        setResetEmail("");
-      }
-    } catch {
-      toast.error("Error inesperado");
-    } finally {
-      setResetLoading(false);
-    }
-  };
+  // password recovery removed for admin-only registration
 
   const getStepTitle = (step: number): string => {
     switch (step) {
@@ -242,8 +252,6 @@ const BusinessRegistrationPage = () => {
         return "Servicios y Precios";
       case 4:
         return "Imágenes del Negocio";
-      case 5:
-        return "Crear Cuenta de Acceso";
       default:
         return "";
     }
@@ -722,143 +730,7 @@ const BusinessRegistrationPage = () => {
             </div>
           )}
 
-          {/* Paso 5: Crear Cuenta de Acceso */}
-          {currentStep === 5 && (
-            <div className="space-y-6">
-              <div className="text-center">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Crear tu Cuenta de Acceso
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Esta cuenta te permitirá gestionar tu perfil y crear
-                  publicaciones
-                </p>
-              </div>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                <h4 className="font-semibold text-blue-900 mb-2">
-                  Email de la cuenta:
-                </h4>
-                <p className="text-blue-800">{formData.email}</p>
-                <p className="text-sm text-blue-600 mt-1">
-                  Usarás este email para iniciar sesión en tu panel de control
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Contraseña */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Contraseña *
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      value={formData.password}
-                      onChange={(e) =>
-                        handleInputChange("password", e.target.value)
-                      }
-                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
-                      placeholder="Mínimo 6 caracteres"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Confirmar Contraseña */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Confirmar Contraseña *
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                    <input
-                      type={showConfirmPassword ? "text" : "password"}
-                      value={formData.confirmPassword}
-                      onChange={(e) =>
-                        handleInputChange("confirmPassword", e.target.value)
-                      }
-                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
-                      placeholder="Repite la contraseña"
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-5 w-5" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Resumen Final */}
-              <div className="bg-gray-50 rounded-lg p-6">
-                <h4 className="font-semibold text-gray-900 mb-4">
-                  Resumen Final de tu Registro:
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="font-medium text-gray-700">Negocio:</span>{" "}
-                    {formData.name || "No especificado"}
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">
-                      Categoría:
-                    </span>{" "}
-                    {formData.category || "No especificada"}
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">
-                      Ubicación:
-                    </span>{" "}
-                    {formData.location}, {formData.island}
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Email:</span>{" "}
-                    {formData.email || "No especificado"}
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Teléfono:</span>{" "}
-                    {formData.phone || "No especificado"}
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">
-                      Servicios:
-                    </span>{" "}
-                    {formData.amenities.length} agregados
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Imágenes:</span>
-                    {formData.coverImage ? " Portada ✓" : ""}
-                    {formData.logo ? " Logo ✓" : ""}
-                    {!formData.coverImage && !formData.logo ? " Ninguna" : ""}
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Cuenta:</span>{" "}
-                    Lista para crear
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Step 5 removed: admin registers businesses via this URL. */}
 
           {/* Navigation Buttons */}
           <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
@@ -881,57 +753,11 @@ const BusinessRegistrationPage = () => {
                 disabled={isSubmitting}
                 className="bg-green-600 hover:bg-green-700"
               >
-                {isSubmitting
-                  ? "Creando cuenta..."
-                  : "Crear Cuenta y Registrar Negocio"}
+                {isSubmitting ? "Registrando..." : "Registrar Negocio"}
               </Button>
             )}
           </div>
-
-          {/* Recuperación de contraseña */}
-          {currentStep === 5 && (
-            <div className="mt-4 text-center">
-              <button
-                type="button"
-                className="text-blue-600 hover:underline text-sm font-medium"
-                onClick={() => setShowReset(true)}
-              >
-                ¿Olvidaste tu contraseña?
-              </button>
-            </div>
-          )}
-
-          {/* Modal recuperación */}
-          {showReset && (
-            <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-              <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
-                <h2 className="text-lg font-bold mb-2">Recuperar contraseña</h2>
-                <input
-                  type="email"
-                  value={resetEmail}
-                  onChange={(e) => setResetEmail(e.target.value)}
-                  className="w-full border rounded px-3 py-2 mb-3"
-                  placeholder="Tu email"
-                  disabled={resetLoading}
-                />
-                <Button
-                  onClick={handleResetPassword}
-                  disabled={resetLoading || !resetEmail}
-                  className="w-full mb-2"
-                >
-                  {resetLoading
-                    ? "Enviando..."
-                    : "Enviar enlace de recuperación"}
-                </Button>
-                <button
-                  className="text-xs text-gray-500 hover:underline w-full"
-                  onClick={() => setShowReset(false)}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          )}
+          
         </div>
 
         {/* Benefits Section */}

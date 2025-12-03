@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Star,
   MapPin,
@@ -35,15 +34,14 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
   const [isLiked, setIsLiked] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [showGalleryModal, setShowGalleryModal] = useState(false);
-  const navigate = useNavigate();
+  const [lastContactModalClosedAt, setLastContactModalClosedAt] = useState(0);
+  
   const { contacts, loading: loadingContacts } = useContacts(business.id);
 
   // Fallback para contactos: si no hay en la tabla contacts, usar los del objeto business.contact
   const fallbackContacts = business.contact || null;
 
-  const handleViewProfile = () => {
-    navigate(`/negocio/${business.id}`);
-  };
+  // Show contact modal when clicking the card (no navigation)
 
   const getPriceRangeText = (priceRange: string) => {
     switch (priceRange) {
@@ -77,7 +75,12 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
           variant === "compact" ? "max-w-[170px] p-2" : "max-w-xs"
         )}
         style={{ minWidth: 0 }}
-        onClick={handleViewProfile}
+        onClick={() => {
+          // Evitar reabrir inmediatamente si se cerró hace poco
+          const now = Date.now();
+          if (now - lastContactModalClosedAt < 500) return;
+          setShowContactModal(true);
+        }}
       >
         {/* Header */}
         <div className="p-4 border-b border-gray-100 bg-gradient-to-b from-gray-50 to-white">
@@ -88,10 +91,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
               className="w-14 h-14 rounded-full object-cover border-2 border-teal-200 shadow-sm"
             />
             <div className="flex-1">
-              <h3
-                className="font-bold text-lg text-gray-900 hover:text-teal-600 cursor-pointer transition-colors duration-200"
-                onClick={handleViewProfile}
-              >
+              <h3 className="font-bold text-lg text-gray-900 transition-colors duration-200">
                 {business.name}
               </h3>
               <div className="flex items-center text-sm text-gray-500 space-x-2">
@@ -106,12 +106,15 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
 
         {/* Imagen principal */}
         <div className="relative">
-          <img
-            src={business.coverImage}
-            alt={business.name}
-            className="w-full h-56 object-cover cursor-pointer group-hover:scale-105 transition-transform duration-500"
-            onClick={() => setShowGalleryModal(true)}
-          />
+            <img
+              src={business.coverImage}
+              alt={business.name}
+              className="w-full h-56 object-cover cursor-pointer group-hover:scale-105 transition-transform duration-500"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowGalleryModal(true);
+              }}
+            />
           <div className="absolute top-4 right-4">
             <Badge
               className={cn(
@@ -247,7 +250,10 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
         <ContactModal
           business={business}
           isOpen={showContactModal}
-          onClose={() => setShowContactModal(false)}
+          onClose={() => {
+            setShowContactModal(false);
+            setLastContactModalClosedAt(Date.now());
+          }}
           contacts={contacts || fallbackContacts}
         />
         <GalleryModal

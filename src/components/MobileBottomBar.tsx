@@ -1,5 +1,4 @@
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import {
   Home,
@@ -11,7 +10,8 @@ import {
 
 export default function MobileBottomBar() {
   const location = useLocation();
-  const { user } = useAuth();
+  // Auth removed: always show base nav
+  const user = null;
   const scrollDirection = useScrollDirection(10);
 
   const iconClass = "w-6 h-6";
@@ -22,33 +22,12 @@ export default function MobileBottomBar() {
     { label: "Publicaciones", icon: <Newspaper className={iconClass} />, to: "/recent-posts" },
   ];
 
-  if (user) {
-    if (user.type === "business") {
-      const businessId = user.businessData?.id || user.id;
-      navItems.push({
-        label: "Perfil",
-        icon: <User className={iconClass} />,
-        to: `/negocio/${businessId}`,
-      });
-      navItems.push({
-        label: "Panel",
-        icon: <LayoutDashboard className={iconClass} />,
-        to: "/dashboard",
-      });
-    } else {
-      navItems.push({
-        label: "Perfil",
-        icon: <User className={iconClass} />,
-        to: "/user/profile",
-      });
-    }
-  } else {
-    navItems.push({
-      label: "Perfil",
-      icon: <User className={iconClass} />,
-      to: "/user/profile",
-    });
-  }
+  // Always include Perfil (leads to profile page)
+  navItems.push({
+    label: "Perfil",
+    icon: <User className={iconClass} />,
+    to: "/user/profile",
+  });
 
   const handleNavClick = (to: string) => (e: React.MouseEvent) => {
     if (location.pathname !== to) {
