@@ -261,9 +261,9 @@ const AdminPanel = () => {
           tiktok: businessForm.tiktok,
           whatsapp: businessForm.whatsapp,
         },
-        priceRange: businessForm.price_range || businessForm.priceRange,
+        priceRange: businessForm.price_range || businessForm.price_range,
         amenities: businessForm.amenities,
-        coverImage: businessForm.cover_image || businessForm.coverImage,
+        coverImage: businessForm.cover_image || businessForm.cover_image,
         logo: businessForm.logo,
         is_public: businessForm.is_public,
       };
@@ -285,9 +285,9 @@ const AdminPanel = () => {
           tiktok: businessForm.tiktok,
           whatsapp: businessForm.whatsapp,
         },
-        price_range: businessForm.price_range || businessForm.priceRange,
+        price_range: businessForm.price_range || businessForm.price_range,
         amenities: businessForm.amenities,
-        cover_image: businessForm.cover_image || businessForm.coverImage,
+        cover_image: businessForm.cover_image || businessForm.cover_image,
         logo: businessForm.logo,
         is_public: businessForm.is_public,
       };

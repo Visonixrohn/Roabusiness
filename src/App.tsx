@@ -24,8 +24,6 @@ import UserProfilePage from "@/pages/UserProfilePage";
 import UserSettingsPage from "@/pages/UserSettingsPage";
 import AdminPanel from "@/pages/AdminPanel";
 
-import MobileBottomBar from "@/components/MobileBottomBar";
-import MobileTopBar from "@/components/MobileTopBar";
 import "./App.css";
 import { useEffect } from "react";
 
@@ -70,8 +68,7 @@ function App() {
         >
           <Router>
             <div className="min-h-screen bg-gray-50">
-              {/* Top bar solo móvil */}
-              <MobileTopBar />
+              {/* Top bar móvil eliminado */}
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/directorio" element={<DirectoryPage />} />
@@ -122,8 +119,7 @@ function App() {
                 }}
               />
 
-              {/* Barra inferior solo en móvil */}
-              <MobileBottomBar />
+              {/* Barra inferior móvil eliminada */}
             </div>
           </Router>
         </LoadScript>
