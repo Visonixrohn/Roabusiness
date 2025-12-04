@@ -244,7 +244,8 @@ const AdminPanel = () => {
         return;
       }
 
-      const businessData = {
+      // Construir payload en camelCase (preferido por el frontend)
+      const payloadCamel: any = {
         name: businessForm.name,
         category: businessForm.category,
         island: businessForm.island,
@@ -260,24 +261,65 @@ const AdminPanel = () => {
           tiktok: businessForm.tiktok,
           whatsapp: businessForm.whatsapp,
         },
-        price_range: businessForm.price_range,
+        priceRange: businessForm.price_range || businessForm.priceRange,
         amenities: businessForm.amenities,
-        cover_image: businessForm.cover_image,
+        coverImage: businessForm.cover_image || businessForm.coverImage,
         logo: businessForm.logo,
         is_public: businessForm.is_public,
       };
 
-      if (modalType === "add") {
-        const { error } = await supabase.from("businesses").insert([businessData]);
+      // Also prepare snake_case fallback for DBs expecting that naming
+      const payloadSnake: any = {
+        name: businessForm.name,
+        category: businessForm.category,
+        island: businessForm.island,
+        location: businessForm.location,
+        description: businessForm.description,
+        contact: {
+          email: businessForm.email,
+          phone: businessForm.phone,
+          website: businessForm.website,
+          facebook: businessForm.facebook,
+          instagram: businessForm.instagram,
+          twitter: businessForm.twitter,
+          tiktok: businessForm.tiktok,
+          whatsapp: businessForm.whatsapp,
+        },
+        price_range: businessForm.price_range || businessForm.priceRange,
+        amenities: businessForm.amenities,
+        cover_image: businessForm.cover_image || businessForm.coverImage,
+        logo: businessForm.logo,
+        is_public: businessForm.is_public,
+      };
+
+      // helper to try insert/update with given payload, returning error if any
+      const tryUpsert = async (payload: any) => {
+        if (modalType === "add") {
+          return await supabase.from("businesses").insert([payload]);
+        } else {
+          return await supabase.from("businesses").update(payload).eq("id", selectedItem?.id);
+        }
+      };
+
+      // Primero intentamos con camelCase; si falla por columna inexistente, reintentamos con snake_case
+      try {
+        const { error } = await tryUpsert(payloadCamel as any);
         if (error) throw error;
-        toast.success("Negocio creado exitosamente");
-      } else if (modalType === "edit" && selectedItem) {
-        const { error } = await supabase
-          .from("businesses")
-          .update(businessData)
-          .eq("id", selectedItem.id);
-        if (error) throw error;
-        toast.success("Negocio actualizado exitosamente");
+        toast.success(modalType === "add" ? "Negocio creado exitosamente" : "Negocio actualizado exitosamente");
+      } catch (err: any) {
+        // si el error menciona columnas faltantes, intentar con snake_case
+        const msg = String(err?.message || err);
+        if (msg.includes("cover_image") || msg.includes("could not find the") || msg.includes("column") ) {
+          try {
+            const { error } = await tryUpsert(payloadSnake as any);
+            if (error) throw error;
+            toast.success(modalType === "add" ? "Negocio creado exitosamente" : "Negocio actualizado exitosamente");
+          } catch (err2: any) {
+            throw err2;
+          }
+        } else {
+          throw err;
+        }
       }
 
       closeModal();
