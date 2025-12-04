@@ -115,17 +115,11 @@ const AdminPanel = () => {
     setLoading(true);
     try {
       if (activeTab === "users") {
-        const { data, error } = await supabase
-          .from("users")
-          .select("*")
-          .order("created_at", { ascending: false });
+        const { data, error } = await supabase.from("users").select("*");
         if (error) throw error;
         setUsers(data || []);
       } else {
-        const { data, error } = await supabase
-          .from("businesses")
-          .select("*")
-          .order("created_at", { ascending: false });
+        const { data, error } = await supabase.from("businesses").select("*");
         if (error) throw error;
         setBusinesses(data || []);
       }
