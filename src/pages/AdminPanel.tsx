@@ -1,537 +1,1211 @@
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Users,
+  Building2,
+  Search,
+  Plus,
+  Edit,
+  Trash2,
+  X,
+  Upload,
+  Mail,
+  Phone,
+  MapPin,
+  Globe,
+  Facebook,
+  Instagram,
+  Twitter,
+  Eye,
+  EyeOff,
+  Filter,
+  Download,
+  RefreshCw,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import ImageUpload from "@/components/ImageUpload";
+import TikTokIcon from "@/components/icons/TikTokIcon";
 
-const LOCAL_KEY = "isAdminRoa";
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  type: "business" | "user";
+  business_id?: string;
+  created_at?: string;
+}
 
-const AdminPanel: React.FC = () => {
+interface Business {
+  id: string;
+  name: string;
+  category: string;
+  island: string;
+  location: string;
+  description: string;
+  contact: {
+    email: string;
+    phone: string;
+    website?: string;
+    facebook?: string;
+    instagram?: string;
+    twitter?: string;
+    tiktok?: string;
+    whatsapp?: string;
+  };
+  price_range?: string;
+  amenities?: string[];
+  cover_image?: string;
+  logo?: string;
+  is_public?: boolean;
+  created_at?: string;
+}
+
+type TabType = "users" | "businesses";
+type ModalType = "add" | "edit" | null;
+
+const AdminPanel = () => {
+  const [activeTab, setActiveTab] = useState<TabType>("users");
+  const [users, setUsers] = useState<User[]>([]);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(LOCAL_KEY) === "1";
-    } catch {
-      return false;
-    }
-  });
-  const [clave, setClave] = useState("");
-  const [debugResult, setDebugResult] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<ModalType>(null);
+  const [selectedItem, setSelectedItem] = useState<User | Business | null>(null);
+  const [filterType, setFilterType] = useState<string>("all");
 
-  // users table
-  const [users, setUsers] = useState<any[]>([]);
-  const [fetchingUsers, setFetchingUsers] = useState(false);
-
-  // form for create/update
-  const [editingUser, setEditingUser] = useState<any | null>(null);
-  const [form, setForm] = useState({ email: "", name: "", type: "user" });
-
-  // modal for full edit/create including business
-  const [showModal, setShowModal] = useState(false);
-  const [modalUser, setModalUser] = useState<any | null>(null);
-  const [modalBusiness, setModalBusiness] = useState<any | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const emptyBusiness = () => ({
+  // Form states
+  const [userForm, setUserForm] = useState({
+    email: "",
     name: "",
-    description: "",
+    type: "user" as "business" | "user",
+    business_id: "",
+  });
+
+  const [businessForm, setBusinessForm] = useState({
+    name: "",
     category: "",
     island: "",
     location: "",
-    coverImage: "",
+    description: "",
+    email: "",
+    phone: "",
+    website: "",
+    facebook: "",
+    instagram: "",
+    twitter: "",
+    tiktok: "",
+    whatsapp: "",
+    price_range: "",
+    amenities: [] as string[],
+    cover_image: "",
     logo: "",
-    priceRange: "",
-    amenities: "",
-    contact_phone: "",
-    contact_email: "",
-    contact_website: "",
+    is_public: true,
   });
 
-  useEffect(() => {
-    if (isAdmin) fetchUsers();
-  }, [isAdmin]);
+  const [newAmenity, setNewAmenity] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    fetchData();
+  }, [activeTab]);
+
+  const fetchData = async () => {
     setLoading(true);
     try {
-      // obtener la primera fila de la tabla 'clave' (orden por id)
-      const { data, error } = await supabase
-        .from("clave")
-        .select("id, nun")
-        .order("id", { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      if (error) {
-        console.error("Supabase error fetching clave:", error);
-        toast.error(`Error al comprobar la clave: ${error.message || error}`);
-        setLoading(false);
-        return;
-      }
-      if (!data) {
-        toast.error("No se encontró ninguna fila en la tabla 'clave'");
-        setLoading(false);
-        return;
-      }
-      // comparar como strings o números
-      const nunValue = String(data.nun);
-      if (nunValue === clave.trim()) {
-        localStorage.setItem(LOCAL_KEY, "1");
-        setIsAdmin(true);
-        toast.success("Acceso concedido");
+      if (activeTab === "users") {
+        const { data, error } = await supabase
+          .from("users")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        setUsers(data || []);
       } else {
-        toast.error("Clave incorrecta");
+        const { data, error } = await supabase
+          .from("businesses")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        setBusinesses(data || []);
       }
+    } catch (error: any) {
+      toast.error("Error al cargar datos: " + error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleTestConnection = async () => {
-    setDebugResult(null);
-    try {
-      const { data, error } = await supabase
-        .from("clave")
-        .select("id, nun")
-        .order("id", { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      if (error) {
-        setDebugResult(`ERROR: ${JSON.stringify(error)}`);
-      } else {
-        setDebugResult(`OK: ${JSON.stringify(data)}`);
-      }
-    } catch (err: any) {
-      setDebugResult(`EXCEPTION: ${String(err)}`);
-    }
-  };
+  const openModal = (type: ModalType, item?: User | Business) => {
+    setModalType(type);
+    setSelectedItem(item || null);
 
-  const fetchUsers = async () => {
-    setFetchingUsers(true);
-    const { data, error } = await supabase.from("users").select("*");
-    if (error) {
-      toast.error("Error al obtener usuarios");
-      setUsers([]);
-    } else {
-      setUsers(data || []);
-    }
-    setFetchingUsers(false);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem(LOCAL_KEY);
-    setIsAdmin(false);
-    setUsers([]);
-    setForm({ email: "", name: "", type: "user" });
-    setEditingUser(null);
-    toast.success("Sesión cerrada");
-  };
-
-  const handleStartEdit = (u: any) => {
-    // Open modal for edit
-    openEditModal(u);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingUser(null);
-    setForm({ email: "", name: "", type: "user" });
-  };
-
-  const handleSave = async (e?: React.FormEvent) => {
-    // Deprecated: use modal save
-    openCreateModal();
-  };
-
-  const handleDelete = async (u: any) => {
-    if (!window.confirm(`Eliminar usuario ${u.email}?`)) return;
-    const { error } = await supabase.from("users").delete().eq("id", u.id);
-    if (error) return toast.error("Error al eliminar");
-    toast.success("Usuario eliminado");
-    fetchUsers();
-  };
-
-  // --- Modal helpers ---
-  const openEditModal = async (u: any) => {
-    setModalUser({ ...u });
-    setModalBusiness(null);
-    setShowModal(true);
-    // if user is business, try load business by owner_id
-    if (u.type === "business") {
-      const { data: bdata } = await supabase
-        .from("businesses")
-        .select("*")
-        .eq("owner_id", u.id)
-        .maybeSingle();
-      if (bdata) {
-        setModalBusiness({
-          ...bdata,
-          amenities: Array.isArray(bdata.amenities) ? bdata.amenities.join(",") : (bdata.amenities || ""),
-          contact_phone: bdata.contact?.phone || "",
-          contact_email: bdata.contact?.email || "",
-          contact_website: bdata.contact?.website || "",
+    if (type === "edit" && item) {
+      if (activeTab === "users") {
+        const user = item as User;
+        setUserForm({
+          email: user.email,
+          name: user.name,
+          type: user.type,
+          business_id: user.business_id || "",
         });
       } else {
-        setModalBusiness(emptyBusiness());
+        const business = item as Business;
+        setBusinessForm({
+          name: business.name,
+          category: business.category,
+          island: business.island,
+          location: business.location,
+          description: business.description,
+          email: business.contact?.email || "",
+          phone: business.contact?.phone || "",
+          website: business.contact?.website || "",
+          facebook: business.contact?.facebook || "",
+          instagram: business.contact?.instagram || "",
+          twitter: business.contact?.twitter || "",
+          tiktok: business.contact?.tiktok || "",
+          whatsapp: business.contact?.whatsapp || "",
+          price_range: business.price_range || "",
+          amenities: business.amenities || [],
+          cover_image: business.cover_image || "",
+          logo: business.logo || "",
+          is_public: business.is_public ?? true,
+        });
       }
     } else {
-      setModalBusiness(emptyBusiness());
+      resetForms();
     }
-  };
 
-  const openCreateModal = () => {
-    setModalUser(null);
-    setModalBusiness(emptyBusiness());
-    setShowModal(true);
+    setModalOpen(true);
   };
 
   const closeModal = () => {
-    setShowModal(false);
-    setModalUser(null);
-    setModalBusiness(null);
+    setModalOpen(false);
+    setModalType(null);
+    setSelectedItem(null);
+    resetForms();
   };
 
-  const handleModalSave = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!modalUser && !modalBusiness) return;
-    setIsSaving(true);
+  const resetForms = () => {
+    setUserForm({
+      email: "",
+      name: "",
+      type: "user",
+      business_id: "",
+    });
+    setBusinessForm({
+      name: "",
+      category: "",
+      island: "",
+      location: "",
+      description: "",
+      email: "",
+      phone: "",
+      website: "",
+      facebook: "",
+      instagram: "",
+      twitter: "",
+      tiktok: "",
+      whatsapp: "",
+      price_range: "",
+      amenities: [],
+      cover_image: "",
+      logo: "",
+      is_public: true,
+    });
+    setNewAmenity("");
+  };
+
+  const handleSaveUser = async () => {
     try {
-      // USER create or update
-      let userId = modalUser?.id;
-      if (modalUser) {
-        const userPayload: any = {
-          email: modalUser.email,
-          name: modalUser.name,
-          type: modalUser.type || "user",
-        };
-        if (userId) {
-          const { error } = await supabase.from("users").update(userPayload).eq("id", userId);
-          if (error) throw error;
-          toast.success("Usuario actualizado");
-        } else {
-          const { data: newUser, error } = await supabase.from("users").insert([userPayload]).select().single();
-          if (error) throw error;
-          userId = newUser.id;
-          toast.success("Usuario creado");
-        }
+      if (!userForm.email || !userForm.name) {
+        toast.error("Por favor completa todos los campos obligatorios");
+        return;
       }
 
-      // BUSINESS create or update if applicable
-      if (modalBusiness && ( (modalUser && modalUser.type === "business") || (modalBusiness.name && modalBusiness.name.length>0) )) {
-        const businessPayload: any = {
-          name: modalBusiness.name,
-          description: modalBusiness.description,
-          category: modalBusiness.category,
-          island: modalBusiness.island,
-          location: modalBusiness.location,
-          coverImage: modalBusiness.coverImage,
-          logo: modalBusiness.logo,
-          priceRange: modalBusiness.priceRange,
-          amenities: (modalBusiness.amenities || "").split(",").map((s: string) => s.trim()).filter(Boolean),
-          contact: {
-            phone: modalBusiness.contact_phone,
-            email: modalBusiness.contact_email,
-            website: modalBusiness.contact_website,
-          },
-          owner_id: userId,
-        };
-
-        // try find existing business by owner_id
-        const { data: existing } = await supabase.from("businesses").select("id").eq("owner_id", userId).maybeSingle();
-        if (existing && existing.id) {
-          const { error } = await supabase.from("businesses").update(businessPayload).eq("id", existing.id);
-          if (error) throw error;
-          toast.success("Business actualizado");
-        } else {
-          const { error } = await supabase.from("businesses").insert([businessPayload]);
-          if (error) throw error;
-          toast.success("Business creado");
-        }
+      if (modalType === "add") {
+        const { error } = await supabase.from("users").insert([userForm]);
+        if (error) throw error;
+        toast.success("Usuario creado exitosamente");
+      } else if (modalType === "edit" && selectedItem) {
+        const { error } = await supabase
+          .from("users")
+          .update(userForm)
+          .eq("id", selectedItem.id);
+        if (error) throw error;
+        toast.success("Usuario actualizado exitosamente");
       }
 
       closeModal();
-      fetchUsers();
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err?.message || "Error guardando datos");
-    } finally {
-      setIsSaving(false);
+      fetchData();
+    } catch (error: any) {
+      toast.error("Error: " + error.message);
     }
   };
 
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-         
-          <form onSubmit={handleLogin} className="space-y-3">
-            <div>
-              <label className="text-sm text-gray-700">Clave de acceso</label>
-              <Input
-                value={clave}
-                onChange={(e: any) => setClave(e.target.value)}
-                placeholder="Introduce la clave"
-                type="password"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Button type="submit" className="bg-blue-600" disabled={loading}>
-                {loading ? "Verificando..." : "Acceder"}
-              </Button>
-            </div>
-            
-          </form>
-        </div>
-      </div>
-    );
-  }
+  const handleSaveBusiness = async () => {
+    try {
+      if (!businessForm.name || !businessForm.category || !businessForm.island) {
+        toast.error("Por favor completa todos los campos obligatorios");
+        return;
+      }
+
+      const businessData = {
+        name: businessForm.name,
+        category: businessForm.category,
+        island: businessForm.island,
+        location: businessForm.location,
+        description: businessForm.description,
+        contact: {
+          email: businessForm.email,
+          phone: businessForm.phone,
+          website: businessForm.website,
+          facebook: businessForm.facebook,
+          instagram: businessForm.instagram,
+          twitter: businessForm.twitter,
+          tiktok: businessForm.tiktok,
+          whatsapp: businessForm.whatsapp,
+        },
+        price_range: businessForm.price_range,
+        amenities: businessForm.amenities,
+        cover_image: businessForm.cover_image,
+        logo: businessForm.logo,
+        is_public: businessForm.is_public,
+      };
+
+      if (modalType === "add") {
+        const { error } = await supabase.from("businesses").insert([businessData]);
+        if (error) throw error;
+        toast.success("Negocio creado exitosamente");
+      } else if (modalType === "edit" && selectedItem) {
+        const { error } = await supabase
+          .from("businesses")
+          .update(businessData)
+          .eq("id", selectedItem.id);
+        if (error) throw error;
+        toast.success("Negocio actualizado exitosamente");
+      }
+
+      closeModal();
+      fetchData();
+    } catch (error: any) {
+      toast.error("Error: " + error.message);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("¿Estás seguro de que deseas eliminar este elemento?")) return;
+
+    try {
+      const table = activeTab === "users" ? "users" : "businesses";
+      const { error } = await supabase.from(table).delete().eq("id", id);
+      if (error) throw error;
+      toast.success("Elemento eliminado exitosamente");
+      fetchData();
+    } catch (error: any) {
+      toast.error("Error al eliminar: " + error.message);
+    }
+  };
+
+  const addAmenity = () => {
+    if (newAmenity.trim() && !businessForm.amenities.includes(newAmenity.trim())) {
+      setBusinessForm((prev) => ({
+        ...prev,
+        amenities: [...prev.amenities, newAmenity.trim()],
+      }));
+      setNewAmenity("");
+    }
+  };
+
+  const removeAmenity = (amenity: string) => {
+    setBusinessForm((prev) => ({
+      ...prev,
+      amenities: prev.amenities.filter((a) => a !== amenity),
+    }));
+  };
+
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterType === "all" || user.type === filterType;
+    return matchesSearch && matchesFilter;
+  });
+
+  const filteredBusinesses = businesses.filter((business) => {
+    const matchesSearch =
+      business.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      business.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      business.island.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter =
+      filterType === "all" ||
+      business.island === filterType ||
+      business.category === filterType;
+    return matchesSearch && matchesFilter;
+  });
+
+  const islands = ["Roatán", "Utila", "Guanaja", "Jose Santos Guardiola"];
+  const priceRanges = ["$", "$$", "$$$", "$$$$"];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">Panel Admin</h2>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={handleLogout}>Cerrar sesión</Button>
-          </div>
-        </div>
-
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-2">Usuarios</h3>
-          <div className="bg-white rounded-lg shadow p-4">
-            <div className="mb-4 flex gap-2">
-              <input
-                className="px-3 py-2 border rounded w-full"
-                placeholder="Email"
-                value={form.email}
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-              />
-              <input
-                className="px-3 py-2 border rounded w-64"
-                placeholder="Nombre"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              />
-              <select
-                className="px-3 py-2 border rounded"
-                value={form.type}
-                onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
-              >
-                <option value="user">Usuario</option>
-                <option value="business">Business</option>
-              </select>
-              <div className="flex items-center gap-2">
-                {editingUser ? (
-                  <>
-                    <Button onClick={handleSave}>Guardar</Button>
-                    <Button variant="ghost" onClick={handleCancelEdit}>Cancelar</Button>
-                  </>
-                ) : (
-                  <Button onClick={handleSave}>Crear</Button>
-                )}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Header */}
+      <div className="bg-white shadow-lg border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-3 rounded-xl shadow-lg">
+                <Building2 className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  Panel de Administración
+                </h1>
+                <p className="text-gray-600 text-sm mt-1">
+                  Gestiona usuarios y negocios de Roabusiness
+                </p>
               </div>
             </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full table-auto text-sm">
-                <thead>
-                  <tr className="text-left text-gray-600">
-                    <th className="px-2 py-2">ID</th>
-                    <th className="px-2 py-2">Email</th>
-                    <th className="px-2 py-2">Nombre</th>
-                    <th className="px-2 py-2">Tipo</th>
-                    <th className="px-2 py-2">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {fetchingUsers ? (
-                    <tr>
-                      <td colSpan={5} className="p-4 text-center">Cargando...</td>
-                    </tr>
-                  ) : users.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="p-4 text-center">No hay usuarios</td>
-                    </tr>
-                  ) : (
-                    users.map((u) => (
-                      <tr key={u.id} className="border-t">
-                        <td className="px-2 py-2">{u.id}</td>
-                        <td className="px-2 py-2">{u.email}</td>
-                        <td className="px-2 py-2">{u.name}</td>
-                        <td className="px-2 py-2">{u.type}</td>
-                        <td className="px-2 py-2 flex gap-2">
-                          <Button size="sm" onClick={() => handleStartEdit(u)}>Editar</Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleDelete(u)}>Eliminar</Button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="mt-4">
-              <Button onClick={fetchUsers}>Refrescar</Button>
-            </div>
+            <Button
+              onClick={() => fetchData()}
+              variant="outline"
+              className="flex items-center gap-2 hover:bg-blue-50 transition-colors"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+              Actualizar
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Modal para crear/editar usuario + business */}
-      <Dialog open={showModal} onOpenChange={(open) => { if (!open) closeModal(); }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{modalUser ? `Editar usuario ${modalUser.email || ''}` : 'Crear usuario / negocio'}</DialogTitle>
-            <DialogDescription>
-              Rellena los campos del usuario y, si aplica, la información del negocio.
-            </DialogDescription>
-          </DialogHeader>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Tabs */}
+        <div className="bg-white rounded-xl shadow-md p-2 mb-6 flex gap-2">
+          <button
+            onClick={() => setActiveTab("users")}
+            className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${activeTab === "users"
+                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-105"
+                : "text-gray-600 hover:bg-gray-100"
+              }`}
+          >
+            <Users className="h-5 w-5" />
+            Usuarios ({users.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("businesses")}
+            className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${activeTab === "businesses"
+                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-105"
+                : "text-gray-600 hover:bg-gray-100"
+              }`}
+          >
+            <Building2 className="h-5 w-5" />
+            Negocios ({businesses.length})
+          </button>
+        </div>
 
-          <form onSubmit={handleModalSave} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="sm:col-span-2">
-                <label className="block text-sm text-gray-700">Email</label>
-                <Input
-                  value={modalUser?.email || ""}
-                  onChange={(e: any) => setModalUser((m) => ({ ...(m || {}), email: e.target.value }))}
-                  placeholder="correo@ejemplo.com"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-700">Tipo</label>
-                <select
-                  className="w-full px-3 py-2 border rounded"
-                  value={modalUser?.type || "user"}
-                  onChange={(e) => setModalUser((m) => ({ ...(m || {}), type: e.target.value }))}
-                >
-                  <option value="user">Usuario</option>
-                  <option value="business">Business</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm text-gray-700">Nombre</label>
-              <Input
-                value={modalUser?.name || ""}
-                onChange={(e: any) => setModalUser((m) => ({ ...(m || {}), name: e.target.value }))}
-                placeholder="Nombre completo"
+        {/* Search and Actions */}
+        <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input
+                type="text"
+                placeholder={`Buscar ${activeTab === "users" ? "usuarios" : "negocios"}...`}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
             </div>
 
-            {/* Sección de Business (si aplica) */}
-            <div className="pt-2 border-t">
-              <h4 className="text-sm font-semibold">Información del negocio</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-                <div>
-                  <label className="block text-sm text-gray-700">Nombre del negocio</label>
-                  <Input
-                    value={modalBusiness?.name || ""}
-                    onChange={(e: any) => setModalBusiness((b) => ({ ...(b || {}), name: e.target.value }))}
-                    placeholder="Nombre del negocio"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700">Categoría</label>
-                  <Input
-                    value={modalBusiness?.category || ""}
-                    onChange={(e: any) => setModalBusiness((b) => ({ ...(b || {}), category: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700">Isla</label>
-                  <Input
-                    value={modalBusiness?.island || ""}
-                    onChange={(e: any) => setModalBusiness((b) => ({ ...(b || {}), island: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700">Ubicación</label>
-                  <Input
-                    value={modalBusiness?.location || ""}
-                    onChange={(e: any) => setModalBusiness((b) => ({ ...(b || {}), location: e.target.value }))}
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-sm text-gray-700">Descripción</label>
-                  <Textarea
-                    value={modalBusiness?.description || ""}
-                    onChange={(e: any) => setModalBusiness((b) => ({ ...(b || {}), description: e.target.value }))}
-                    rows={3}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700">Imagen principal (URL)</label>
-                  <Input
-                    value={modalBusiness?.coverImage || ""}
-                    onChange={(e: any) => setModalBusiness((b) => ({ ...(b || {}), coverImage: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700">Logo (URL)</label>
-                  <Input
-                    value={modalBusiness?.logo || ""}
-                    onChange={(e: any) => setModalBusiness((b) => ({ ...(b || {}), logo: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700">Rango de precio</label>
-                  <Input
-                    value={modalBusiness?.priceRange || ""}
-                    onChange={(e: any) => setModalBusiness((b) => ({ ...(b || {}), priceRange: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-700">Amenities (coma-separados)</label>
-                  <Input
-                    value={modalBusiness?.amenities || ""}
-                    onChange={(e: any) => setModalBusiness((b) => ({ ...(b || {}), amenities: e.target.value }))}
-                  />
-                </div>
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            >
+              <option value="all">Todos</option>
+              {activeTab === "users" ? (
+                <>
+                  <option value="user">Usuarios</option>
+                  <option value="business">Negocios</option>
+                </>
+              ) : (
+                <>
+                  {islands.map((island) => (
+                    <option key={island} value={island}>
+                      {island}
+                    </option>
+                  ))}
+                </>
+              )}
+            </select>
 
-                <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-sm text-gray-700">Teléfono</label>
-                    <Input
-                      value={modalBusiness?.contact_phone || ""}
-                      onChange={(e: any) => setModalBusiness((b) => ({ ...(b || {}), contact_phone: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-700">Email contacto</label>
-                    <Input
-                      value={modalBusiness?.contact_email || ""}
-                      onChange={(e: any) => setModalBusiness((b) => ({ ...(b || {}), contact_email: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-700">Sitio web</label>
-                    <Input
-                      value={modalBusiness?.contact_website || ""}
-                      onChange={(e: any) => setModalBusiness((b) => ({ ...(b || {}), contact_website: e.target.value }))}
-                    />
-                  </div>
+            <Button
+              onClick={() => openModal("add")}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+            >
+              <Plus className="h-5 w-5" />
+              Agregar {activeTab === "users" ? "Usuario" : "Negocio"}
+            </Button>
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <RefreshCw className="h-8 w-8 animate-spin text-blue-600" />
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              {activeTab === "users" ? (
+                <table className="w-full">
+                  <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Nombre
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Email
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Tipo
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Fecha de Creación
+                      </th>
+                      <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {filteredUsers.map((user) => (
+                      <tr
+                        key={user.id}
+                        className="hover:bg-blue-50 transition-colors duration-150"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="h-10 w-10 flex-shrink-0">
+                              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-semibold">
+                                {user.name.charAt(0).toUpperCase()}
+                              </div>
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-semibold text-gray-900">
+                                {user.name}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-700 flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-gray-400" />
+                            {user.email}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge
+                            className={`${user.type === "business"
+                                ? "bg-purple-100 text-purple-800 border-purple-200"
+                                : "bg-blue-100 text-blue-800 border-blue-200"
+                              } border px-3 py-1`}
+                          >
+                            {user.type === "business" ? "Negocio" : "Usuario"}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {user.created_at
+                            ? new Date(user.created_at).toLocaleDateString("es-ES")
+                            : "N/A"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => openModal("edit", user)}
+                              className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-100 rounded-lg transition-all"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(user.id)}
+                              className="text-red-600 hover:text-red-800 p-2 hover:bg-red-100 rounded-lg transition-all"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <table className="w-full">
+                  <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Negocio
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Categoría
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Isla
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Contacto
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Estado
+                      </th>
+                      <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {filteredBusinesses.map((business) => (
+                      <tr
+                        key={business.id}
+                        className="hover:bg-blue-50 transition-colors duration-150"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="h-12 w-12 flex-shrink-0">
+                              {business.logo ? (
+                                <img
+                                  src={business.logo}
+                                  alt={business.name}
+                                  className="h-12 w-12 rounded-full object-cover border-2 border-gray-200"
+                                />
+                              ) : (
+                                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-semibold text-lg">
+                                  {business.name.charAt(0).toUpperCase()}
+                                </div>
+                              )}
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-semibold text-gray-900">
+                                {business.name}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {business.location}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge className="bg-indigo-100 text-indigo-800 border-indigo-200 border">
+                            {business.category}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-700 flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-gray-400" />
+                            {business.island}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-700">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Mail className="h-3 w-3 text-gray-400" />
+                              <span className="text-xs">{business.contact?.email}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Phone className="h-3 w-3 text-gray-400" />
+                              <span className="text-xs">{business.contact?.phone}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge
+                            className={`${business.is_public
+                                ? "bg-green-100 text-green-800 border-green-200"
+                                : "bg-gray-100 text-gray-800 border-gray-200"
+                              } border`}
+                          >
+                            {business.is_public ? (
+                              <div className="flex items-center gap-1">
+                                <Eye className="h-3 w-3" />
+                                Público
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1">
+                                <EyeOff className="h-3 w-3" />
+                                Privado
+                              </div>
+                            )}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => openModal("edit", business)}
+                              className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-100 rounded-lg transition-all"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(business.id)}
+                              className="text-red-600 hover:text-red-800 p-2 hover:bg-red-100 rounded-lg transition-all"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading &&
+            ((activeTab === "users" && filteredUsers.length === 0) ||
+              (activeTab === "businesses" && filteredBusinesses.length === 0)) && (
+              <div className="text-center py-20">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                  {activeTab === "users" ? (
+                    <Users className="h-8 w-8 text-gray-400" />
+                  ) : (
+                    <Building2 className="h-8 w-8 text-gray-400" />
+                  )}
                 </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No se encontraron resultados
+                </h3>
+                <p className="text-gray-600">
+                  {searchTerm
+                    ? "Intenta con otros términos de búsqueda"
+                    : `No hay ${activeTab === "users" ? "usuarios" : "negocios"} registrados`}
+                </p>
               </div>
+            )}
+        </div>
+      </div>
+
+      {/* Modal */}
+      {modalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-4 flex items-center justify-between rounded-t-2xl">
+              <h2 className="text-2xl font-bold flex items-center gap-3">
+                {activeTab === "users" ? (
+                  <Users className="h-6 w-6" />
+                ) : (
+                  <Building2 className="h-6 w-6" />
+                )}
+                {modalType === "add" ? "Agregar" : "Editar"}{" "}
+                {activeTab === "users" ? "Usuario" : "Negocio"}
+              </h2>
+              <button
+                onClick={closeModal}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
             </div>
 
-            <DialogFooter>
-              <div className="flex gap-2 w-full justify-end">
-                <Button variant="ghost" onClick={closeModal}>Cancelar</Button>
-                <Button type="submit" disabled={isSaving}>{isSaving ? 'Guardando...' : 'Guardar'}</Button>
-              </div>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+            {/* Modal Body */}
+            <div className="p-6">
+              {activeTab === "users" ? (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Nombre Completo *
+                      </label>
+                      <input
+                        type="text"
+                        value={userForm.name}
+                        onChange={(e) =>
+                          setUserForm({ ...userForm, name: e.target.value })
+                        }
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        placeholder="Ej: Juan Pérez"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Email *
+                      </label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                        <input
+                          type="email"
+                          value={userForm.email}
+                          onChange={(e) =>
+                            setUserForm({ ...userForm, email: e.target.value })
+                          }
+                          className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                          placeholder="correo@ejemplo.com"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Tipo de Usuario *
+                      </label>
+                      <select
+                        value={userForm.type}
+                        onChange={(e) =>
+                          setUserForm({
+                            ...userForm,
+                            type: e.target.value as "business" | "user",
+                          })
+                        }
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      >
+                        <option value="user">Usuario</option>
+                        <option value="business">Negocio</option>
+                      </select>
+                    </div>
+
+                    {userForm.type === "business" && (
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          ID del Negocio
+                        </label>
+                        <input
+                          type="text"
+                          value={userForm.business_id}
+                          onChange={(e) =>
+                            setUserForm({
+                              ...userForm,
+                              business_id: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                          placeholder="ID del negocio asociado"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Basic Information */}
+                  <div className="bg-gray-50 rounded-xl p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Building2 className="h-5 w-5 text-blue-600" />
+                      Información Básica
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Nombre del Negocio *
+                        </label>
+                        <input
+                          type="text"
+                          value={businessForm.name}
+                          onChange={(e) =>
+                            setBusinessForm({ ...businessForm, name: e.target.value })
+                          }
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                          placeholder="Ej: Hotel Paradise Bay"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Categoría *
+                        </label>
+                        <input
+                          type="text"
+                          value={businessForm.category}
+                          onChange={(e) =>
+                            setBusinessForm({
+                              ...businessForm,
+                              category: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                          placeholder="Ej: Hotel"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Isla *
+                        </label>
+                        <select
+                          value={businessForm.island}
+                          onChange={(e) =>
+                            setBusinessForm({ ...businessForm, island: e.target.value })
+                          }
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        >
+                          <option value="">Selecciona una isla</option>
+                          {islands.map((island) => (
+                            <option key={island} value={island}>
+                              {island}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Ubicación *
+                        </label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                          <input
+                            type="text"
+                            value={businessForm.location}
+                            onChange={(e) =>
+                              setBusinessForm({
+                                ...businessForm,
+                                location: e.target.value,
+                              })
+                            }
+                            className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="Ej: West Bay Beach"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Rango de Precios
+                        </label>
+                        <select
+                          value={businessForm.price_range}
+                          onChange={(e) =>
+                            setBusinessForm({
+                              ...businessForm,
+                              price_range: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        >
+                          <option value="">Selecciona un rango</option>
+                          {priceRanges.map((range) => (
+                            <option key={range} value={range}>
+                              {range}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Descripción *
+                        </label>
+                        <textarea
+                          value={businessForm.description}
+                          onChange={(e) =>
+                            setBusinessForm({
+                              ...businessForm,
+                              description: e.target.value,
+                            })
+                          }
+                          rows={3}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                          placeholder="Describe el negocio..."
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={businessForm.is_public}
+                            onChange={(e) =>
+                              setBusinessForm({
+                                ...businessForm,
+                                is_public: e.target.checked,
+                              })
+                            }
+                            className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <span className="text-sm font-semibold text-gray-700">
+                            Negocio Público (visible en el directorio)
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Contact Information */}
+                  <div className="bg-gray-50 rounded-xl p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Phone className="h-5 w-5 text-blue-600" />
+                      Información de Contacto
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Email
+                        </label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                          <input
+                            type="email"
+                            value={businessForm.email}
+                            onChange={(e) =>
+                              setBusinessForm({ ...businessForm, email: e.target.value })
+                            }
+                            className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="contacto@negocio.com"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Teléfono
+                        </label>
+                        <div className="relative">
+                          <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                          <input
+                            type="tel"
+                            value={businessForm.phone}
+                            onChange={(e) =>
+                              setBusinessForm({ ...businessForm, phone: e.target.value })
+                            }
+                            className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="+504 2445-1234"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Sitio Web
+                        </label>
+                        <div className="relative">
+                          <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                          <input
+                            type="url"
+                            value={businessForm.website}
+                            onChange={(e) =>
+                              setBusinessForm({
+                                ...businessForm,
+                                website: e.target.value,
+                              })
+                            }
+                            className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="www.negocio.com"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          WhatsApp
+                        </label>
+                        <input
+                          type="text"
+                          value={businessForm.whatsapp}
+                          onChange={(e) =>
+                            setBusinessForm({
+                              ...businessForm,
+                              whatsapp: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                          placeholder="+504 9999-9999"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                          <Facebook className="h-4 w-4 text-blue-600" />
+                          Facebook
+                        </label>
+                        <input
+                          type="url"
+                          value={businessForm.facebook}
+                          onChange={(e) =>
+                            setBusinessForm({
+                              ...businessForm,
+                              facebook: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                          placeholder="URL de Facebook"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                          <Instagram className="h-4 w-4 text-pink-500" />
+                          Instagram
+                        </label>
+                        <input
+                          type="url"
+                          value={businessForm.instagram}
+                          onChange={(e) =>
+                            setBusinessForm({
+                              ...businessForm,
+                              instagram: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                          placeholder="URL de Instagram"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                          <Twitter className="h-4 w-4 text-blue-400" />
+                          X (Twitter)
+                        </label>
+                        <input
+                          type="url"
+                          value={businessForm.twitter}
+                          onChange={(e) =>
+                            setBusinessForm({
+                              ...businessForm,
+                              twitter: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                          placeholder="URL de X"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                          <TikTokIcon className="h-4 w-4" />
+                          TikTok
+                        </label>
+                        <input
+                          type="url"
+                          value={businessForm.tiktok}
+                          onChange={(e) =>
+                            setBusinessForm({
+                              ...businessForm,
+                              tiktok: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                          placeholder="URL de TikTok"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Amenities */}
+                  <div className="bg-gray-50 rounded-xl p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Servicios y Amenidades
+                    </h3>
+                    <div className="flex gap-2 mb-4">
+                      <input
+                        type="text"
+                        value={newAmenity}
+                        onChange={(e) => setNewAmenity(e.target.value)}
+                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        placeholder="Agregar servicio..."
+                        onKeyPress={(e) =>
+                          e.key === "Enter" && (e.preventDefault(), addAmenity())
+                        }
+                      />
+                      <Button
+                        type="button"
+                        onClick={addAmenity}
+                        className="bg-blue-600 hover:bg-blue-700 px-6"
+                      >
+                        <Plus className="h-5 w-5" />
+                      </Button>
+                    </div>
+                    <div className="flex flex-wrap gap-2 min-h-[60px] p-4 border-2 border-dashed border-gray-300 rounded-lg">
+                      {businessForm.amenities.length === 0 ? (
+                        <p className="text-gray-500 text-sm">
+                          No hay servicios agregados
+                        </p>
+                      ) : (
+                        businessForm.amenities.map((amenity, index) => (
+                          <Badge
+                            key={index}
+                            className="bg-blue-100 text-blue-800 border-blue-200 border px-3 py-2 flex items-center gap-2"
+                          >
+                            {amenity}
+                            <button
+                              type="button"
+                              onClick={() => removeAmenity(amenity)}
+                              className="text-blue-600 hover:text-blue-800"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </Badge>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Images */}
+                  <div className="bg-gray-50 rounded-xl p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Upload className="h-5 w-5 text-blue-600" />
+                      Imágenes
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                          Imagen de Portada
+                        </label>
+                        <ImageUpload
+                          onImageUploaded={(url) =>
+                            setBusinessForm({ ...businessForm, cover_image: url })
+                          }
+                          onImageRemoved={() =>
+                            setBusinessForm({ ...businessForm, cover_image: "" })
+                          }
+                          currentImage={businessForm.cover_image}
+                          label="Portada"
+                          maxSize={5}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">
+                          Logo del Negocio
+                        </label>
+                        <ImageUpload
+                          onImageUploaded={(url) =>
+                            setBusinessForm({ ...businessForm, logo: url })
+                          }
+                          onImageRemoved={() =>
+                            setBusinessForm({ ...businessForm, logo: "" })
+                          }
+                          currentImage={businessForm.logo}
+                          label="Logo"
+                          maxSize={2}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="sticky bottom-0 bg-gray-50 px-6 py-4 flex items-center justify-end gap-3 border-t border-gray-200 rounded-b-2xl">
+              <Button
+                onClick={closeModal}
+                variant="outline"
+                className="px-6 py-3 border-2 hover:bg-gray-100"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={activeTab === "users" ? handleSaveUser : handleSaveBusiness}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 shadow-lg hover:shadow-xl transition-all"
+              >
+                {modalType === "add" ? "Crear" : "Actualizar"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
