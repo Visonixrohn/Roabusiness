@@ -54,10 +54,10 @@ const AuthRequiredModal: React.FC<AuthRequiredModalProps> = ({
 
         {/* Botón de acción */}
         <Button
-          onClick={() => {
-            onClose();
-            navigate("/login");
-          }}
+            onClick={() => {
+              onClose();
+              navigate("/registrar-usuario");
+            }}
           className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-2.5 rounded-xl shadow-md hover:shadow-xl transition-all hover:scale-105"
         >
           Iniciar sesión o registrarse

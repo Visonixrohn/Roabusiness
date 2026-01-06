@@ -33,9 +33,9 @@ const UserProfilePage = () => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-800 to-slate-900 text-white">
         <div className="bg-slate-800 p-10 rounded-3xl shadow-2xl text-center max-w-md w-full">
           <h2 className="text-2xl font-extrabold mb-6">Debes iniciar sesión</h2>
-          <Link to="/login">
+          <Link to="/registrar-usuario">
             <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6 py-3 font-bold shadow-lg">
-              Iniciar sesión
+              Crear cuenta
             </Button>
           </Link>
         </div>

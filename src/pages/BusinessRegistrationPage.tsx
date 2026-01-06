@@ -177,64 +177,92 @@ const BusinessRegistrationPage = () => {
     }
     setIsSubmitting(true);
     try {
-      // Insertar negocio directamente en la tabla `businesses`
-      const { data: businessData, error: businessError } = await supabase
-        .from("businesses")
-        .insert([
-          {
-            name: formData.name,
-            category: formData.category,
-            island: formData.island,
-            location: formData.location,
-            description: formData.description,
-            contact: {
-              email: formData.email,
-              phone: formData.phone,
-              website: formData.website,
-              facebook: formData.facebook,
-              instagram: formData.instagram,
-              twitter: formData.twitter,
-              tiktok: formData.tiktok,
-              whatsapp: formData.whatsapp,
-            },
-            price_range: formData.priceRange,
-            amenities: formData.amenities,
-            cover_image: formData.coverImage,
-            logo: formData.logo,
-          },
-        ])
-        .select()
-        .single();
+      // Preparar payload en camelCase
+      const payloadCamel = {
+        name: formData.name,
+        category: formData.category,
+        island: formData.island,
+        location: formData.location,
+        description: formData.description,
+        contact: {
+          email: formData.email,
+          phone: formData.phone,
+          website: formData.website,
+          facebook: formData.facebook,
+          instagram: formData.instagram,
+          twitter: formData.twitter,
+          tiktok: formData.tiktok,
+          whatsapp: formData.whatsapp,
+        },
+        priceRange: formData.priceRange,
+        amenities: formData.amenities,
+        coverImage: formData.coverImage,
+        logo: formData.logo,
+        is_public: true,
+      };
 
-      if (businessError || !businessData) {
-        toast.error(businessError?.message || "Error al crear el negocio");
+      // Preparar payload en snake_case como fallback
+      const payloadSnake = {
+        name: formData.name,
+        category: formData.category,
+        island: formData.island,
+        location: formData.location,
+        description: formData.description,
+        contact: {
+          email: formData.email,
+          phone: formData.phone,
+          website: formData.website,
+          facebook: formData.facebook,
+          instagram: formData.instagram,
+          twitter: formData.twitter,
+          tiktok: formData.tiktok,
+          whatsapp: formData.whatsapp,
+        },
+        price_range: formData.priceRange,
+        amenities: formData.amenities,
+        cover_image: formData.coverImage,
+        logo: formData.logo,
+        is_public: true,
+      };
+
+      // Intentar primero con camelCase
+      let businessData = null;
+      try {
+        const result = await supabase
+          .from("businesses")
+          .insert([payloadCamel])
+          .select()
+          .single();
+        
+        if (result.error) throw result.error;
+        businessData = result.data;
+      } catch (err: any) {
+        // Si falla por columnas, intentar con snake_case
+        const msg = String(err?.message || err);
+        if (msg.includes("cover_image") || msg.includes("coverImage") || msg.includes("could not find") || msg.includes("column")) {
+          const result = await supabase
+            .from("businesses")
+            .insert([payloadSnake])
+            .select()
+            .single();
+          
+          if (result.error) throw result.error;
+          businessData = result.data;
+        } else {
+          throw err;
+        }
+      }
+
+      if (!businessData) {
+        toast.error("Error al crear el negocio");
         setIsSubmitting(false);
         return;
       }
 
-      // Insertar usuario en la tabla `users` sin auth (administrador)
-      const { data: userData, error: userError } = await supabase
-        .from("users")
-        .insert([
-          {
-            email: formData.email,
-            name: formData.name,
-            type: "business",
-            business_id: businessData.id,
-          },
-        ])
-        .select()
-        .single();
-
-      if (userError) {
-        toast.error(userError.message || "Negocio creado, pero usuario no creado");
-      } else {
-        toast.success("Negocio y usuario creados correctamente");
-      }
-
-      setTimeout(() => navigate("/directorio"), 1200);
-    } catch (error) {
-      toast.error("Error al registrar el negocio. Intenta nuevamente.");
+      toast.success("Negocio registrado exitosamente");
+      setTimeout(() => navigate("/editar-negocio"), 1200);
+    } catch (error: any) {
+      toast.error("Error al registrar el negocio: " + (error?.message || "Intenta nuevamente."));
     } finally {
       setIsSubmitting(false);
     }

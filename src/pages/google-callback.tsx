@@ -16,7 +16,7 @@ export default function GoogleCallbackPage() {
         } = await supabase.auth.getUser();
         if (!supaUser) {
           console.error("No user from supabase.auth.getUser()");
-          navigate("/login");
+          navigate("/");
           return;
         }
         // 2. Buscar en tabla users

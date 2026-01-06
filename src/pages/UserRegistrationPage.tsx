@@ -87,11 +87,11 @@ const UserRegistrationPage = () => {
         {/* Header */}
         <div className="mb-8">
           <Link
-            to="/login"
+            to="/"
             className="flex items-center text-blue-600 hover:text-blue-800 mb-6"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Volver al login
+            Volver
           </Link>
 
           <div className="text-center">

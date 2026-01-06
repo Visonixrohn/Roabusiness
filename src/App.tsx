@@ -11,9 +11,9 @@ import DirectoryPage from "@/pages/DirectoryPage";
 import BusinessProfilePage from "@/pages/BusinessProfilePage";
 import BusinessRegistrationPage from "@/pages/BusinessRegistrationPage";
 import UserRegistrationPage from "@/pages/UserRegistrationPage";
-import LoginPage from "@/pages/LoginPage";
 import BusinessDashboard from "@/pages/BusinessDashboard";
 import BusinessSettingsPage from "@/pages/BusinessSettingsPage";
+import EditBusinessPage from "@/pages/EditBusinessPage";
 import PrivacyPolicyPage from "@/pages/PrivacyPolicyPage";
 import TermsOfUsePage from "@/pages/TermsOfUsePage";
 import UserFullSettingsPage from "@/pages/UserFullSettingsPage";
@@ -82,10 +82,13 @@ function App() {
                   element={<BusinessRegistrationPage />}
                 />
                 <Route
+                  path="/editar-negocio"
+                  element={<EditBusinessPage />}
+                />
+                <Route
                   path="/registrar-usuario"
                   element={<UserRegistrationPage />}
                 />
-                <Route path="/login" element={<LoginPage />} />
                 <Route path="/dashboard" element={<BusinessDashboard />} />
                 <Route path="/sobre-las-islas" element={<AboutPage />} />
                 <Route path="/contacto" element={<ContactPage />} />

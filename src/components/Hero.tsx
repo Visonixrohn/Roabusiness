@@ -205,13 +205,13 @@ const HeroSection = () => {
               </Button>
             </Link>
             {!user && (
-              <Link to="/login" aria-label="Iniciar sesión">
+              <Link to="/registrar-usuario" aria-label="Crear cuenta">
                 <Button
                   variant="secondary"
                   size="lg"
                   className="group relative inline-flex items-center justify-center px-8 py-4 border-2 border-blue-600 text-blue-600 bg-white rounded-full text-lg font-bold transition-all duration-300 hover:bg-blue-50 hover:text-blue-800 hover:scale-105 shadow-md focus:outline-none focus:ring-4 focus:ring-blue-200"
                 >
-                  Iniciar sesión
+                  Crear cuenta
                 </Button>
               </Link>
             )}

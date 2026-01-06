@@ -40,7 +40,7 @@ const SetNewPasswordPage = () => {
     }
     setShowWait(true);
     setTimeout(() => {
-      navigate("/login");
+      navigate("/");
     }, 1000);
   };
 
