@@ -19,6 +19,9 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useBusinesses } from "@/hooks/useBusinesses";
 import { isAdminSessionActive } from "@/lib/adminAuth";
+import { Business } from "@/types/business";
+import ContactModal from "@/components/ContactModal";
+import { useContacts } from "@/hooks/useContacts";
 import {
   Dialog,
   DialogContent,
@@ -34,12 +37,17 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [showContactModal, setShowContactModal] = useState(false);
   // removed logout/modal related states
   const location = useLocation();
   const navigate = useNavigate();
   const user = null;
   const { businesses, loading } = useBusinesses();
   const isAdminLoggedIn = isAdminSessionActive();
+  
+  // Obtener contactos del negocio seleccionado
+  const { contacts } = useContacts(selectedBusiness?.id || "");
 
   const navigation = [
     { name: "Inicio", href: "/", icon: Home },
@@ -107,7 +115,8 @@ const Header = () => {
                       onMouseDown={() => {
                         setSearchQuery("");
                         setShowDropdown(false);
-                        navigate(`/negocio/${b.id}`);
+                        setSelectedBusiness(b);
+                        setShowContactModal(true);
                       }}
                     >
                       <img
@@ -197,7 +206,8 @@ const Header = () => {
                     onMouseDown={() => {
                       setSearchQuery("");
                       setShowDropdown(false);
-                      navigate(`/negocio/${b.id}`);
+                      setSelectedBusiness(b);
+                      setShowContactModal(true);
                     }}
                   >
                     <img
@@ -249,6 +259,16 @@ const Header = () => {
       )}
 
       {/* Auth UI removed */}
+      
+      {/* Contact Modal */}
+      {selectedBusiness && (
+        <ContactModal
+          business={selectedBusiness}
+          isOpen={showContactModal}
+          onClose={() => setShowContactModal(false)}
+          contacts={contacts}
+        />
+      )}
     </header>
   );
 };
