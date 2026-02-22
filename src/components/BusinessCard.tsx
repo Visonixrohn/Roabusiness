@@ -229,20 +229,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
               )}
             </div>
             {/* Botón de seguidores alineado abajo, mismo diseño que los otros botones */}
-            <div className="flex space-x-2 mt-2">
-              {typeof followers === "number" && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full font-semibold cursor-default select-none"
-                  tabIndex={-1}
-                  aria-disabled="true"
-                  disabled
-                >
-                  <span className="font-bold">{followers}</span> seguidores
-                </Button>
-              )}
-            </div>
+           
           </div>
         </div>
 
