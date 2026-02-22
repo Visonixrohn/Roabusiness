@@ -145,8 +145,14 @@ const ContactModal = ({
     ? `https://www.google.com/maps/search/?api=1&query=${mapPosition.lat},${mapPosition.lng}`
     : "";
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      onClose();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto px-4 py-4 rounded-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2 text-lg font-semibold text-gray-900">

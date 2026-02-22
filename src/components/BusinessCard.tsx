@@ -34,7 +34,6 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
   const [isLiked, setIsLiked] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [showGalleryModal, setShowGalleryModal] = useState(false);
-  const [lastContactModalClosedAt, setLastContactModalClosedAt] = useState(0);
 
   const { contacts, loading: loadingContacts } = useContacts(business.id);
 
@@ -75,10 +74,9 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
         )}
         style={{ minWidth: 0 }}
         onClick={() => {
-          // Evitar reabrir inmediatamente si se cerró hace poco
-          const now = Date.now();
-          if (now - lastContactModalClosedAt < 500) return;
-          setShowContactModal(true);
+          if (!showContactModal) {
+            setShowContactModal(true);
+          }
         }}
       >
         {/* Header */}
@@ -232,10 +230,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
         <ContactModal
           business={business}
           isOpen={showContactModal}
-          onClose={() => {
-            setShowContactModal(false);
-            setLastContactModalClosedAt(Date.now());
-          }}
+          onClose={() => setShowContactModal(false)}
           contacts={contacts || fallbackContacts}
         />
         <GalleryModal
