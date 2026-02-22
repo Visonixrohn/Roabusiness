@@ -18,6 +18,8 @@ import {
   Facebook,
   Instagram,
   Twitter,
+  Satellite,
+  Navigation,
 } from "lucide-react";
 import TikTokIcon from "@/components/icons/TikTokIcon";
 import { Button } from "@/components/ui/button";
@@ -26,6 +28,8 @@ import Header from "@/components/Header";
 import ImageUpload from "@/components/ImageUpload";
 import { toast } from "sonner";
 import businessCategories from "@/data/businessCategories";
+import { GoogleMap, Marker } from "@react-google-maps/api";
+import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
 
 interface FormData {
   // Información básica
@@ -33,6 +37,8 @@ interface FormData {
   category: string;
   island: string;
   location: string;
+  latitude: number | null;
+  longitude: number | null;
   description: string;
 
   // Contacto
@@ -52,6 +58,7 @@ interface FormData {
   // Imágenes
   coverImage: string;
   logo: string;
+  subscriptionMonths: number;
 
   // No auth fields here; admin will create users directly
 }
@@ -68,6 +75,8 @@ const BusinessRegistrationPage = () => {
     category: "",
     island: "",
     location: "",
+    latitude: null,
+    longitude: null,
     description: "",
     email: "",
     phone: "",
@@ -81,8 +90,18 @@ const BusinessRegistrationPage = () => {
     amenities: [],
     coverImage: "",
     logo: "",
-    
+    subscriptionMonths: 1,
   });
+
+  const islandCenters: Record<string, { lat: number; lng: number }> = {
+    "Roatán": { lat: 16.3156, lng: -86.5889 },
+    Utila: { lat: 16.1, lng: -86.9 },
+    Guanaja: { lat: 16.45, lng: -85.9 },
+    "Jose Santos Guardiola": { lat: 16.36, lng: -86.35 },
+  };
+
+  const [mapCenter, setMapCenter] = useState(GOOGLE_MAPS_CONFIG.defaultCenter);
+  const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
 
   const islands = ["Roatán", "Utila", "Guanaja", "Jose Santos Guardiola"];
   const priceRanges = [
@@ -101,6 +120,10 @@ const BusinessRegistrationPage = () => {
       ...prev,
       [field]: value,
     }));
+
+    if (field === "island" && islandCenters[value]) {
+      setMapCenter(islandCenters[value]);
+    }
   };
 
   const addAmenity = () => {
@@ -150,7 +173,7 @@ const BusinessRegistrationPage = () => {
       case 2:
         return !!(formData.description && formData.email && formData.phone);
       case 3:
-        return formData.amenities.length > 0;
+        return formData.amenities.length > 0 && formData.subscriptionMonths > 0;
       case 4:
         return true; // Imágenes opcionales
       default:
@@ -184,6 +207,10 @@ const BusinessRegistrationPage = () => {
         island: formData.island,
         location: formData.location,
         description: formData.description,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+        subscription_months: formData.subscriptionMonths,
+        subscription_started_at: new Date().toISOString(),
         contact: {
           email: formData.email,
           phone: formData.phone,
@@ -208,6 +235,10 @@ const BusinessRegistrationPage = () => {
         island: formData.island,
         location: formData.location,
         description: formData.description,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+        subscription_months: formData.subscriptionMonths,
+        subscription_started_at: new Date().toISOString(),
         contact: {
           email: formData.email,
           phone: formData.phone,
@@ -440,6 +471,75 @@ const BusinessRegistrationPage = () => {
                   </div>
                 </div>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Selecciona ubicación en mapa
+                </label>
+                <p className="text-xs text-gray-500 mb-2">
+                  Haz clic en el mapa para guardar la ubicación exacta del negocio.
+                </p>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setMapType((prev) =>
+                        prev === "roadmap" ? "satellite" : "roadmap"
+                      )
+                    }
+                  >
+                    <Satellite className="h-4 w-4 mr-1" />
+                    {mapType === "roadmap" ? "Ver satélite" : "Ver mapa"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={formData.latitude == null || formData.longitude == null}
+                    onClick={() => {
+                      if (formData.latitude == null || formData.longitude == null) return;
+                      window.open(
+                        `https://www.google.com/maps/search/?api=1&query=${formData.latitude},${formData.longitude}`,
+                        "_blank"
+                      );
+                    }}
+                  >
+                    <Navigation className="h-4 w-4 mr-1" /> Ver en Google Maps
+                  </Button>
+                </div>
+                <div className="rounded-lg overflow-hidden border border-gray-300">
+                  <GoogleMap
+                    mapContainerStyle={{ width: "100%", height: "300px" }}
+                    center={
+                      formData.latitude != null && formData.longitude != null
+                        ? { lat: formData.latitude, lng: formData.longitude }
+                        : mapCenter
+                    }
+                    zoom={13}
+                    onClick={(event) => {
+                      const lat = event.latLng?.lat();
+                      const lng = event.latLng?.lng();
+                      if (lat == null || lng == null) return;
+                      setFormData((prev) => ({ ...prev, latitude: lat, longitude: lng }));
+                    }}
+                    options={{
+                      mapTypeId: mapType,
+                      styles: GOOGLE_MAPS_CONFIG.mapStyle,
+                      mapTypeControl: false,
+                      streetViewControl: false,
+                    }}
+                  >
+                    {formData.latitude != null && formData.longitude != null && (
+                      <Marker
+                        position={{ lat: formData.latitude, lng: formData.longitude }}
+                        title={formData.name || "Ubicación del negocio"}
+                      />
+                    )}
+                  </GoogleMap>
+                </div>
+              </div>
             </div>
           )}
 
@@ -617,6 +717,28 @@ const BusinessRegistrationPage = () => {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tiempo de duración (meses) *
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={formData.subscriptionMonths}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      subscriptionMonths: Number(e.target.value || 1),
+                    }))
+                  }
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Ej: 6"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Este valor se usa para controlar cuándo expira la suscripción del negocio.
+                </p>
               </div>
 
               <div>

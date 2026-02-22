@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Business, SearchFilters } from "@/types/business";
 import { supabase } from "@/lib/supabaseClient";
+import { isSubscriptionActive } from "@/lib/subscription";
 
 // Utilidad para normalizar textos (sin acentos ni mayúsculas)
 const normalizeText = (text: string) =>
@@ -40,9 +41,29 @@ export const useBusinesses = () => {
         const followers: Record<string, number> = {};
         const businesses: Business[] = data.map((b: any) => {
           followers[String(b.id)] = b.followers?.[0]?.count || 0;
-          // Elimina solo la propiedad followers, pero conserva id y demás campos
-          const { followers: _f, ...rest } = b;
-          return rest as Business;
+
+          const priceRange = b.price_range || b.priceRange || "";
+          const coverImage = b.cover_image || b.coverImage || "";
+          const latitude =
+            typeof b.latitude === "number"
+              ? b.latitude
+              : b.coordinates?.lat || null;
+          const longitude =
+            typeof b.longitude === "number"
+              ? b.longitude
+              : b.coordinates?.lng || null;
+
+          return {
+            ...b,
+            priceRange,
+            coverImage,
+            latitude: latitude ?? undefined,
+            longitude: longitude ?? undefined,
+            coordinates:
+              latitude != null && longitude != null
+                ? { lat: latitude, lng: longitude }
+                : undefined,
+          } as Business;
         });
         setBusinessData({ businesses });
         setFollowersMap(followers);
@@ -84,6 +105,7 @@ export const useBusinesses = () => {
     return businessData.businesses.filter((b) => {
       // Solo negocios públicos
       if (b.is_public === false) return false;
+      if (!isSubscriptionActive(b)) return false;
 
       const name = normalizeText(b.name);
       const desc = normalizeText(b.description || "");
@@ -108,6 +130,8 @@ export const useBusinesses = () => {
   const mostFollowedBusinesses = useMemo(() => {
     if (!businessData) return [];
     return [...businessData.businesses]
+      .filter((business) => business.is_public !== false)
+      .filter((business) => isSubscriptionActive(business))
       .sort((a, b) => (followersMap[b.id] || 0) - (followersMap[a.id] || 0))
       .map((b, idx) => ({
         ...b,
@@ -121,6 +145,13 @@ export const useBusinesses = () => {
     () => mostFollowedBusinesses.filter((b) => b.featured),
     [mostFollowedBusinesses]
   );
+
+  const totalActiveBusinesses = useMemo(() => {
+    if (!businessData) return 0;
+    return businessData.businesses.filter((business) => {
+      return business.is_public !== false && isSubscriptionActive(business);
+    }).length;
+  }, [businessData]);
 
   // Filtros
   const updateFilters = (newFilters: Partial<SearchFilters>) => {
@@ -147,7 +178,7 @@ export const useBusinesses = () => {
     updateFilters,
     clearFilters,
     getBusinessById,
-    totalBusinesses: businessData?.businesses.length || 0,
+    totalBusinesses: totalActiveBusinesses,
     filteredCount: filteredBusinesses.length,
     followersMap,
   };

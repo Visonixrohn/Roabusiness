@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useBusinesses } from "@/hooks/useBusinesses";
+import { isAdminSessionActive } from "@/lib/adminAuth";
 import {
   Dialog,
   DialogContent,
@@ -39,10 +40,14 @@ const Header = () => {
   const navigate = useNavigate();
   const user = null;
   const { businesses, loading } = useBusinesses();
+  const isAdminLoggedIn = isAdminSessionActive();
 
   const navigation = [
     { name: "Inicio", href: "/", icon: Home },
     { name: "Directorio", href: "/directorio", icon: Users },
+    ...(isAdminLoggedIn
+      ? [{ name: "Panel", href: "/editar-negocio", icon: Settings }]
+      : []),
   ];
 
   const isActive = (href: string) => location.pathname === href;

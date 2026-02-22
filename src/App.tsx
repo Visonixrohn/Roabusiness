@@ -23,6 +23,8 @@ import GoogleCallbackPage from "@/pages/google-callback";
 import UserProfilePage from "@/pages/UserProfilePage";
 import UserSettingsPage from "@/pages/UserSettingsPage";
 import AdminPanel from "@/pages/AdminPanel";
+import AdminLoginPage from "@/pages/AdminLoginPage";
+import AdminRouteGuard from "@/components/AdminRouteGuard";
 
 import "./App.css";
 import { useEffect } from "react";
@@ -58,7 +60,7 @@ function App() {
     <AuthProvider>
       <InteractionsProvider>
         <LoadScript
-          googleMapsApiKey="AIzaSyA-Jv8AMyTySXYsd8rY2kEdNhhotdNWolg"
+          googleMapsApiKey={GOOGLE_MAPS_CONFIG.apiKey}
           libraries={libraries}
           loadingElement={
             <div className="flex items-center justify-center min-h-screen">
@@ -79,12 +81,21 @@ function App() {
                 />
                 <Route
                   path="/registrar-negocio"
-                  element={<BusinessRegistrationPage />}
+                  element={
+                    <AdminRouteGuard>
+                      <BusinessRegistrationPage />
+                    </AdminRouteGuard>
+                  }
                 />
                 <Route
                   path="/editar-negocio"
-                  element={<EditBusinessPage />}
+                  element={
+                    <AdminRouteGuard>
+                      <EditBusinessPage />
+                    </AdminRouteGuard>
+                  }
                 />
+                <Route path="/admin-login" element={<AdminLoginPage />} />
                 <Route
                   path="/registrar-usuario"
                   element={<UserRegistrationPage />}

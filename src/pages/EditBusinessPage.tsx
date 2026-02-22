@@ -15,6 +15,9 @@ import {
   Globe,
   X,
   Check,
+  Satellite,
+  Navigation,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +25,12 @@ import Header from "@/components/Header";
 import ImageUpload from "@/components/ImageUpload";
 import { toast } from "sonner";
 import businessCategories from "@/data/businessCategories";
+import { GoogleMap, Marker } from "@react-google-maps/api";
+import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
+import {
+  getSubscriptionExpirationDate,
+  isSubscriptionActive,
+} from "@/lib/subscription";
 
 interface Business {
   id: string;
@@ -29,6 +38,8 @@ interface Business {
   category: string;
   island: string;
   location: string;
+  latitude?: number | null;
+  longitude?: number | null;
   description: string;
   contact: {
     email: string;
@@ -48,6 +59,8 @@ interface Business {
   logo: string;
   is_public: boolean;
   created_at?: string; // Opcional porque puede no existir en la DB
+  subscription_months?: number | null;
+  subscription_started_at?: string | null;
 }
 
 interface EditFormData {
@@ -55,6 +68,8 @@ interface EditFormData {
   category: string;
   island: string;
   location: string;
+  latitude: number | null;
+  longitude: number | null;
   description: string;
   email: string;
   phone: string;
@@ -69,6 +84,7 @@ interface EditFormData {
   coverImage: string;
   logo: string;
   is_public: boolean;
+  subscriptionMonths: number;
 }
 
 const EditBusinessPage = () => {
@@ -82,6 +98,8 @@ const EditBusinessPage = () => {
     category: "",
     island: "",
     location: "",
+    latitude: null,
+    longitude: null,
     description: "",
     email: "",
     phone: "",
@@ -96,12 +114,14 @@ const EditBusinessPage = () => {
     coverImage: "",
     logo: "",
     is_public: true,
+    subscriptionMonths: 1,
   });
   const [newAmenity, setNewAmenity] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterIsland, setFilterIsland] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive">("all");
 
   const islands = ["Roatán", "Utila", "Guanaja", "Jose Santos Guardiola"];
   const priceRanges = [
@@ -111,6 +131,14 @@ const EditBusinessPage = () => {
     { value: "$$$$", label: "$$$$ - Muy Caro" },
   ];
   const categories = businessCategories;
+  const islandCenters: Record<string, { lat: number; lng: number }> = {
+    "Roatán": { lat: 16.3156, lng: -86.5889 },
+    Utila: { lat: 16.1, lng: -86.9 },
+    Guanaja: { lat: 16.45, lng: -85.9 },
+    "Jose Santos Guardiola": { lat: 16.36, lng: -86.35 },
+  };
+  const [mapCenter, setMapCenter] = useState(GOOGLE_MAPS_CONFIG.defaultCenter);
+  const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
 
   useEffect(() => {
     fetchBusinesses();
@@ -133,6 +161,19 @@ const EditBusinessPage = () => {
         coverImage: business.coverImage || business.cover_image || "",
         price_range: business.price_range || business.priceRange || "",
         priceRange: business.priceRange || business.price_range || "",
+        latitude:
+          typeof business.latitude === "number"
+            ? business.latitude
+            : business.coordinates?.lat || null,
+        longitude:
+          typeof business.longitude === "number"
+            ? business.longitude
+            : business.coordinates?.lng || null,
+        subscription_months:
+          business.subscription_months != null
+            ? Number(business.subscription_months)
+            : null,
+        subscription_started_at: business.subscription_started_at || null,
         created_at: business.created_at || new Date().toISOString(),
       }));
       
@@ -155,12 +196,20 @@ const EditBusinessPage = () => {
   };
 
   const handleEdit = (business: Business) => {
+    if (business.latitude != null && business.longitude != null) {
+      setMapCenter({ lat: business.latitude, lng: business.longitude });
+    } else if (business.island && islandCenters[business.island]) {
+      setMapCenter(islandCenters[business.island]);
+    }
+
     setSelectedBusiness(business);
     setEditForm({
       name: business.name || "",
       category: business.category || "",
       island: business.island || "",
       location: business.location || "",
+      latitude: business.latitude ?? null,
+      longitude: business.longitude ?? null,
       description: business.description || "",
       email: business.contact?.email || "",
       phone: business.contact?.phone || "",
@@ -175,6 +224,10 @@ const EditBusinessPage = () => {
       coverImage: business.cover_image || business.coverImage || "",
       logo: business.logo || "",
       is_public: business.is_public !== false,
+      subscriptionMonths:
+        business.subscription_months && business.subscription_months > 0
+          ? business.subscription_months
+          : 1,
     });
     setShowEditModal(true);
   };
@@ -205,6 +258,10 @@ const EditBusinessPage = () => {
         category: editForm.category,
         island: editForm.island,
         location: editForm.location,
+        latitude: editForm.latitude,
+        longitude: editForm.longitude,
+        subscription_months: editForm.subscriptionMonths,
+        subscription_started_at: new Date().toISOString(),
         description: editForm.description,
         contact: {
           email: editForm.email,
@@ -229,6 +286,10 @@ const EditBusinessPage = () => {
         category: editForm.category,
         island: editForm.island,
         location: editForm.location,
+        latitude: editForm.latitude,
+        longitude: editForm.longitude,
+        subscription_months: editForm.subscriptionMonths,
+        subscription_started_at: new Date().toISOString(),
         description: editForm.description,
         contact: {
           email: editForm.email,
@@ -314,6 +375,28 @@ const EditBusinessPage = () => {
     }
   };
 
+  const handleRenewSubscription = async (business: Business) => {
+    try {
+      const { error } = await supabase
+        .from("businesses")
+        .update({
+          subscription_started_at: new Date().toISOString(),
+          subscription_months:
+            business.subscription_months && business.subscription_months > 0
+              ? business.subscription_months
+              : 1,
+        })
+        .eq("id", business.id);
+
+      if (error) throw error;
+
+      toast.success("Suscripción renovada correctamente");
+      fetchBusinesses();
+    } catch (error: any) {
+      toast.error("Error al renovar suscripción: " + error.message);
+    }
+  };
+
   const filteredBusinesses = businesses.filter((business) => {
     const matchesSearch = business.name
       .toLowerCase()
@@ -322,8 +405,20 @@ const EditBusinessPage = () => {
     const matchesCategory = filterCategory
       ? business.category === filterCategory
       : true;
-    return matchesSearch && matchesIsland && matchesCategory;
+    const isActive = isSubscriptionActive(business);
+    const matchesStatus =
+      filterStatus === "all"
+        ? true
+        : filterStatus === "active"
+        ? isActive
+        : !isActive;
+    return matchesSearch && matchesIsland && matchesCategory && matchesStatus;
   });
+
+  const activeBusinessesCount = businesses.filter((business) =>
+    isSubscriptionActive(business)
+  ).length;
+  const inactiveBusinessesCount = businesses.length - activeBusinessesCount;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -359,8 +454,43 @@ const EditBusinessPage = () => {
         </div>
 
         {/* Filtros */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <button
+            type="button"
+            onClick={() => setFilterStatus("all")}
+            className={`text-left rounded-lg border p-4 bg-white shadow-sm transition-colors ${
+              filterStatus === "all" ? "border-blue-500" : "border-gray-200"
+            }`}
+          >
+            <p className="text-xs text-gray-500">Total negocios</p>
+            <p className="text-2xl font-bold text-gray-900">{businesses.length}</p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setFilterStatus("active")}
+            className={`text-left rounded-lg border p-4 bg-white shadow-sm transition-colors ${
+              filterStatus === "active" ? "border-green-500" : "border-gray-200"
+            }`}
+          >
+            <p className="text-xs text-gray-500">Negocios activos</p>
+            <p className="text-2xl font-bold text-green-600">{activeBusinessesCount}</p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setFilterStatus("inactive")}
+            className={`text-left rounded-lg border p-4 bg-white shadow-sm transition-colors ${
+              filterStatus === "inactive" ? "border-red-500" : "border-gray-200"
+            }`}
+          >
+            <p className="text-xs text-gray-500">Negocios inactivos</p>
+            <p className="text-2xl font-bold text-red-600">{inactiveBusinessesCount}</p>
+          </button>
+        </div>
+
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Buscar por nombre
@@ -405,6 +535,22 @@ const EditBusinessPage = () => {
                     {category}
                   </option>
                 ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Estado de suscripción
+              </label>
+              <select
+                value={filterStatus}
+                onChange={(e) =>
+                  setFilterStatus(e.target.value as "all" | "active" | "inactive")
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">Todos</option>
+                <option value="active">Activos</option>
+                <option value="inactive">Inactivos</option>
               </select>
             </div>
           </div>
@@ -490,6 +636,17 @@ const EditBusinessPage = () => {
                           >
                             {business.is_public ? "Público" : "Oculto"}
                           </Badge>
+                          <Badge
+                            variant={
+                              isSubscriptionActive(business)
+                                ? "default"
+                                : "destructive"
+                            }
+                          >
+                            {isSubscriptionActive(business)
+                              ? "Suscripción activa"
+                              : "Suscripción vencida"}
+                          </Badge>
                         </div>
                       </div>
                     </div>
@@ -513,6 +670,11 @@ const EditBusinessPage = () => {
                           {business.contact.website}
                         </span>
                       )}
+                      <span>
+                        Vence: {getSubscriptionExpirationDate(business)
+                          ? getSubscriptionExpirationDate(business)?.toLocaleDateString("es-HN")
+                          : "Sin fecha"}
+                      </span>
                     </div>
                   </div>
 
@@ -536,6 +698,16 @@ const EditBusinessPage = () => {
                           <span className="hidden sm:inline text-xs">Publicar</span>
                         </>
                       )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRenewSubscription(business)}
+                      className="flex items-center gap-1"
+                      title="Renovar suscripción"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      <span className="hidden sm:inline text-xs">Renovar</span>
                     </Button>
                     <Button
                       variant="outline"
@@ -621,9 +793,13 @@ const EditBusinessPage = () => {
                   </label>
                   <select
                     value={editForm.island}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, island: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const nextIsland = e.target.value;
+                      setEditForm({ ...editForm, island: nextIsland });
+                      if (islandCenters[nextIsland]) {
+                        setMapCenter(islandCenters[nextIsland]);
+                      }
+                    }}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     {islands.map((island) => (
@@ -646,6 +822,75 @@ const EditBusinessPage = () => {
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Mapa de ubicación
+                  </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Haz clic en el mapa para actualizar la ubicación exacta.
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setMapType((prev) =>
+                          prev === "roadmap" ? "satellite" : "roadmap"
+                        )
+                      }
+                    >
+                      <Satellite className="h-4 w-4 mr-1" />
+                      {mapType === "roadmap" ? "Ver satélite" : "Ver mapa"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={editForm.latitude == null || editForm.longitude == null}
+                      onClick={() => {
+                        if (editForm.latitude == null || editForm.longitude == null) return;
+                        window.open(
+                          `https://www.google.com/maps/search/?api=1&query=${editForm.latitude},${editForm.longitude}`,
+                          "_blank"
+                        );
+                      }}
+                    >
+                      <Navigation className="h-4 w-4 mr-1" /> Ver en Google Maps
+                    </Button>
+                  </div>
+                  <div className="rounded-lg overflow-hidden border border-gray-300">
+                    <GoogleMap
+                      mapContainerStyle={{ width: "100%", height: "280px" }}
+                      center={
+                        editForm.latitude != null && editForm.longitude != null
+                          ? { lat: editForm.latitude, lng: editForm.longitude }
+                          : mapCenter
+                      }
+                      zoom={13}
+                      onClick={(event) => {
+                        const lat = event.latLng?.lat();
+                        const lng = event.latLng?.lng();
+                        if (lat == null || lng == null) return;
+                        setEditForm({ ...editForm, latitude: lat, longitude: lng });
+                      }}
+                      options={{
+                        mapTypeId: mapType,
+                        styles: GOOGLE_MAPS_CONFIG.mapStyle,
+                        mapTypeControl: false,
+                        streetViewControl: false,
+                      }}
+                    >
+                      {editForm.latitude != null && editForm.longitude != null && (
+                        <Marker
+                          position={{ lat: editForm.latitude, lng: editForm.longitude }}
+                          title={editForm.name || "Ubicación del negocio"}
+                        />
+                      )}
+                    </GoogleMap>
+                  </div>
                 </div>
               </div>
 
@@ -784,6 +1029,22 @@ const EditBusinessPage = () => {
 
               {/* Rango de precios */}
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tiempo de duración (meses)
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={editForm.subscriptionMonths}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      subscriptionMonths: Number(e.target.value || 1),
+                    })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-4"
+                />
+
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Rango de Precios
                 </label>

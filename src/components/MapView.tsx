@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
-import { Star, MapPin, Phone, Globe } from 'lucide-react';
+import { Star, MapPin, Phone, Globe, X } from 'lucide-react';
 import { Business } from '@/types/business';
 import { GOOGLE_MAPS_CONFIG, BAY_ISLANDS_BOUNDS } from '@/config/googleMaps';
 import { Button } from '@/components/ui/button';
@@ -83,30 +83,48 @@ const MapView = ({ businesses }: MapViewProps) => {
         options={mapOptions}
       >
         {businesses.map((business) => (
-          <Marker
-            key={business.id}
-            position={{
-              lat: business.coordinates.lat,
-              lng: business.coordinates.lng,
-            }}
-            icon={getMarkerIcon(business)}
-            onClick={() => setSelectedBusiness(business)}
-            title={business.name}
-          />
+          business.coordinates ? (
+            <Marker
+              key={business.id}
+              position={{
+                lat: business.coordinates.lat,
+                lng: business.coordinates.lng,
+              }}
+              icon={getMarkerIcon(business)}
+              onClick={() => setSelectedBusiness(business)}
+              title={business.name}
+            />
+          ) : null
         ))}
 
-        {selectedBusiness && (
+        {selectedBusiness && selectedBusiness.coordinates && (
           <InfoWindow
             position={{
               lat: selectedBusiness.coordinates.lat,
               lng: selectedBusiness.coordinates.lng,
             }}
-            onCloseClick={() => setSelectedBusiness(null)}
+            onCloseClick={() => {
+              setSelectedBusiness(null);
+              setShowContactModal(false);
+            }}
             options={{
               pixelOffset: new google.maps.Size(0, -40),
             }}
           >
             <div className="max-w-sm p-2">
+              <div className="flex justify-end mb-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedBusiness(null);
+                    setShowContactModal(false);
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                  aria-label="Cerrar tarjeta"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
               <div className="flex items-center space-x-3 mb-3">
                 <img
                   src={selectedBusiness.logo}

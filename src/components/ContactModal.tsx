@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { X, Phone, Mail, Globe, MapPin, Send } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { X, Phone, Mail, Globe, MapPin, Send, Satellite, Navigation } from "lucide-react";
 import { Business } from "@/types/business";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,8 @@ import {
 import { toast } from "sonner";
 import { Facebook, Instagram, Twitter } from "lucide-react";
 import TikTokIcon from "@/components/icons/TikTokIcon";
+import { GoogleMap, Marker, OverlayView } from "@react-google-maps/api";
+import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
 
 interface ContactModalProps {
   business: Business;
@@ -33,6 +35,11 @@ const ContactModal = ({
     phone: "",
     message: "",
   });
+  const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
+  const [resolvedMapPosition, setResolvedMapPosition] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +62,78 @@ const ContactModal = ({
     const normalizedUrl = url.replace(/^https?:\/\//, ""); // Elimina cualquier esquema existente
     return `https://${normalizedUrl}`;
   };
+
+  const parseCoordinate = (value: unknown) => {
+    if (typeof value === "number") {
+      return Number.isFinite(value) ? value : null;
+    }
+    if (typeof value === "string") {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
+  };
+
+  const islandCenter = useMemo(() => {
+    const centers: Record<string, { lat: number; lng: number }> = {
+      "Roatán": { lat: 16.3156, lng: -86.5889 },
+      Utila: { lat: 16.1, lng: -86.9 },
+      Guanaja: { lat: 16.45, lng: -85.9 },
+      "Jose Santos Guardiola": { lat: 16.36, lng: -86.35 },
+    };
+    return centers[business.island] || GOOGLE_MAPS_CONFIG.defaultCenter;
+  }, [business.island]);
+
+  const initialLat = parseCoordinate(business.latitude ?? business.coordinates?.lat);
+  const initialLng = parseCoordinate(business.longitude ?? business.coordinates?.lng);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (initialLat != null && initialLng != null) {
+      setResolvedMapPosition({ lat: initialLat, lng: initialLng });
+      return;
+    }
+
+    const hasGoogleGeocoder =
+      typeof window !== "undefined" &&
+      !!window.google?.maps?.Geocoder &&
+      !!business.location;
+
+    if (!hasGoogleGeocoder) {
+      setResolvedMapPosition(islandCenter);
+      return;
+    }
+
+    const geocoder = new window.google.maps.Geocoder();
+    const address = `${business.location}, ${business.island}, Islas de la Bahía, Honduras`;
+
+    geocoder.geocode({ address }, (results, status) => {
+      if (
+        status === "OK" &&
+        results?.[0]?.geometry?.location
+      ) {
+        const location = results[0].geometry.location;
+        setResolvedMapPosition({ lat: location.lat(), lng: location.lng() });
+        return;
+      }
+
+      setResolvedMapPosition(islandCenter);
+    });
+  }, [
+    isOpen,
+    business.location,
+    business.island,
+    initialLat,
+    initialLng,
+    islandCenter,
+  ]);
+
+  const mapPosition = resolvedMapPosition;
+
+  const googleMapsUrl = mapPosition
+    ? `https://www.google.com/maps/search/?api=1&query=${mapPosition.lat},${mapPosition.lng}`
+    : "";
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -163,6 +242,99 @@ const ContactModal = ({
                 </svg>
                 WhatsApp
               </Button>
+            )}
+          </div>
+
+          {/* Mapa de ubicación */}
+          <div className="border-t pt-4">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-medium text-gray-900 flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-red-500" />
+                Ubicación
+              </h4>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setMapType((prev) =>
+                    prev === "roadmap" ? "satellite" : "roadmap"
+                  )
+                }
+                className="h-8"
+              >
+                <Satellite className="h-4 w-4 mr-1" />
+                {mapType === "roadmap" ? "Ver satélite" : "Ver mapa"}
+              </Button>
+            </div>
+            {mapPosition ? (
+              <div className="overflow-hidden rounded-xl border border-gray-200">
+                <GoogleMap
+                  mapContainerStyle={{ width: "100%", height: "220px" }}
+                  center={mapPosition}
+                  zoom={14}
+                  options={{
+                    mapTypeId: mapType,
+                    mapTypeControl: false,
+                    streetViewControl: false,
+                    fullscreenControl: false,
+                    styles: GOOGLE_MAPS_CONFIG.mapStyle,
+                  }}
+                >
+                  <Marker
+                    position={mapPosition}
+                    title={business.name}
+                    icon="https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+                    zIndex={999}
+                  />
+                  <OverlayView
+                    position={mapPosition}
+                    mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+                  >
+                    <div
+                      title={business.name}
+                      style={{
+                        transform: "translate(-50%, -100%)",
+                        pointerEvents: "none",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 18,
+                          height: 18,
+                          borderRadius: "50%",
+                          background: "#ef4444",
+                          border: "3px solid #ffffff",
+                          boxShadow: "0 1px 6px rgba(0,0,0,0.35)",
+                        }}
+                      />
+                      <div
+                        style={{
+                          width: 2,
+                          height: 10,
+                          background: "#ef4444",
+                          margin: "0 auto",
+                          boxShadow: "0 1px 2px rgba(0,0,0,0.25)",
+                        }}
+                      />
+                    </div>
+                  </OverlayView>
+                </GoogleMap>
+                <div className="p-2 bg-white border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => window.open(googleMapsUrl, "_blank")}
+                  >
+                    <Navigation className="h-4 w-4 mr-2" />
+                    Ver en Google Maps
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-500">
+                Este negocio aún no tiene coordenadas de mapa registradas.
+              </p>
             )}
           </div>
 

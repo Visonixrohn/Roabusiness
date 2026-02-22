@@ -21,14 +21,19 @@ export interface Business {
   logo: string;
   gallery: string[];
   amenities: string[];
-  coordinates: {
+  coordinates?: {
     lat: number;
     lng: number;
   };
+  latitude?: number;
+  longitude?: number;
   rating: number;
   priceRange: string;
   featured: boolean;
   is_public?: boolean;
+  created_at?: string;
+  subscription_months?: number | null;
+  subscription_started_at?: string | null;
   schedule?: { day: string; open: string; close: string }[];
   facebook?: string;
   instagram?: string;

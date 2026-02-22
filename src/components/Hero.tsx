@@ -184,35 +184,10 @@ const HeroSection = () => {
                 : "opacity-0 translate-y-6"
             }`}
           >
-            <Link to="/directorio" aria-label="Explorar directorio de negocios">
-              <Button
-                size="lg"
-                className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-blue-600 rounded-full shadow-lg transition-all duration-300 hover:bg-blue-700 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-400"
-              >
-                <Search className="mr-2 h-5 w-5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-110" />
-                Explorar Directorio
-              </Button>
-            </Link>
-
-            <Link to="/sobre-las-islas" aria-label="Conocer las islas">
-              <Button
-                variant="outline"
-                size="lg"
-                className="group relative inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white bg-transparent rounded-full text-lg font-medium transition-all duration-300 hover:bg-white hover:text-blue-600 hover:scale-105 shadow-md focus:outline-none focus:ring-4 focus:ring-white"
-              >
-                <MapPin className="mr-2 h-5 w-5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-110" />
-                Conoce las Islas
-              </Button>
-            </Link>
+           
             {!user && (
               <Link to="/registrar-usuario" aria-label="Crear cuenta">
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  className="group relative inline-flex items-center justify-center px-8 py-4 border-2 border-blue-600 text-blue-600 bg-white rounded-full text-lg font-bold transition-all duration-300 hover:bg-blue-50 hover:text-blue-800 hover:scale-105 shadow-md focus:outline-none focus:ring-4 focus:ring-blue-200"
-                >
-                  Crear cuenta
-                </Button>
+                
               </Link>
             )}
           </div>
