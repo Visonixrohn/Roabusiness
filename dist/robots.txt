@@ -1,0 +1,24 @@
+# robots.txt para RoaBusiness
+User-agent: *
+Allow: /
+Disallow: /admin-login
+Disallow: /registrar-negocio
+Disallow: /editar-negocio
+
+# Sitemaps
+Sitemap: https://roabusiness.vercel.app/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Specific bots
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: facebookexternalhit
+Allow: /

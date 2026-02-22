@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- Página Principal -->
+  <url>
+    <loc>https://roabusiness.vercel.app/</loc>
+    <lastmod>2026-02-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Directorio de Negocios -->
+  <url>
+    <loc>https://roabusiness.vercel.app/directorio</loc>
+    <lastmod>2026-02-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Publicaciones Recientes -->
+  <url>
+    <loc>https://roabusiness.vercel.app/publicaciones</loc>
+    <lastmod>2026-02-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Sobre Nosotros -->
+  <url>
+    <loc>https://roabusiness.vercel.app/sobre-nosotros</loc>
+    <lastmod>2026-02-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Contacto -->
+  <url>
+    <loc>https://roabusiness.vercel.app/contacto</loc>
+    <lastmod>2026-02-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Política de Privacidad -->
+  <url>
+    <loc>https://roabusiness.vercel.app/politica-privacidad</loc>
+    <lastmod>2026-02-21</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Términos de Uso -->
+  <url>
+    <loc>https://roabusiness.vercel.app/terminos-uso</loc>
+    <lastmod>2026-02-21</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+</urlset>
