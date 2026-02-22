@@ -146,7 +146,7 @@ const ContactModal = ({
     : "";
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-lg px-6 py-5 rounded-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-3 text-xl font-semibold text-gray-900">
