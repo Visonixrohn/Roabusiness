@@ -35,7 +35,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
   const [showContactModal, setShowContactModal] = useState(false);
   const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [lastContactModalClosedAt, setLastContactModalClosedAt] = useState(0);
-  
+
   const { contacts, loading: loadingContacts } = useContacts(business.id);
 
   // Fallback para contactos: si no hay en la tabla contacts, usar los del objeto business.contact
@@ -70,9 +70,8 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
     <>
       <div
         className={cn(
-          "bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group relative cursor-pointer p-2",
-          "w-full max-w-[170px] min-w-0 mx-auto",
-          variant === "compact" ? "max-w-[170px] p-2" : "max-w-xs"
+          "bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group relative cursor-pointer",
+          "w-full min-w-0",
         )}
         style={{ minWidth: 0 }}
         onClick={() => {
@@ -83,22 +82,20 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
         }}
       >
         {/* Header */}
-        <div className="p-4 border-b border-gray-100 bg-gradient-to-b from-gray-50 to-white">
-          <div className="flex items-center space-x-3">
+        <div className="p-2 border-b border-gray-100 bg-gradient-to-b from-gray-50 to-white">
+          <div className="flex items-center space-x-2">
             <img
               src={business.logo}
               alt={`${business.name} logo`}
-              className="w-14 h-14 rounded-full object-cover border-2 border-teal-200 shadow-sm"
+              className="w-10 h-10 rounded-full object-cover border-2 border-teal-200 shadow-sm"
             />
-            <div className="flex-1">
-              <h3 className="font-bold text-lg text-gray-900 transition-colors duration-200">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-sm text-gray-900 truncate">
                 {business.name}
               </h3>
-              <div className="flex items-center text-sm text-gray-500 space-x-2">
-                <MapPin className="h-4 w-4 text-teal-500" />
-                <span>
-                  {business.location}, {business.island}
-                </span>
+              <div className="flex items-center text-xs text-gray-500">
+                <MapPin className="h-3 w-3 text-teal-500 flex-shrink-0" />
+                <span className="ml-1 truncate">{business.location}</span>
               </div>
             </div>
           </div>
@@ -106,34 +103,35 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
 
         {/* Imagen principal */}
         <div className="relative">
-            <img
-              src={business.coverImage}
-              alt={business.name}
-              className="w-full h-56 object-cover cursor-pointer group-hover:scale-105 transition-transform duration-500"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowGalleryModal(true);
-              }}
-            />
-          <div className="absolute top-4 right-4">
+          <img
+            src={business.coverImage}
+            alt={business.name}
+            className="w-full h-32 object-cover cursor-pointer group-hover:scale-105 transition-transform duration-500"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowGalleryModal(true);
+            }}
+          />
+          <div className="absolute top-2 right-2">
             <Badge
               className={cn(
-                "font-semibold shadow-sm",
-                islandColors[business.island as keyof typeof islandColors] || "bg-gray-200 text-gray-700"
+                "text-xs font-semibold shadow-sm px-1.5 py-0.5",
+                islandColors[business.island as keyof typeof islandColors] ||
+                  "bg-gray-200 text-gray-700",
               )}
             >
               {business.island}
             </Badge>
           </div>
           {business.gallery && business.gallery.length > 1 && (
-            <div className="absolute bottom-4 right-4">
+            <div className="absolute bottom-2 right-2">
               <Button
                 size="sm"
                 variant="secondary"
                 onClick={() => setShowGalleryModal(true)}
-                className="bg-black bg-opacity-60 text-white hover:bg-opacity-80 rounded-full px-3 py-1"
+                className="bg-black bg-opacity-60 text-white hover:bg-opacity-80 rounded-full px-2 py-0.5 text-xs h-6"
               >
-                <Eye className="h-4 w-4 mr-1" /> +
+                <Eye className="h-3 w-3 mr-0.5" /> +
                 {(business.gallery?.length || 0) - 1}
               </Button>
             </div>
@@ -141,30 +139,30 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
         </div>
 
         {/* Contenido */}
-        <div className="p-4">
+        <div className="p-2">
           {/* Categoría y precio */}
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-2">
             <Badge
               variant="outline"
-              className="text-teal-600 border-teal-600 font-medium"
+              className="text-teal-600 border-teal-600 text-xs px-1.5 py-0.5"
             >
               {business.category}
             </Badge>
-            <div className="flex items-center space-x-2 text-sm">
-              <span className="text-gray-600 font-medium">
+            <div className="flex items-center space-x-1 text-xs">
+              <span className="text-gray-600">
                 {getPriceRangeText(business.priceRange)}
               </span>
             </div>
           </div>
 
           {/* Descripción */}
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+          <p className="text-gray-600 text-xs mb-2 line-clamp-2">
             {business.description || "Sin descripción disponible"}
           </p>
 
           {/* Amenidades */}
-          <div className="mb-4">
-            <div className="flex flex-wrap gap-2">
+          <div className="mb-2">
+            <div className="flex flex-wrap gap-1">
               {business.amenities && business.amenities.length > 0 ? (
                 <>
                   {business.amenities.slice(0, 3).map((amenity, index) => (
@@ -192,15 +190,13 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
           </div>
 
           {/* Botones de acción */}
-          <div className="border-t border-gray-100 pt-3">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex space-x-3">
-                
-              </div>
+          <div className="border-t border-gray-100 pt-2">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex space-x-3"></div>
             </div>
 
             {/* Botones de contacto */}
-            <div className="flex space-x-2 mt-2">
+            <div className="flex space-x-1.5 mt-1">
               <Button
                 variant="outline"
                 size="sm"
@@ -208,9 +204,9 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
                   e.stopPropagation();
                   setShowContactModal(true);
                 }}
-                className="flex-1 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full font-semibold"
+                className="flex-1 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full text-xs h-7 px-2"
               >
-                <Phone className="h-4 w-4 mr-1" />
+                <Phone className="h-3 w-3 mr-0.5" />
                 Contactar
               </Button>
               {contacts?.website && (
@@ -221,15 +217,14 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
                     e.stopPropagation();
                     window.open(`https://${contacts.website}`, "_blank");
                   }}
-                  className="flex-1 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full font-semibold"
+                  className="flex-1 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full text-xs h-7 px-2"
                 >
-                  <Globe className="h-4 w-4 mr-1" />
-                  Sitio Web
+                  <Globe className="h-3 w-3 mr-0.5" />
+                  Web
                 </Button>
               )}
             </div>
             {/* Botón de seguidores alineado abajo, mismo diseño que los otros botones */}
-           
           </div>
         </div>
 

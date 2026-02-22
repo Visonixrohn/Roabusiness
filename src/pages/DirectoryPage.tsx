@@ -181,7 +181,7 @@ const DirectoryPage = () => {
                       setIslandInput("");
                     }}
                     options={islands.filter((island) =>
-                      island.toLowerCase().includes(islandInput.toLowerCase())
+                      island.toLowerCase().includes(islandInput.toLowerCase()),
                     )}
                     placeholder="Todas las islas"
                     inputValue={islandInput}
@@ -196,7 +196,7 @@ const DirectoryPage = () => {
                       setCategoryInput("");
                     }}
                     options={categories.filter((cat) =>
-                      cat.toLowerCase().includes(categoryInput.toLowerCase())
+                      cat.toLowerCase().includes(categoryInput.toLowerCase()),
                     )}
                     placeholder="Todas las categorías"
                     inputValue={categoryInput}
@@ -276,7 +276,7 @@ const DirectoryPage = () => {
                         Precio:{" "}
                         {
                           priceRanges.find(
-                            (p) => p.value === filters.priceRange
+                            (p) => p.value === filters.priceRange,
                           )?.label
                         }
                         <button
@@ -309,7 +309,7 @@ const DirectoryPage = () => {
 
             {/* Contenido principal */}
             {loadingBusinesses ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[...Array(9)].map((_, i) => (
                   <div
                     key={i}
@@ -326,7 +326,7 @@ const DirectoryPage = () => {
             ) : (
               <>
                 {viewMode === "grid" ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {businesses.map((business) => (
                       <BusinessCard key={business.id} business={business} />
                     ))}

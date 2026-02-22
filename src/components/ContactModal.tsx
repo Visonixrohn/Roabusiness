@@ -147,21 +147,21 @@ const ContactModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-lg px-6 py-5 rounded-2xl">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto px-4 py-4 rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center space-x-3 text-xl font-semibold text-gray-900">
+          <DialogTitle className="flex items-center space-x-2 text-lg font-semibold text-gray-900">
             <img
               src={business.logo}
               alt={business.name}
-              className="w-10 h-10 rounded-full object-cover border"
+              className="w-8 h-8 rounded-full object-cover border"
             />
-            <span>Contactar a {business.name}</span>
+            <span className="text-base">Contactar a {business.name}</span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 text-sm">
+        <div className="space-y-4 text-sm">
           {/* Info del negocio */}
-          <div className="bg-gray-50 rounded-lg p-4 space-y-3 text-gray-700 shadow-inner">
+          <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-gray-700 shadow-inner">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-gray-500" />
               <span>

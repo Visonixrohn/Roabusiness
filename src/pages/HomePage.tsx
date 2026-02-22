@@ -33,7 +33,7 @@ const HomePage = () => {
     // Detectar si ya está instalada como PWA
     setIsStandalone(
       window.matchMedia("(display-mode: standalone)").matches ||
-        (window.navigator as any).standalone === true
+        (window.navigator as any).standalone === true,
     );
     // Capturar el evento beforeinstallprompt
     window.addEventListener("beforeinstallprompt", (e: any) => {
@@ -66,28 +66,29 @@ const HomePage = () => {
   return (
     <div className="min-h-screen">
       <Header />
- <HeroSection/>
+      <HeroSection />
 
       {/* Negocios Destacados */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16 max-w-3xl mx-auto px-4">
-  <h2 className="text-5xl font-extrabold text-gray-900 mb-4 tracking-tight drop-shadow-md">
-    Negocios Destacados
-  </h2>
-  <p className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto leading-relaxed">
-    Descubre los negocios con más <span className="font-semibold text-teal-600">seguidores</span> en las Islas de la Bahía
-  </p>
-  <div className="mt-6 flex justify-center space-x-3">
-    <span className="inline-block w-20 h-1 bg-teal-500 rounded-full animate-pulse"></span>
-    <span className="inline-block w-12 h-1 bg-teal-300 rounded-full animate-pulse delay-150"></span>
-    <span className="inline-block w-8 h-1 bg-teal-200 rounded-full animate-pulse delay-300"></span>
-  </div>
-</div>
-
+            <h2 className="text-5xl font-extrabold text-gray-900 mb-4 tracking-tight drop-shadow-md">
+              Negocios Destacados
+            </h2>
+            <p className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto leading-relaxed">
+              Descubre los negocios con más{" "}
+              <span className="font-semibold text-teal-600">seguidores</span> en
+              las Islas de la Bahía
+            </p>
+            <div className="mt-6 flex justify-center space-x-3">
+              <span className="inline-block w-20 h-1 bg-teal-500 rounded-full animate-pulse"></span>
+              <span className="inline-block w-12 h-1 bg-teal-300 rounded-full animate-pulse delay-150"></span>
+              <span className="inline-block w-8 h-1 bg-teal-200 rounded-full animate-pulse delay-300"></span>
+            </div>
+          </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="bg-white rounded-lg p-6 animate-pulse">
                   <div className="h-48 bg-gray-300 rounded-lg mb-4"></div>
@@ -97,7 +98,7 @@ const HomePage = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {mostFollowedBusinesses
                 .filter((business) => business.is_public !== false)
                 .slice(0, 6)
@@ -113,23 +114,25 @@ const HomePage = () => {
 
           <div className="text-center mt-12">
             <Link to="/directorio">
-            <div className="flex justify-center">
-  <Button
-    size="lg"
-    className="bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2 px-6 py-3 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-300"
-  >
-    Ver Todos los Negocios
-    <ChevronRight className="ml-1 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-  </Button>
-</div>
-
+              <div className="flex justify-center">
+                <Button
+                  size="lg"
+                  className="bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2 px-6 py-3 rounded-full shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-300"
+                >
+                  Ver Todos los Negocios
+                  <ChevronRight className="ml-1 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                </Button>
+              </div>
             </Link>
           </div>
         </div>
       </section>
-<AboutPage />
+      <AboutPage />
       {/* Islas */}
-      <IslandsSection isStandalone={isStandalone} installPromptRef={installPromptRef} />
+      <IslandsSection
+        isStandalone={isStandalone}
+        installPromptRef={installPromptRef}
+      />
 
       <Footer />
     </div>
