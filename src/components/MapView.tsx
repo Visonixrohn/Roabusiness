@@ -1,18 +1,20 @@
-import { useState, useCallback } from 'react';
-import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
-import { Star, MapPin, Phone, Globe, X } from 'lucide-react';
-import { Business } from '@/types/business';
-import { GOOGLE_MAPS_CONFIG, BAY_ISLANDS_BOUNDS } from '@/config/googleMaps';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import ContactModal from '@/components/ContactModal';
+import { useState, useCallback } from "react";
+import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
+import { Star, MapPin, Phone, Globe, X } from "lucide-react";
+import { Business } from "@/types/business";
+import { GOOGLE_MAPS_CONFIG, BAY_ISLANDS_BOUNDS } from "@/config/googleMaps";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import ContactModal from "@/components/ContactModal";
 
 interface MapViewProps {
   businesses: Business[];
 }
 
 const MapView = ({ businesses }: MapViewProps) => {
-  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(
+    null,
+  );
   const [showContactModal, setShowContactModal] = useState(false);
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
@@ -27,7 +29,7 @@ const MapView = ({ businesses }: MapViewProps) => {
     fullscreenControl: true,
     zoomControl: true,
     scrollwheel: true,
-    gestureHandling: 'cooperative',
+    gestureHandling: "cooperative",
   };
 
   const onLoad = useCallback((map: google.maps.Map) => {
@@ -40,18 +42,18 @@ const MapView = ({ businesses }: MapViewProps) => {
 
   const getMarkerIcon = (business: Business) => {
     const colors = {
-      'Hoteles y Alojamiento': '#EF4444', // Red
-      'Restaurantes': '#F97316', // Orange
-      'Tours y Actividades': '#10B981', // Green
-      'Bares y Vida Nocturna': '#8B5CF6', // Purple
-      'Bienestar y Spa': '#EC4899', // Pink
-      'Tiendas y Comercios': '#F59E0B', // Yellow
-      'Cafeterías': '#6B7280', // Gray
-      'Alquiler Vacacional': '#3B82F6', // Blue
+      "Hoteles y Alojamiento": "#EF4444", // Red
+      Restaurantes: "#F97316", // Orange
+      "Tours y Actividades": "#10B981", // Green
+      "Bares y Vida Nocturna": "#8B5CF6", // Purple
+      "Bienestar y Spa": "#EC4899", // Pink
+      "Tiendas y Comercios": "#F59E0B", // Yellow
+      Cafeterías: "#6B7280", // Gray
+      "Alquiler Vacacional": "#3B82F6", // Blue
     };
 
-    const color = colors[business.category as keyof typeof colors] || '#6B7280';
-    
+    const color = colors[business.category as keyof typeof colors] || "#6B7280";
+
     return {
       url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
         <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
@@ -73,8 +75,8 @@ const MapView = ({ businesses }: MapViewProps) => {
     <div className="relative">
       <GoogleMap
         mapContainerStyle={{
-          width: '100%',
-          height: '600px',
+          width: "100%",
+          height: "600px",
         }}
         center={GOOGLE_MAPS_CONFIG.defaultCenter}
         zoom={GOOGLE_MAPS_CONFIG.defaultZoom}
@@ -82,7 +84,7 @@ const MapView = ({ businesses }: MapViewProps) => {
         onUnmount={onUnmount}
         options={mapOptions}
       >
-        {businesses.map((business) => (
+        {businesses.map((business) =>
           business.coordinates ? (
             <Marker
               key={business.id}
@@ -94,8 +96,8 @@ const MapView = ({ businesses }: MapViewProps) => {
               onClick={() => setSelectedBusiness(business)}
               title={business.name}
             />
-          ) : null
-        ))}
+          ) : null,
+        )}
 
         {selectedBusiness && selectedBusiness.coordinates && (
           <InfoWindow
@@ -149,13 +151,20 @@ const MapView = ({ businesses }: MapViewProps) => {
               />
 
               <div className="flex items-center justify-between mb-3">
-                <Badge variant="outline" className="text-blue-600 border-blue-600">
+                <Badge
+                  variant="outline"
+                  className="text-blue-600 border-blue-600"
+                >
                   {selectedBusiness.category}
                 </Badge>
                 <div className="flex items-center space-x-1">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="text-sm font-medium">{selectedBusiness.rating}</span>
-                  <span className="text-sm text-gray-500">• {selectedBusiness.priceRange}</span>
+                  <span className="text-sm font-medium">
+                    {selectedBusiness.rating}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    • {selectedBusiness.priceRange}
+                  </span>
                 </div>
               </div>
 
@@ -166,7 +175,7 @@ const MapView = ({ businesses }: MapViewProps) => {
               <div className="space-y-2 mb-4">
                 <div className="flex items-center text-sm text-gray-600">
                   <Phone className="h-3 w-3 mr-2" />
-                  <a 
+                  <a
                     href={`tel:${selectedBusiness.contact.phone}`}
                     className="text-blue-600 hover:underline"
                   >
@@ -176,7 +185,7 @@ const MapView = ({ businesses }: MapViewProps) => {
                 {selectedBusiness.contact.website && (
                   <div className="flex items-center text-sm text-gray-600">
                     <Globe className="h-3 w-3 mr-2" />
-                    <a 
+                    <a
                       href={`https://${selectedBusiness.contact.website}`}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -200,7 +209,12 @@ const MapView = ({ businesses }: MapViewProps) => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => window.open(`https://${selectedBusiness.contact.website}`, '_blank')}
+                    onClick={() =>
+                      window.open(
+                        `https://${selectedBusiness.contact.website}`,
+                        "_blank",
+                      )
+                    }
                     className="flex-1"
                   >
                     Sitio Web

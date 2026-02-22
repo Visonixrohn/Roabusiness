@@ -14,7 +14,6 @@ import {
   Building,
   Eye,
   Users,
-  
   Facebook,
   Instagram,
   Twitter,
@@ -94,7 +93,7 @@ const BusinessRegistrationPage = () => {
   });
 
   const islandCenters: Record<string, { lat: number; lng: number }> = {
-    "Roatán": { lat: 16.3156, lng: -86.5889 },
+    Roatán: { lat: 16.3156, lng: -86.5889 },
     Utila: { lat: 16.1, lng: -86.9 },
     Guanaja: { lat: 16.45, lng: -85.9 },
     "Jose Santos Guardiola": { lat: 16.36, lng: -86.35 },
@@ -140,7 +139,7 @@ const BusinessRegistrationPage = () => {
     setFormData((prev) => ({
       ...prev,
       amenities: prev.amenities.filter(
-        (amenity) => amenity !== amenityToRemove
+        (amenity) => amenity !== amenityToRemove,
       ),
     }));
   };
@@ -264,19 +263,24 @@ const BusinessRegistrationPage = () => {
           .insert([payloadCamel])
           .select()
           .single();
-        
+
         if (result.error) throw result.error;
         businessData = result.data;
       } catch (err: any) {
         // Si falla por columnas, intentar con snake_case
         const msg = String(err?.message || err);
-        if (msg.includes("cover_image") || msg.includes("coverImage") || msg.includes("could not find") || msg.includes("column")) {
+        if (
+          msg.includes("cover_image") ||
+          msg.includes("coverImage") ||
+          msg.includes("could not find") ||
+          msg.includes("column")
+        ) {
           const result = await supabase
             .from("businesses")
             .insert([payloadSnake])
             .select()
             .single();
-          
+
           if (result.error) throw result.error;
           businessData = result.data;
         } else {
@@ -293,7 +297,10 @@ const BusinessRegistrationPage = () => {
       toast.success("Negocio registrado exitosamente");
       setTimeout(() => navigate("/editar-negocio"), 1200);
     } catch (error: any) {
-      toast.error("Error al registrar el negocio: " + (error?.message || "Intenta nuevamente."));
+      toast.error(
+        "Error al registrar el negocio: " +
+          (error?.message || "Intenta nuevamente."),
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -333,8 +340,8 @@ const BusinessRegistrationPage = () => {
                   isCompleted
                     ? "bg-green-600 text-white"
                     : isCurrent
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-300 text-gray-500"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-300 text-gray-500"
                 }
               `}
               >
@@ -477,7 +484,8 @@ const BusinessRegistrationPage = () => {
                   Selecciona ubicación en mapa
                 </label>
                 <p className="text-xs text-gray-500 mb-2">
-                  Haz clic en el mapa para guardar la ubicación exacta del negocio.
+                  Haz clic en el mapa para guardar la ubicación exacta del
+                  negocio.
                 </p>
                 <div className="flex flex-wrap gap-2 mb-2">
                   <Button
@@ -486,7 +494,7 @@ const BusinessRegistrationPage = () => {
                     size="sm"
                     onClick={() =>
                       setMapType((prev) =>
-                        prev === "roadmap" ? "satellite" : "roadmap"
+                        prev === "roadmap" ? "satellite" : "roadmap",
                       )
                     }
                   >
@@ -497,12 +505,18 @@ const BusinessRegistrationPage = () => {
                     type="button"
                     variant="outline"
                     size="sm"
-                    disabled={formData.latitude == null || formData.longitude == null}
+                    disabled={
+                      formData.latitude == null || formData.longitude == null
+                    }
                     onClick={() => {
-                      if (formData.latitude == null || formData.longitude == null) return;
+                      if (
+                        formData.latitude == null ||
+                        formData.longitude == null
+                      )
+                        return;
                       window.open(
                         `https://www.google.com/maps/search/?api=1&query=${formData.latitude},${formData.longitude}`,
-                        "_blank"
+                        "_blank",
                       );
                     }}
                   >
@@ -522,7 +536,11 @@ const BusinessRegistrationPage = () => {
                       const lat = event.latLng?.lat();
                       const lng = event.latLng?.lng();
                       if (lat == null || lng == null) return;
-                      setFormData((prev) => ({ ...prev, latitude: lat, longitude: lng }));
+                      setFormData((prev) => ({
+                        ...prev,
+                        latitude: lat,
+                        longitude: lng,
+                      }));
                     }}
                     options={{
                       mapTypeId: mapType,
@@ -531,12 +549,16 @@ const BusinessRegistrationPage = () => {
                       streetViewControl: false,
                     }}
                   >
-                    {formData.latitude != null && formData.longitude != null && (
-                      <Marker
-                        position={{ lat: formData.latitude, lng: formData.longitude }}
-                        title={formData.name || "Ubicación del negocio"}
-                      />
-                    )}
+                    {formData.latitude != null &&
+                      formData.longitude != null && (
+                        <Marker
+                          position={{
+                            lat: formData.latitude,
+                            lng: formData.longitude,
+                          }}
+                          title={formData.name || "Ubicación del negocio"}
+                        />
+                      )}
                   </GoogleMap>
                 </div>
               </div>
@@ -737,7 +759,8 @@ const BusinessRegistrationPage = () => {
                   placeholder="Ej: 6"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Este valor se usa para controlar cuándo expira la suscripción del negocio.
+                  Este valor se usa para controlar cuándo expira la suscripción
+                  del negocio.
                 </p>
               </div>
 
@@ -907,7 +930,6 @@ const BusinessRegistrationPage = () => {
               </Button>
             )}
           </div>
-          
         </div>
 
         {/* Benefits Section */}

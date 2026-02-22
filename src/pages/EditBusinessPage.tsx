@@ -92,7 +92,9 @@ const EditBusinessPage = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(
+    null,
+  );
   const [editForm, setEditForm] = useState<EditFormData>({
     name: "",
     category: "",
@@ -121,7 +123,9 @@ const EditBusinessPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterIsland, setFilterIsland] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
-  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive">("all");
+  const [filterStatus, setFilterStatus] = useState<
+    "all" | "active" | "inactive"
+  >("all");
 
   const islands = ["Roatán", "Utila", "Guanaja", "Jose Santos Guardiola"];
   const priceRanges = [
@@ -132,7 +136,7 @@ const EditBusinessPage = () => {
   ];
   const categories = businessCategories;
   const islandCenters: Record<string, { lat: number; lng: number }> = {
-    "Roatán": { lat: 16.3156, lng: -86.5889 },
+    Roatán: { lat: 16.3156, lng: -86.5889 },
     Utila: { lat: 16.1, lng: -86.9 },
     Guanaja: { lat: 16.45, lng: -85.9 },
     "Jose Santos Guardiola": { lat: 16.36, lng: -86.35 },
@@ -149,11 +153,11 @@ const EditBusinessPage = () => {
     try {
       // Intentar cargar sin ordenamiento primero
       let query = supabase.from("businesses").select("*");
-      
+
       const { data, error } = await query;
 
       if (error) throw error;
-      
+
       // Normalizar datos para soportar ambos formatos (snake_case y camelCase)
       const normalizedData = (data || []).map((business: any) => ({
         ...business,
@@ -176,15 +180,17 @@ const EditBusinessPage = () => {
         subscription_started_at: business.subscription_started_at || null,
         created_at: business.created_at || new Date().toISOString(),
       }));
-      
+
       // Ordenar en el cliente por nombre si no hay created_at
       const sortedData = normalizedData.sort((a, b) => {
         if (a.created_at && b.created_at) {
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          return (
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
         }
         return a.name.localeCompare(b.name);
       });
-      
+
       setBusinesses(sortedData);
       console.log("Negocios cargados:", sortedData.length);
     } catch (error: any) {
@@ -233,7 +239,9 @@ const EditBusinessPage = () => {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`¿Estás seguro de que deseas eliminar el negocio "${name}"?`)) {
+    if (
+      !confirm(`¿Estás seguro de que deseas eliminar el negocio "${name}"?`)
+    ) {
       return;
     }
 
@@ -314,17 +322,22 @@ const EditBusinessPage = () => {
           .from("businesses")
           .update(payloadCamel)
           .eq("id", selectedBusiness.id);
-        
+
         if (error) throw error;
       } catch (err: any) {
         // Si falla por columnas, intentar con snake_case
         const msg = String(err?.message || err);
-        if (msg.includes("cover_image") || msg.includes("coverImage") || msg.includes("could not find") || msg.includes("column")) {
+        if (
+          msg.includes("cover_image") ||
+          msg.includes("coverImage") ||
+          msg.includes("could not find") ||
+          msg.includes("column")
+        ) {
           const { error } = await supabase
             .from("businesses")
             .update(payloadSnake)
             .eq("id", selectedBusiness.id);
-          
+
           if (error) throw error;
         } else {
           throw err;
@@ -354,7 +367,9 @@ const EditBusinessPage = () => {
   const removeAmenity = (amenityToRemove: string) => {
     setEditForm((prev) => ({
       ...prev,
-      amenities: prev.amenities.filter((amenity) => amenity !== amenityToRemove),
+      amenities: prev.amenities.filter(
+        (amenity) => amenity !== amenityToRemove,
+      ),
     }));
   };
 
@@ -367,7 +382,7 @@ const EditBusinessPage = () => {
 
       if (error) throw error;
       toast.success(
-        `Negocio ${!business.is_public ? "publicado" : "ocultado"} exitosamente`
+        `Negocio ${!business.is_public ? "publicado" : "ocultado"} exitosamente`,
       );
       fetchBusinesses();
     } catch (error: any) {
@@ -401,7 +416,9 @@ const EditBusinessPage = () => {
     const matchesSearch = business.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
-    const matchesIsland = filterIsland ? business.island === filterIsland : true;
+    const matchesIsland = filterIsland
+      ? business.island === filterIsland
+      : true;
     const matchesCategory = filterCategory
       ? business.category === filterCategory
       : true;
@@ -410,13 +427,13 @@ const EditBusinessPage = () => {
       filterStatus === "all"
         ? true
         : filterStatus === "active"
-        ? isActive
-        : !isActive;
+          ? isActive
+          : !isActive;
     return matchesSearch && matchesIsland && matchesCategory && matchesStatus;
   });
 
   const activeBusinessesCount = businesses.filter((business) =>
-    isSubscriptionActive(business)
+    isSubscriptionActive(business),
   ).length;
   const inactiveBusinessesCount = businesses.length - activeBusinessesCount;
 
@@ -463,7 +480,9 @@ const EditBusinessPage = () => {
             }`}
           >
             <p className="text-xs text-gray-500">Total negocios</p>
-            <p className="text-2xl font-bold text-gray-900">{businesses.length}</p>
+            <p className="text-2xl font-bold text-gray-900">
+              {businesses.length}
+            </p>
           </button>
 
           <button
@@ -474,7 +493,9 @@ const EditBusinessPage = () => {
             }`}
           >
             <p className="text-xs text-gray-500">Negocios activos</p>
-            <p className="text-2xl font-bold text-green-600">{activeBusinessesCount}</p>
+            <p className="text-2xl font-bold text-green-600">
+              {activeBusinessesCount}
+            </p>
           </button>
 
           <button
@@ -485,7 +506,9 @@ const EditBusinessPage = () => {
             }`}
           >
             <p className="text-xs text-gray-500">Negocios inactivos</p>
-            <p className="text-2xl font-bold text-red-600">{inactiveBusinessesCount}</p>
+            <p className="text-2xl font-bold text-red-600">
+              {inactiveBusinessesCount}
+            </p>
           </button>
         </div>
 
@@ -544,7 +567,9 @@ const EditBusinessPage = () => {
               <select
                 value={filterStatus}
                 onChange={(e) =>
-                  setFilterStatus(e.target.value as "all" | "active" | "inactive")
+                  setFilterStatus(
+                    e.target.value as "all" | "active" | "inactive",
+                  )
                 }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
@@ -597,13 +622,15 @@ const EditBusinessPage = () => {
         ) : (
           <div className="space-y-2 mb-4">
             <p className="text-sm text-gray-600">
-              Mostrando {filteredBusinesses.length} de {businesses.length} negocios
+              Mostrando {filteredBusinesses.length} de {businesses.length}{" "}
+              negocios
             </p>
           </div>
         )}
-        
+
         {!loading && filteredBusinesses.length > 0 && (
-          <div className="grid grid-cols-1 gap-4">{filteredBusinesses.map((business) => (
+          <div className="grid grid-cols-1 gap-4">
+            {filteredBusinesses.map((business) => (
               <div
                 key={business.id}
                 className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
@@ -612,7 +639,11 @@ const EditBusinessPage = () => {
                   {/* Imagen */}
                   <div className="flex-shrink-0">
                     <img
-                      src={business.logo || business.cover_image || "https://via.placeholder.com/150"}
+                      src={
+                        business.logo ||
+                        business.cover_image ||
+                        "https://via.placeholder.com/150"
+                      }
                       alt={business.name}
                       className="w-24 h-24 rounded-lg object-cover"
                     />
@@ -632,7 +663,9 @@ const EditBusinessPage = () => {
                             {business.island}
                           </Badge>
                           <Badge
-                            variant={business.is_public ? "default" : "destructive"}
+                            variant={
+                              business.is_public ? "default" : "destructive"
+                            }
                           >
                             {business.is_public ? "Público" : "Oculto"}
                           </Badge>
@@ -671,8 +704,11 @@ const EditBusinessPage = () => {
                         </span>
                       )}
                       <span>
-                        Vence: {getSubscriptionExpirationDate(business)
-                          ? getSubscriptionExpirationDate(business)?.toLocaleDateString("es-HN")
+                        Vence:{" "}
+                        {getSubscriptionExpirationDate(business)
+                          ? getSubscriptionExpirationDate(
+                              business,
+                            )?.toLocaleDateString("es-HN")
                           : "Sin fecha"}
                       </span>
                     </div>
@@ -684,18 +720,26 @@ const EditBusinessPage = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => togglePublic(business)}
-                      title={business.is_public ? "Ocultar negocio" : "Publicar negocio"}
+                      title={
+                        business.is_public
+                          ? "Ocultar negocio"
+                          : "Publicar negocio"
+                      }
                       className="flex items-center gap-1"
                     >
                       {business.is_public ? (
                         <>
                           <EyeOff className="h-4 w-4" />
-                          <span className="hidden sm:inline text-xs">Ocultar</span>
+                          <span className="hidden sm:inline text-xs">
+                            Ocultar
+                          </span>
                         </>
                       ) : (
                         <>
                           <Eye className="h-4 w-4" />
-                          <span className="hidden sm:inline text-xs">Publicar</span>
+                          <span className="hidden sm:inline text-xs">
+                            Publicar
+                          </span>
                         </>
                       )}
                     </Button>
@@ -838,7 +882,7 @@ const EditBusinessPage = () => {
                       size="sm"
                       onClick={() =>
                         setMapType((prev) =>
-                          prev === "roadmap" ? "satellite" : "roadmap"
+                          prev === "roadmap" ? "satellite" : "roadmap",
                         )
                       }
                     >
@@ -849,12 +893,18 @@ const EditBusinessPage = () => {
                       type="button"
                       variant="outline"
                       size="sm"
-                      disabled={editForm.latitude == null || editForm.longitude == null}
+                      disabled={
+                        editForm.latitude == null || editForm.longitude == null
+                      }
                       onClick={() => {
-                        if (editForm.latitude == null || editForm.longitude == null) return;
+                        if (
+                          editForm.latitude == null ||
+                          editForm.longitude == null
+                        )
+                          return;
                         window.open(
                           `https://www.google.com/maps/search/?api=1&query=${editForm.latitude},${editForm.longitude}`,
-                          "_blank"
+                          "_blank",
                         );
                       }}
                     >
@@ -874,7 +924,11 @@ const EditBusinessPage = () => {
                         const lat = event.latLng?.lat();
                         const lng = event.latLng?.lng();
                         if (lat == null || lng == null) return;
-                        setEditForm({ ...editForm, latitude: lat, longitude: lng });
+                        setEditForm({
+                          ...editForm,
+                          latitude: lat,
+                          longitude: lng,
+                        });
                       }}
                       options={{
                         mapTypeId: mapType,
@@ -883,12 +937,16 @@ const EditBusinessPage = () => {
                         streetViewControl: false,
                       }}
                     >
-                      {editForm.latitude != null && editForm.longitude != null && (
-                        <Marker
-                          position={{ lat: editForm.latitude, lng: editForm.longitude }}
-                          title={editForm.name || "Ubicación del negocio"}
-                        />
-                      )}
+                      {editForm.latitude != null &&
+                        editForm.longitude != null && (
+                          <Marker
+                            position={{
+                              lat: editForm.latitude,
+                              lng: editForm.longitude,
+                            }}
+                            title={editForm.name || "Ubicación del negocio"}
+                          />
+                        )}
                     </GoogleMap>
                   </div>
                 </div>
@@ -1138,7 +1196,9 @@ const EditBusinessPage = () => {
                     onImageUploaded={(url) =>
                       setEditForm({ ...editForm, logo: url })
                     }
-                    onImageRemoved={() => setEditForm({ ...editForm, logo: "" })}
+                    onImageRemoved={() =>
+                      setEditForm({ ...editForm, logo: "" })
+                    }
                     currentImage={editForm.logo}
                     label="Logo del negocio"
                     maxSize={2}
@@ -1157,7 +1217,10 @@ const EditBusinessPage = () => {
                   }
                   className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                 />
-                <label htmlFor="is_public" className="text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="is_public"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Negocio público (visible en el directorio)
                 </label>
               </div>

@@ -16,7 +16,7 @@ export const getSubscriptionExpirationDate = (business: SubscriptionLike) => {
   }
 
   const baseDate = new Date(
-    business.subscription_started_at || business.created_at || Date.now()
+    business.subscription_started_at || business.created_at || Date.now(),
   );
 
   if (Number.isNaN(baseDate.getTime())) {

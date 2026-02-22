@@ -63,7 +63,9 @@ const AdminLoginPage = () => {
               <MapPin className="h-7 w-7 text-white" />
             </div>
             <div>
-              <span className="text-2xl font-bold text-blue-600">RoaBusiness</span>
+              <span className="text-2xl font-bold text-blue-600">
+                RoaBusiness
+              </span>
               <span className="text-xs text-gray-500 block leading-none">
                 Admin Access
               </span>
@@ -72,7 +74,9 @@ const AdminLoginPage = () => {
         </div>
 
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Ingreso Administrador</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Ingreso Administrador
+          </h1>
           <p className="text-sm text-gray-600 mt-2">
             Acceso a registro y edición de negocios
           </p>
@@ -80,7 +84,9 @@ const AdminLoginPage = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Clave</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Clave
+            </label>
             <Input
               value={clave}
               onChange={(e) => setClave(e.target.value)}
@@ -90,7 +96,9 @@ const AdminLoginPage = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Code</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Code
+            </label>
             <Input
               value={code}
               onChange={(e) => setCode(e.target.value)}
@@ -113,7 +121,8 @@ const AdminLoginPage = () => {
         <div className="mt-6 bg-blue-50 rounded-lg p-3 text-sm text-blue-700 flex items-start gap-2">
           <ShieldCheck className="h-4 w-4 mt-0.5" />
           <p>
-            Esta pantalla es solo para ingreso administrativo. No permite registro de nuevos administradores.
+            Esta pantalla es solo para ingreso administrativo. No permite
+            registro de nuevos administradores.
           </p>
         </div>
       </div>

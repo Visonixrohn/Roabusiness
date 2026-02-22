@@ -81,7 +81,7 @@ export const useBusinesses = () => {
   const categories = useMemo(() => {
     if (!businessData) return [];
     return Array.from(
-      new Set(businessData.businesses.map((b) => b.category?.trim()))
+      new Set(businessData.businesses.map((b) => b.category?.trim())),
     )
       .filter(Boolean)
       .sort();
@@ -91,7 +91,7 @@ export const useBusinesses = () => {
   const islands = useMemo(() => {
     if (!businessData) return [];
     return Array.from(
-      new Set(businessData.businesses.map((b) => b.island?.trim()))
+      new Set(businessData.businesses.map((b) => b.island?.trim())),
     )
       .filter(Boolean)
       .sort();
@@ -143,7 +143,7 @@ export const useBusinesses = () => {
   // Destacados (top 6)
   const featuredBusinesses = useMemo(
     () => mostFollowedBusinesses.filter((b) => b.featured),
-    [mostFollowedBusinesses]
+    [mostFollowedBusinesses],
   );
 
   const totalActiveBusinesses = useMemo(() => {

@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { X, Phone, Mail, Globe, MapPin, Send, Satellite, Navigation } from "lucide-react";
+import {
+  X,
+  Phone,
+  Mail,
+  Globe,
+  MapPin,
+  Send,
+  Satellite,
+  Navigation,
+} from "lucide-react";
 import { Business } from "@/types/business";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +22,7 @@ import {
 import { toast } from "sonner";
 import { Facebook, Instagram, Twitter } from "lucide-react";
 import TikTokIcon from "@/components/icons/TikTokIcon";
-import { GoogleMap, Marker, OverlayView } from "@react-google-maps/api";
+import { GoogleMap, Marker } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
 
 interface ContactModalProps {
@@ -49,7 +58,7 @@ const ContactModal = ({
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -76,7 +85,7 @@ const ContactModal = ({
 
   const islandCenter = useMemo(() => {
     const centers: Record<string, { lat: number; lng: number }> = {
-      "Roatán": { lat: 16.3156, lng: -86.5889 },
+      Roatán: { lat: 16.3156, lng: -86.5889 },
       Utila: { lat: 16.1, lng: -86.9 },
       Guanaja: { lat: 16.45, lng: -85.9 },
       "Jose Santos Guardiola": { lat: 16.36, lng: -86.35 },
@@ -84,8 +93,12 @@ const ContactModal = ({
     return centers[business.island] || GOOGLE_MAPS_CONFIG.defaultCenter;
   }, [business.island]);
 
-  const initialLat = parseCoordinate(business.latitude ?? business.coordinates?.lat);
-  const initialLng = parseCoordinate(business.longitude ?? business.coordinates?.lng);
+  const initialLat = parseCoordinate(
+    business.latitude ?? business.coordinates?.lat,
+  );
+  const initialLng = parseCoordinate(
+    business.longitude ?? business.coordinates?.lng,
+  );
 
   useEffect(() => {
     if (!isOpen) return;
@@ -109,10 +122,7 @@ const ContactModal = ({
     const address = `${business.location}, ${business.island}, Islas de la Bahía, Honduras`;
 
     geocoder.geocode({ address }, (results, status) => {
-      if (
-        status === "OK" &&
-        results?.[0]?.geometry?.location
-      ) {
+      if (status === "OK" && results?.[0]?.geometry?.location) {
         const location = results[0].geometry.location;
         setResolvedMapPosition({ lat: location.lat(), lng: location.lng() });
         return;
@@ -257,7 +267,7 @@ const ContactModal = ({
                 size="sm"
                 onClick={() =>
                   setMapType((prev) =>
-                    prev === "roadmap" ? "satellite" : "roadmap"
+                    prev === "roadmap" ? "satellite" : "roadmap",
                   )
                 }
                 className="h-8"
@@ -271,53 +281,32 @@ const ContactModal = ({
                 <GoogleMap
                   mapContainerStyle={{ width: "100%", height: "220px" }}
                   center={mapPosition}
-                  zoom={14}
+                  zoom={15}
                   options={{
                     mapTypeId: mapType,
                     mapTypeControl: false,
                     streetViewControl: false,
                     fullscreenControl: false,
-                    styles: GOOGLE_MAPS_CONFIG.mapStyle,
+                    zoomControl: true,
+                    disableDefaultUI: false,
                   }}
                 >
                   <Marker
                     position={mapPosition}
                     title={business.name}
-                    icon="https://maps.google.com/mapfiles/ms/icons/red-dot.png"
-                    zIndex={999}
+                    icon={{
+                      url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+                        <svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                          <g filter="drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
+                            <path d="M24 2C16.268 2 10 8.268 10 16c0 9.5 14 28 14 28s14-18.5 14-28c0-7.732-6.268-14-14-14z" fill="#EF4444"/>
+                            <circle cx="24" cy="16" r="6" fill="white"/>
+                          </g>
+                        </svg>
+                      `)}`,
+                      scaledSize: new window.google.maps.Size(48, 48),
+                      anchor: new window.google.maps.Point(24, 48),
+                    }}
                   />
-                  <OverlayView
-                    position={mapPosition}
-                    mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-                  >
-                    <div
-                      title={business.name}
-                      style={{
-                        transform: "translate(-50%, -100%)",
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: 18,
-                          height: 18,
-                          borderRadius: "50%",
-                          background: "#ef4444",
-                          border: "3px solid #ffffff",
-                          boxShadow: "0 1px 6px rgba(0,0,0,0.35)",
-                        }}
-                      />
-                      <div
-                        style={{
-                          width: 2,
-                          height: 10,
-                          background: "#ef4444",
-                          margin: "0 auto",
-                          boxShadow: "0 1px 2px rgba(0,0,0,0.25)",
-                        }}
-                      />
-                    </div>
-                  </OverlayView>
                 </GoogleMap>
                 <div className="p-2 bg-white border-t">
                   <Button
