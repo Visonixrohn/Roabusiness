@@ -94,7 +94,7 @@ const HeroSection = () => {
 
   return (
     <>
-      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
+      <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] flex items-center justify-center overflow-hidden bg-black">
         {/* Imagen de fondo */}
         <img
           src="https://i.imgur.com/IyMgElg.jpeg"
@@ -155,9 +155,9 @@ const HeroSection = () => {
 
         {/* Contenido principal */}
 
-        <div className="relative z-10 text-center text-white px-6 max-w-5xl mx-auto flex flex-col items-center">
+        <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto flex flex-col items-center">
           <h1
-            className="text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4 sm:mb-6 drop-shadow-lg leading-tight min-h-[3.5rem] sm:min-h-[5rem]"
+            className="text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-2 sm:mb-4 drop-shadow-lg leading-tight min-h-[2.5rem] sm:min-h-[3.5rem]"
             aria-label={fullTitle}
             aria-live="polite"
           >
@@ -166,7 +166,7 @@ const HeroSection = () => {
           </h1>
 
           <p
-            className={`text-base xs:text-lg sm:text-xl md:text-2xl mb-6 sm:mb-10 max-w-xs xs:max-w-md sm:max-w-3xl mx-auto leading-relaxed text-gray-100 drop-shadow-md transform transition-opacity duration-900 ${
+            className={`text-sm xs:text-base sm:text-lg md:text-xl mb-4 sm:mb-6 max-w-xs xs:max-w-md sm:max-w-2xl mx-auto leading-relaxed text-gray-100 drop-shadow-md transform transition-opacity duration-900 ${
               showContent
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-6"
@@ -178,7 +178,7 @@ const HeroSection = () => {
           </p>
 
           <div
-            className={`flex flex-col sm:flex-row gap-4 justify-center transform transition-opacity duration-900 ${
+            className={`flex flex-col sm:flex-row gap-3 justify-center transform transition-opacity duration-900 ${
               showContent
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-6"
@@ -191,10 +191,10 @@ const HeroSection = () => {
               </Link>
             )}
           </div>
-          <div className="text-base xs:text-lg sm:text-2xl md:text-4xl font-bold text-blue-200 drop-shadow">
+          <div className="text-sm xs:text-base sm:text-xl md:text-2xl font-bold text-blue-200 drop-shadow">
             {displayedCount}
           </div>
-          <p className="text-white text-[10px] xs:text-xs sm:text-base md:text-xl leading-tight">
+          <p className="text-white text-[9px] xs:text-[10px] sm:text-xs md:text-base leading-tight">
             Negocios Destacados
           </p>
         </div>

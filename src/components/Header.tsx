@@ -37,7 +37,9 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(
+    null,
+  );
   const [showContactModal, setShowContactModal] = useState(false);
   // removed logout/modal related states
   const location = useLocation();
@@ -45,7 +47,7 @@ const Header = () => {
   const user = null;
   const { businesses, loading } = useBusinesses();
   const isAdminLoggedIn = isAdminSessionActive();
-  
+
   // Obtener contactos del negocio seleccionado
   const { contacts } = useContacts(selectedBusiness?.id || "");
 
@@ -68,26 +70,26 @@ const Header = () => {
       : [];
 
   return (
-    <header className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="flex items-center justify-between h-12 sm:h-14">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-              <MapPin className="h-6 w-6 text-white" />
+          <Link to="/" className="flex items-center space-x-1.5">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <MapPin className="h-5 w-5 text-white" />
             </div>
             <div className="hidden sm:block">
-              <span className="text-xl font-bold text-blue-600">
+              <span className="text-base font-bold text-blue-600">
                 RoaBusiness
               </span>
-              <span className="text-sm text-gray-600 block leading-none">
+              <span className="text-xs text-gray-600 block leading-none">
                 Directory
               </span>
             </div>
           </Link>
 
           {/* Búsqueda - Desktop */}
-          <div className="hidden md:flex flex-1 max-w-lg mx-8 relative">
+          <div className="hidden md:flex flex-1 max-w-lg mx-4 relative">
             <div className="relative w-full">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3">
                 <Search className="h-4 w-4 text-gray-400" />
@@ -102,7 +104,7 @@ const Header = () => {
                 }}
                 onFocus={() => setShowDropdown(searchQuery.length > 0)}
                 onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-                className="w-full pl-10 py-2 bg-gray-100 border-gray-200 rounded-full focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-9 py-1.5 text-sm bg-gray-100 border-gray-200 rounded-full focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 autoComplete="off"
               />
               {/* Dropdown de resultados */}
@@ -138,7 +140,7 @@ const Header = () => {
           </div>
 
           {/* Navegación - Desktop */}
-          <nav className="hidden md:flex items-center space-x-1">
+          <nav className="hidden md:flex items-center space-x-0.5">
             {navigation.map((item) => {
               const Icon = item.icon;
               return (
@@ -146,13 +148,13 @@ const Header = () => {
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
+                    "flex items-center px-2 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200",
                     isActive(item.href)
                       ? "bg-blue-50 text-blue-600 border-b-2 border-blue-600"
                       : "text-gray-600 hover:text-blue-600 hover:bg-gray-50",
                   )}
                 >
-                  <Icon className="h-4 w-4 mr-2" />
+                  <Icon className="h-3.5 w-3.5 mr-1.5" />
                   {item.name}
                 </Link>
               );
@@ -179,7 +181,7 @@ const Header = () => {
         </div>
 
         {/* Búsqueda - Móvil con dropdown */}
-        <div className="md:hidden pb-4">
+        <div className="md:hidden pb-2">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3">
               <Search className="h-4 w-4 text-gray-400" />
@@ -194,7 +196,7 @@ const Header = () => {
               }}
               onFocus={() => setShowDropdown(searchQuery.length > 0)}
               onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-              className="w-full pl-10 py-2 bg-gray-100 border-gray-200 rounded-full"
+              className="w-full pl-9 py-1.5 text-sm bg-gray-100 border-gray-200 rounded-full"
             />
             {/* Dropdown de resultados en móvil */}
             {showDropdown && filteredBusinesses.length > 0 && (
@@ -259,7 +261,7 @@ const Header = () => {
       )}
 
       {/* Auth UI removed */}
-      
+
       {/* Contact Modal */}
       {selectedBusiness && (
         <ContactModal

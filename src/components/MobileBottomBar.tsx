@@ -14,7 +14,7 @@ export default function MobileBottomBar() {
   const user = null;
   const scrollDirection = useScrollDirection(10);
 
-  const iconClass = "w-6 h-6";
+  const iconClass = "w-5 h-5";
 
   const navItems = [
     { label: "Inicio", icon: <Home className={iconClass} />, to: "/" },
@@ -37,7 +37,7 @@ export default function MobileBottomBar() {
 
   return (
     <nav
-      className={`fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] flex justify-around items-center h-16 md:hidden transition-transform duration-300 ${
+      className={`fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] flex justify-around items-center h-14 md:hidden transition-transform duration-300 ${
         scrollDirection === "down" ? "translate-y-full" : "translate-y-0"
       }`}
       style={{ willChange: "transform" }}
@@ -49,7 +49,7 @@ export default function MobileBottomBar() {
             key={item.to}
             to={item.to}
             onClick={handleNavClick(item.to)}
-            className={`flex flex-col items-center justify-center gap-1 text-xs font-medium transition-all duration-200 ${
+            className={`flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-all duration-200 ${
               isActive
                 ? "text-blue-600 scale-105"
                 : "text-gray-500 hover:text-blue-500"
