@@ -94,6 +94,7 @@ const EditBusinessPage = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(
     null,
   );
@@ -372,6 +373,90 @@ const EditBusinessPage = () => {
     }
   };
 
+  const handleOpenRegisterModal = () => {
+    setEditForm({
+      name: "",
+      category: "",
+      island: "Roatán",
+      location: "",
+      latitude: null,
+      longitude: null,
+      description: "",
+      email: "",
+      phones: [""],
+      website: "",
+      facebook: "",
+      instagram: "",
+      twitter: "",
+      tiktok: "",
+      whatsapp: "",
+      tripadvisor: "",
+      priceRange: "",
+      amenities: [],
+      coverImage: "",
+      logo: "",
+      is_public: true,
+      subscriptionMonths: 1,
+    });
+    setMapCenter(islandCenters["Roatán"]);
+    setShowRegisterModal(true);
+  };
+
+  const handleSubmitRegister = async () => {
+    if (!editForm.name || !editForm.category || !editForm.island) {
+      toast.error("Por favor, completa los campos obligatorios");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        name: editForm.name,
+        category: editForm.category,
+        island: editForm.island,
+        location: editForm.location,
+        latitude: editForm.latitude,
+        longitude: editForm.longitude,
+        subscription_months: editForm.subscriptionMonths,
+        subscription_started_at: new Date().toISOString(),
+        description: editForm.description,
+        contact: {
+          email: editForm.email,
+          phone: editForm.phones.filter(p => p.trim()).join(", "),
+          website: editForm.website,
+          facebook: editForm.facebook,
+          instagram: editForm.instagram,
+          twitter: editForm.twitter,
+          tiktok: editForm.tiktok,
+          whatsapp: editForm.whatsapp,
+          tripadvisor: editForm.tripadvisor,
+        },
+        facebook: editForm.facebook || null,
+        instagram: editForm.instagram || null,
+        twitter: editForm.twitter || null,
+        tiktok: editForm.tiktok || null,
+        tripadvisor: editForm.tripadvisor || null,
+        price_range: editForm.priceRange,
+        amenities: editForm.amenities,
+        cover_image: editForm.coverImage,
+        logo: editForm.logo,
+        is_public: editForm.is_public,
+      };
+
+      const { error } = await supabase.from("businesses").insert([payload]);
+
+      if (error) throw error;
+
+      toast.success("Negocio registrado exitosamente");
+      setShowRegisterModal(false);
+      fetchBusinesses();
+    } catch (error: any) {
+      toast.error("Error al registrar el negocio: " + error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const addAmenity = () => {
     if (newAmenity.trim() && !editForm.amenities.includes(newAmenity.trim())) {
       setEditForm((prev) => ({
@@ -479,12 +564,10 @@ const EditBusinessPage = () => {
                 Administra todos los negocios registrados en la plataforma
               </p>
             </div>
-            <Link to="/registrar-negocio">
-              <Button className="bg-green-600 hover:bg-green-700">
-                <Plus className="h-4 w-4 mr-2" />
-                Nuevo Negocio
-              </Button>
-            </Link>
+            <Button onClick={handleOpenRegisterModal} className="bg-green-600 hover:bg-green-700">
+              <Plus className="h-4 w-4 mr-2" />
+              Nuevo Negocio
+            </Button>
           </div>
         </div>
 

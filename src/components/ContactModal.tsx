@@ -192,7 +192,7 @@ const ContactModal = ({
                 <GoogleMap
                   mapContainerStyle={{ width: "100%", height: "150px" }}
                   center={mapPosition}
-                  zoom={15}
+                  zoom={18}
                   options={{
                     mapTypeId: mapType,
                     mapTypeControl: false,
