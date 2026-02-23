@@ -50,6 +50,7 @@ interface Business {
     twitter?: string;
     tiktok?: string;
     whatsapp?: string;
+    tripadvisor?: string;
   };
   price_range: string;
   priceRange?: string; // Soporte para ambos formatos
@@ -72,13 +73,14 @@ interface EditFormData {
   longitude: number | null;
   description: string;
   email: string;
-  phone: string;
+  phones: string[];
   website: string;
   facebook: string;
   instagram: string;
   twitter: string;
   tiktok: string;
   whatsapp: string;
+  tripadvisor: string;
   priceRange: string;
   amenities: string[];
   coverImage: string;
@@ -104,13 +106,14 @@ const EditBusinessPage = () => {
     longitude: null,
     description: "",
     email: "",
-    phone: "",
+    phones: [""],
     website: "",
     facebook: "",
     instagram: "",
     twitter: "",
     tiktok: "",
     whatsapp: "",
+    tripadvisor: "",
     priceRange: "",
     amenities: [],
     coverImage: "",
@@ -218,13 +221,14 @@ const EditBusinessPage = () => {
       longitude: business.longitude ?? null,
       description: business.description || "",
       email: business.contact?.email || "",
-      phone: business.contact?.phone || "",
+      phones: business.contact?.phone ? business.contact.phone.split(/[,;]+/).map(p => p.trim()).filter(Boolean) : [""],
       website: business.contact?.website || "",
       facebook: business.contact?.facebook || "",
       instagram: business.contact?.instagram || "",
       twitter: business.contact?.twitter || "",
       tiktok: business.contact?.tiktok || "",
       whatsapp: business.contact?.whatsapp || "",
+      tripadvisor: business.contact?.tripadvisor || business.tripadvisor || "",
       priceRange: business.price_range || business.priceRange || "",
       amenities: business.amenities || [],
       coverImage: business.cover_image || business.coverImage || "",
@@ -273,14 +277,21 @@ const EditBusinessPage = () => {
         description: editForm.description,
         contact: {
           email: editForm.email,
-          phone: editForm.phone,
+          phone: editForm.phones.filter(p => p.trim()).join(", "),
           website: editForm.website,
           facebook: editForm.facebook,
           instagram: editForm.instagram,
           twitter: editForm.twitter,
           tiktok: editForm.tiktok,
           whatsapp: editForm.whatsapp,
+          tripadvisor: editForm.tripadvisor,
         },
+        // Redes sociales como columnas individuales
+        facebook: editForm.facebook || null,
+        instagram: editForm.instagram || null,
+        twitter: editForm.twitter || null,
+        tiktok: editForm.tiktok || null,
+        tripadvisor: editForm.tripadvisor || null,
         priceRange: editForm.priceRange,
         amenities: editForm.amenities,
         coverImage: editForm.coverImage,
@@ -301,14 +312,21 @@ const EditBusinessPage = () => {
         description: editForm.description,
         contact: {
           email: editForm.email,
-          phone: editForm.phone,
+          phone: editForm.phones.filter(p => p.trim()).join(", "),
           website: editForm.website,
           facebook: editForm.facebook,
           instagram: editForm.instagram,
           twitter: editForm.twitter,
           tiktok: editForm.tiktok,
           whatsapp: editForm.whatsapp,
+          tripadvisor: editForm.tripadvisor,
         },
+        // Redes sociales como columnas individuales
+        facebook: editForm.facebook || null,
+        instagram: editForm.instagram || null,
+        twitter: editForm.twitter || null,
+        tiktok: editForm.tiktok || null,
+        tripadvisor: editForm.tripadvisor || null,
         price_range: editForm.priceRange,
         amenities: editForm.amenities,
         cover_image: editForm.coverImage,
@@ -985,16 +1003,45 @@ const EditBusinessPage = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Teléfono *
+                    Teléfono(s) *
                   </label>
-                  <input
-                    type="tel"
-                    value={editForm.phone}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, phone: e.target.value })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
+                  <div className="space-y-2">
+                    {editForm.phones.map((phone, index) => (
+                      <div key={index} className="flex gap-2">
+                        <input
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => {
+                            const newPhones = [...editForm.phones];
+                            newPhones[index] = e.target.value;
+                            setEditForm({ ...editForm, phones: newPhones });
+                          }}
+                          placeholder="+504 2445-1234"
+                          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                        {editForm.phones.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newPhones = editForm.phones.filter((_, i) => i !== index);
+                              setEditForm({ ...editForm, phones: newPhones });
+                            }}
+                            className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Eliminar teléfono"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setEditForm({ ...editForm, phones: [...editForm.phones, ""] })}
+                      className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      <Plus className="h-4 w-4" /> Agregar otro teléfono
+                    </button>
+                  </div>
                 </div>
 
                 <div>
@@ -1081,6 +1128,21 @@ const EditBusinessPage = () => {
                       setEditForm({ ...editForm, tiktok: e.target.value })
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    TripAdvisor
+                  </label>
+                  <input
+                    type="url"
+                    value={editForm.tripadvisor}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, tripadvisor: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="URL de TripAdvisor"
                   />
                 </div>
               </div>

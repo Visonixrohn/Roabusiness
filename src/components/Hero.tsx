@@ -96,15 +96,15 @@ const HeroSection = () => {
     <>
       <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] flex items-center justify-center overflow-hidden bg-black">
         {/* Imagen de fondo */}
-      <img
-  src="https://i.imgur.com/b41QZLs.png"
-  alt="Islas de la Bahía"
-  className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-[1200ms] ease-in-out brightness-110 saturate-125 ${
-    imgLoaded ? "opacity-80" : "opacity-0"
-  }`}
-  onLoad={handleImageLoad}
-  style={{ zIndex: 1 }}
-/>
+        <img
+          src="https://i.imgur.com/b41QZLs.png"
+          alt="Islas de la Bahía"
+          className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-[1200ms] ease-in-out brightness-110 saturate-125 ${
+            imgLoaded ? "opacity-80" : "opacity-0"
+          }`}
+          onLoad={handleImageLoad}
+          style={{ zIndex: 1 }}
+        />
         {/* Efecto ripple inicial */}
         {!rippleActive && (
           <svg
@@ -140,7 +140,6 @@ const HeroSection = () => {
             rippleActive ? "mask-reveal" : ""
           }`}
           style={{
-            
             zIndex: 2,
             maskImage: rippleActive
               ? "radial-gradient(circle at 50% 60%, white 100%, transparent 100%)"

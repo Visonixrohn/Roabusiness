@@ -42,13 +42,14 @@ interface FormData {
 
   // Contacto
   email: string;
-  phone: string;
+  phones: string[];
   website: string;
   facebook?: string;
   instagram?: string;
   twitter?: string;
   tiktok?: string;
   whatsapp?: string;
+  tripadvisor?: string;
 
   // Detalles
   priceRange: string;
@@ -78,13 +79,14 @@ const BusinessRegistrationPage = () => {
     longitude: null,
     description: "",
     email: "",
-    phone: "",
+    phones: [""],
     website: "",
     facebook: "",
     instagram: "",
     twitter: "",
     tiktok: "",
     whatsapp: "",
+    tripadvisor: "",
     priceRange: "",
     amenities: [],
     coverImage: "",
@@ -170,7 +172,7 @@ const BusinessRegistrationPage = () => {
           formData.location
         );
       case 2:
-        return !!(formData.description && formData.email && formData.phone);
+        return !!(formData.description && formData.email && formData.phones.some(p => p.trim()));
       case 3:
         return formData.amenities.length > 0 && formData.subscriptionMonths > 0;
       case 4:
@@ -212,14 +214,21 @@ const BusinessRegistrationPage = () => {
         subscription_started_at: new Date().toISOString(),
         contact: {
           email: formData.email,
-          phone: formData.phone,
+          phone: formData.phones.filter(p => p.trim()).join(", "),
           website: formData.website,
           facebook: formData.facebook,
           instagram: formData.instagram,
           twitter: formData.twitter,
           tiktok: formData.tiktok,
           whatsapp: formData.whatsapp,
+          tripadvisor: formData.tripadvisor,
         },
+        // Redes sociales como columnas individuales
+        facebook: formData.facebook || null,
+        instagram: formData.instagram || null,
+        twitter: formData.twitter || null,
+        tiktok: formData.tiktok || null,
+        tripadvisor: formData.tripadvisor || null,
         priceRange: formData.priceRange,
         amenities: formData.amenities,
         coverImage: formData.coverImage,
@@ -240,14 +249,21 @@ const BusinessRegistrationPage = () => {
         subscription_started_at: new Date().toISOString(),
         contact: {
           email: formData.email,
-          phone: formData.phone,
+          phone: formData.phones.filter(p => p.trim()).join(", "),
           website: formData.website,
           facebook: formData.facebook,
           instagram: formData.instagram,
           twitter: formData.twitter,
           tiktok: formData.tiktok,
           whatsapp: formData.whatsapp,
+          tripadvisor: formData.tripadvisor,
         },
+        // Redes sociales como columnas individuales
+        facebook: formData.facebook || null,
+        instagram: formData.instagram || null,
+        twitter: formData.twitter || null,
+        tiktok: formData.tiktok || null,
+        tripadvisor: formData.tripadvisor || null,
         price_range: formData.priceRange,
         amenities: formData.amenities,
         cover_image: formData.coverImage,
@@ -604,19 +620,47 @@ const BusinessRegistrationPage = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Teléfono *
+                    Teléfono(s) *
                   </label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) =>
-                        handleInputChange("phone", e.target.value)
-                      }
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
-                      placeholder="+504 2445-1234"
-                    />
+                  <div className="space-y-2">
+                    {formData.phones.map((phone, index) => (
+                      <div key={index} className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                          <input
+                            type="tel"
+                            value={phone}
+                            onChange={(e) => {
+                              const newPhones = [...formData.phones];
+                              newPhones[index] = e.target.value;
+                              setFormData({ ...formData, phones: newPhones });
+                            }}
+                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
+                            placeholder="+504 2445-1234"
+                          />
+                        </div>
+                        {formData.phones.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newPhones = formData.phones.filter((_, i) => i !== index);
+                              setFormData({ ...formData, phones: newPhones });
+                            }}
+                            className="px-3 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-gray-300"
+                            title="Eliminar teléfono"
+                          >
+                            <X className="h-5 w-5" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, phones: [...formData.phones, ""] })}
+                      className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-1"
+                    >
+                      <Plus className="h-4 w-4" /> Agregar otro teléfono
+                    </button>
                   </div>
                 </div>
 
@@ -689,6 +733,19 @@ const BusinessRegistrationPage = () => {
                       handleInputChange("tiktok", e.target.value)
                     }
                     placeholder="URL de TikTok"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                    TripAdvisor
+                  </label>
+                  <input
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                    value={formData.tripadvisor || ""}
+                    onChange={(e) =>
+                      handleInputChange("tripadvisor", e.target.value)
+                    }
+                    placeholder="URL de TripAdvisor"
                   />
                 </div>
                 <div>

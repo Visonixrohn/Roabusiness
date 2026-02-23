@@ -165,13 +165,19 @@ function NearbyBusinesses() {
   useEffect(() => {
     if (!navigator.geolocation) return;
     // Intentar usar Permissions API cuando esté disponible para evitar prompts repetidos
-    if ((navigator as any).permissions && (navigator as any).permissions.query) {
+    if (
+      (navigator as any).permissions &&
+      (navigator as any).permissions.query
+    ) {
       try {
         (navigator as any).permissions
-          .query({ name: 'geolocation' })
+          .query({ name: "geolocation" })
           .then((permStatus: any) => {
             // Si está granted o prompt, pedimos la ubicación (prompt mostrará al usuario)
-            if (permStatus.state === 'granted' || permStatus.state === 'prompt') {
+            if (
+              permStatus.state === "granted" ||
+              permStatus.state === "prompt"
+            ) {
               requestLocation();
             }
           })
@@ -303,9 +309,7 @@ function NearbyBusinesses() {
               Usar mi ubicación
             </button>
           ) : (
-            <div className="text-sm text-gray-600">
-              
-            </div>
+            <div className="text-sm text-gray-600"></div>
           )}
         </div>
       </div>

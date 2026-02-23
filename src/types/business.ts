@@ -7,6 +7,7 @@ export interface BusinessContact {
   twitter?: string;
   tiktok?: string;
   whatsapp?: string;
+  tripadvisor?: string;
 }
 
 export interface Business {
@@ -39,6 +40,7 @@ export interface Business {
   instagram?: string;
   twitter?: string;
   tiktok?: string;
+  tripadvisor?: string;
 }
 
 export interface BusinessData {
