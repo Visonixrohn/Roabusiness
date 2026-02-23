@@ -161,6 +161,36 @@ function NearbyBusinesses() {
     );
   };
 
+  // Solicitar ubicación automáticamente al montar (si el navegador lo permite)
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    // Intentar usar Permissions API cuando esté disponible para evitar prompts repetidos
+    if ((navigator as any).permissions && (navigator as any).permissions.query) {
+      try {
+        (navigator as any).permissions
+          .query({ name: 'geolocation' })
+          .then((permStatus: any) => {
+            // Si está granted o prompt, pedimos la ubicación (prompt mostrará al usuario)
+            if (permStatus.state === 'granted' || permStatus.state === 'prompt') {
+              requestLocation();
+            }
+          })
+          .catch(() => {
+            // En caso de error con Permissions API, todavía intentamos solicitar ubicación
+            requestLocation();
+          });
+      } catch (e) {
+        // Fallback: solicitar ubicación
+        requestLocation();
+      }
+    } else {
+      // Si no hay Permissions API, intentamos solicitar ubicación directamente
+      requestLocation();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Handlers para drag
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!carouselRef.current) return;
@@ -274,8 +304,7 @@ function NearbyBusinesses() {
             </button>
           ) : (
             <div className="text-sm text-gray-600">
-              Ubicación detectada ({userCoords.lat.toFixed(4)},{" "}
-              {userCoords.lng.toFixed(4)})
+              
             </div>
           )}
         </div>
