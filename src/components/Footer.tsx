@@ -1,7 +1,5 @@
 import { Link } from "react-router-dom";
-import {
-  MapPin,
-} from "lucide-react";
+import { MapPin } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -30,29 +28,7 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Enlaces rápidos */}
-          <div>
-            <h3 className="text-base font-semibold mb-3 text-pink-600 tracking-wide">
-              Enlaces Rápidos
-            </h3>
-            <ul className="space-y-2">
-              {[
-                { label: "Inicio", to: "/" },
-                { label: "Directorio de Negocios", to: "/directorio" },
-                { label: "Sobre las Islas", to: "/sobre-las-islas" },
-                { label: "Contacto", to: "/contacto" },
-              ].map(({ label, to }) => (
-                <li key={to}>
-                  <Link
-                    to={to}
-                    className="text-sm text-gray-600 hover:text-pink-600 transition-colors"
-                  >
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+         
 
           {/* Islas */}
           <div>
@@ -79,7 +55,7 @@ const Footer = () => {
 
         {/* Línea divisoria */}
         <div className="border-t border-pink-200 mt-6 pt-4 flex flex-col md:flex-row items-center justify-between text-xs text-gray-500 space-y-2 md:space-y-0">
-          <p>© 2025 RoaBusiness. Todos los derechos reservados.</p>
+          <p>© 2026 RoaBusiness. Todos los derechos reservados.</p>
           <div className="flex space-x-4">
             <Link
               to="/privacidad"

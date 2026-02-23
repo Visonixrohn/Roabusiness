@@ -7,55 +7,7 @@ const IslandsSection = ({ isStandalone, installPromptRef }) => {
   return (
     <section className="py-20 bg-gradient-to-b from-white to-blue-50">
       <div className="container mx-auto px-6 max-w-7xl">
-        {/* Título y descripción */}
-        <div className="text-center mb-16">
-          <h2 className="text-5xl font-extrabold text-gray-900 mb-4 tracking-tight underline decoration-pink-500 decoration-4 underline-offset-8">
-           
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            
-          </p>
-        </div>
-
-        {/* Grid de Islas */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {[
-            {
-              name: 'Roatán',
-              desc: 'La isla principal',
-              img: '/images/roatan-beach.png',
-            },
-            {
-              name: 'Utila',
-              desc: 'Paraíso del buceo',
-              img: '/images/utila-diving.jpg',
-            },
-            {
-              name: 'Guanaja',
-              desc: 'La isla verde',
-              img: '/images/guanaja-beach.jpeg',
-            },
-          ].map(({ name, desc, img }) => (
-            <div
-              key={name}
-              className="group cursor-pointer rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-500 relative"
-              tabIndex={0}
-              aria-label={`${name} - ${desc}`}
-            >
-              <img
-                src={img}
-                alt={name}
-                className="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-500 ease-in-out"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500" />
-              <div className="absolute bottom-6 left-6 z-10 text-white">
-                <h3 className="text-3xl font-extrabold drop-shadow-md">{name}</h3>
-                <p className="text-lg opacity-90 drop-shadow-md">{desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+       
 
         {/* Botón de instalación */}
         <div className="flex justify-center mt-16">

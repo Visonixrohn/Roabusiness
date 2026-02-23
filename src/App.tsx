@@ -101,7 +101,7 @@ function App() {
                   element={<UserRegistrationPage />}
                 />
                 <Route path="/dashboard" element={<BusinessDashboard />} />
-                <Route path="/sobre-las-islas" element={<AboutPage />} />
+               
                 <Route path="/contacto" element={<ContactPage />} />
                 <Route path="/privacidad" element={<PrivacyPolicyPage />} />
                 <Route path="/terminos" element={<TermsOfUsePage />} />

@@ -1,12 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
-import {
-  Home,
-  BookOpen,
-  Newspaper,
-  User,
-  LayoutDashboard,
-} from "lucide-react";
+import { Home, BookOpen, Newspaper, User, LayoutDashboard } from "lucide-react";
 
 export default function MobileBottomBar() {
   const location = useLocation();
@@ -18,8 +12,16 @@ export default function MobileBottomBar() {
 
   const navItems = [
     { label: "Inicio", icon: <Home className={iconClass} />, to: "/" },
-    { label: "Directorio", icon: <BookOpen className={iconClass} />, to: "/directorio" },
-    { label: "Publicaciones", icon: <Newspaper className={iconClass} />, to: "/recent-posts" },
+    {
+      label: "Directorio",
+      icon: <BookOpen className={iconClass} />,
+      to: "/directorio",
+    },
+    {
+      label: "Publicaciones",
+      icon: <Newspaper className={iconClass} />,
+      to: "/recent-posts",
+    },
   ];
 
   // Always include Perfil (leads to profile page)

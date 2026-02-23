@@ -121,7 +121,7 @@ export default function MobileTopBar() {
             <div className="absolute left-0 right-0 mt-12 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
               {businesses
                 .filter((b) =>
-                  b.name.toLowerCase().includes(search.toLowerCase())
+                  b.name.toLowerCase().includes(search.toLowerCase()),
                 )
                 .slice(0, 8)
                 .map((b) => (
@@ -139,14 +139,16 @@ export default function MobileTopBar() {
                       alt={b.name}
                       className="w-7 h-7 rounded-full object-cover border border-gray-200"
                     />
-                    <span className="font-medium text-sm text-gray-800">{b.name}</span>
+                    <span className="font-medium text-sm text-gray-800">
+                      {b.name}
+                    </span>
                     <span className="ml-auto text-xs text-gray-500">
                       {b.island}
                     </span>
                   </button>
                 ))}
               {businesses.filter((b) =>
-                b.name.toLowerCase().includes(search.toLowerCase())
+                b.name.toLowerCase().includes(search.toLowerCase()),
               ).length === 0 && (
                 <div className="px-3 py-1.5 text-sm text-gray-500">
                   No se encontraron resultados

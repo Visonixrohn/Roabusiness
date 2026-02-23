@@ -96,16 +96,15 @@ const HeroSection = () => {
     <>
       <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] flex items-center justify-center overflow-hidden bg-black">
         {/* Imagen de fondo */}
-        <img
-          src="https://i.imgur.com/IyMgElg.jpeg"
-          alt="Islas de la Bahía"
-          className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-[1200ms] ease-in-out ${
-            imgLoaded ? "opacity-100" : "opacity-0"
-          }`}
-          onLoad={handleImageLoad}
-          style={{ zIndex: 1 }}
-        />
-
+      <img
+  src="https://i.imgur.com/b41QZLs.png"
+  alt="Islas de la Bahía"
+  className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-[1200ms] ease-in-out brightness-110 saturate-125 ${
+    imgLoaded ? "opacity-80" : "opacity-0"
+  }`}
+  onLoad={handleImageLoad}
+  style={{ zIndex: 1 }}
+/>
         {/* Efecto ripple inicial */}
         {!rippleActive && (
           <svg
@@ -141,7 +140,7 @@ const HeroSection = () => {
             rippleActive ? "mask-reveal" : ""
           }`}
           style={{
-            background: "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6))",
+            
             zIndex: 2,
             maskImage: rippleActive
               ? "radial-gradient(circle at 50% 60%, white 100%, transparent 100%)"
@@ -184,11 +183,8 @@ const HeroSection = () => {
                 : "opacity-0 translate-y-6"
             }`}
           >
-           
             {!user && (
-              <Link to="/registrar-usuario" aria-label="Crear cuenta">
-                
-              </Link>
+              <Link to="/registrar-usuario" aria-label="Crear cuenta"></Link>
             )}
           </div>
           <div className="text-sm xs:text-base sm:text-xl md:text-2xl font-bold text-blue-200 drop-shadow">

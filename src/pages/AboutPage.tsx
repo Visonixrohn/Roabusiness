@@ -1,360 +1,484 @@
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { MapPin, Users, Waves, Fish, TreePine, Camera } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { MapPin, Users, Waves, Fish, TreePine, Camera } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useState, useEffect, useRef } from "react";
+import { useBusinesses } from "@/hooks/useBusinesses";
+import BusinessCard from "@/components/BusinessCard";
+import ContactModal from "@/components/ContactModal";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const AboutPage = () => {
-  const islands = [
-    {
-      name: 'Roatán',
-      description:
-        'La isla más grande y desarrollada del archipiélago, con infraestructura turística completa, incluyendo el Aeropuerto Internacional Juan Manuel Gálvez, hoteles, restaurantes y una amplia oferta de actividades acuáticas y terrestres.',
-      area: '127 km²',
-      population: 'aprox. 120,000',
-      highlights: [
-        'West Bay Beach – considerada una de las mejores playas del Caribe',
-        'West End Village – centro cultural y gastronómico',
-        'Parque Gumbalimba – reserva natural y zoológico',
-        'Reserva de monos Daniel Johnson',
-      ],
-      image: '/images/roatan-beach.png',
-      color: 'bg-blue-100 text-blue-800',
-    },
-    {
-      name: 'Utila',
-      description:
-        'Pequeña isla reconocida mundialmente por ser uno de los destinos de buceo más accesibles y económicos. Popular por los avistamientos frecuentes de tiburones ballena, así como por su ambiente relajado y su vibrante comunidad de buzos.',
-      area: '41 km²',
-      population: 'aprox. 5,000',
-      highlights: [
-        'Buceo con tiburones ballena',
-        'Escuelas de buceo certificadas PADI',
-        'Vida nocturna sencilla y amigable',
-        'Estación de investigación de iguanas',
-      ],
-      image: '/images/utila-diving.jpg',
-      color: 'bg-green-100 text-green-800',
-    },
-    {
-      name: 'Guanaja',
-      description:
-        'Isla más remota y verde, con un paisaje montañoso y canales naturales que le han dado el apodo de "Venecia del Caribe". Ideal para ecoturismo, exploración de manglares y pesca deportiva.',
-      area: '55 km²',
-      population: 'aprox. 6,000',
-      highlights: [
-        'Ecoturismo en áreas protegidas',
-        'Canales naturales y manglares',
-        'Pesca deportiva y deportes acuáticos',
-        'Pueblos con arquitectura tradicional',
-      ],
-      image: '/images/guanaja-beach.jpeg',
-      color: 'bg-purple-100 text-purple-800',
-    },
-  ];
-
   const facts = [
     {
       icon: MapPin,
-      title: 'Ubicación',
+      title: "Ubicación",
       description:
-        'Situadas entre 30 y 60 km de la costa norte de Honduras, en el Mar Caribe.',
+        "Situadas entre 30 y 60 km de la costa norte de Honduras, en el Mar Caribe.",
     },
     {
       icon: Waves,
-      title: 'Arrecife Mesoamericano',
+      title: "Arrecife Mesoamericano",
       description:
-        'Forman parte del Sistema Arrecifal Mesoamericano, el segundo arrecife de coral más grande del mundo.',
+        "Forman parte del Sistema Arrecifal Mesoamericano, el segundo arrecife de coral más grande del mundo.",
     },
     {
       icon: Fish,
-      title: 'Biodiversidad Marina',
+      title: "Biodiversidad Marina",
       description:
-        'Hogar de más de 500 especies marinas, incluyendo peces tropicales, tortugas y manatíes.',
+        "Hogar de más de 500 especies marinas, incluyendo peces tropicales, tortugas y manatíes.",
     },
     {
       icon: TreePine,
-      title: 'Ecosistemas Diversos',
+      title: "Ecosistemas Diversos",
       description:
-        'Combina manglares, bosques tropicales y playas, ofreciendo hábitats para flora y fauna únicas.',
+        "Combina manglares, bosques tropicales y playas, ofreciendo hábitats para flora y fauna únicas.",
     },
     {
       icon: Users,
-      title: 'Cultura Vibrante',
+      title: "Cultura Vibrante",
       description:
-        'Una mezcla de raíces garífuna, inglesas, españolas y mayas que se refleja en su música, gastronomía y tradiciones.',
+        "Una mezcla de raíces garífuna, inglesas, españolas y mayas que se refleja en su música, gastronomía y tradiciones.",
     },
     {
       icon: Camera,
-      title: 'Destino Turístico',
+      title: "Destino Turístico",
       description:
-        'Principal destino de Honduras para ecoturismo, buceo y turismo de aventura, con un crecimiento sostenible.',
+        "Principal destino de Honduras para ecoturismo, buceo y turismo de aventura, con un crecimiento sostenible.",
     },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-50">
-   
-
-      {/* Hero Section */}
-      <section className="relative h-96 flex items-center justify-center overflow-hidden">
-        
-        <div className="relative z-10 text-center text-BLACK px-4 max-w-3xl animate-fadeInDown">
-          <h1 className="text-5xl font-extrabold mb-4 tracking-tight drop-shadow-lg">
-            Sobre las Islas de la Bahía
-          </h1>
-          <p className="text-xl max-w-xl mx-auto drop-shadow-md">
-            Descubre la historia, cultura y belleza natural del paraíso caribeño de Honduras
-          </p>
-        </div>
-      </section>
-
       <div className="container mx-auto px-6 py-12 space-y-20">
-        {/* Introducción */}
-        <section className="max-w-4xl mx-auto text-center animate-fadeInUp">
-          <h2 className="text-4xl font-extrabold text-gray-900 mb-6 underline decoration-pink-500 underline-offset-8 decoration-4">
-            Un Paraíso Caribeño Único
-          </h2>
-          <p className="text-lg text-gray-700 leading-relaxed mb-6">
-            Las Islas de la Bahía, un archipiélago hondureño en el Mar Caribe, son mundialmente reconocidas por sus arrecifes de coral prístinos y su biodiversidad marina excepcional.
-          </p>
-          <p className="text-lg text-gray-700 leading-relaxed">
-            Con siglos de historia desde sus raíces indígenas y coloniales hasta su desarrollo actual como destino turístico de clase mundial, las islas ofrecen una mezcla perfecta de aventura, cultura y relajación en un entorno natural incomparable.
-          </p>
-        </section>
-
-        {/* Datos Curiosos */}
-        <section className="animate-fadeInUp delay-150">
-          <div className="text-center mb-14">
-            <h2 className="text-4xl font-extrabold text-gray-900 mb-4 underline decoration-blue-400 underline-offset-8 decoration-4">
-              Datos Fascinantes
+        {/* Negocios cerca de ti */}
+        <section className="animate-fadeInUp delay-200">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-extrabold text-gray-900 mb-4 underline decoration-purple-400 underline-offset-8 decoration-4">
+              Negocios cerca de ti
             </h2>
-            <p className="text-lg text-gray-700 max-w-xl mx-auto">
-              Conoce los aspectos más destacados y únicos de nuestras islas
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Activa tu ubicación para ver negocios cercanos. Filtra por
+              distancia y descubre lo mejor de tu área.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {facts.map((fact, i) => {
-              const Icon = fact.icon;
-              return (
-                <div
-                  key={i}
-                  className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow transform hover:-translate-y-1 cursor-pointer"
-                >
-                  <div className="flex items-center mb-5">
-                    <div className="w-14 h-14 bg-gradient-to-tr from-blue-300 to-blue-500 rounded-lg flex items-center justify-center mr-5 text-white shadow-md">
-                      <Icon className="h-7 w-7" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-900">{fact.title}</h3>
-                  </div>
-                  <p className="text-gray-700">{fact.description}</p>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Islas */}
-        <section className="animate-fadeInUp delay-300">
-          <div className="text-center mb-14">
-            <h2 className="text-4xl font-extrabold text-gray-900 mb-4 underline decoration-green-400 underline-offset-8 decoration-4">
-              Nuestras Tres Islas
-            </h2>
-            <p className="text-lg text-gray-700 max-w-xl mx-auto">
-              Cada isla tiene su propia personalidad, historia y atractivos naturales.
-            </p>
-          </div>
-
-          <div className="space-y-16">
-            {islands.map((island, idx) => (
-              <div
-                key={island.name}
-                className={`bg-white rounded-3xl shadow-lg overflow-hidden flex flex-col lg:flex-row ${
-                  idx % 2 === 1 ? 'lg:flex-row-reverse' : ''
-                } animate-slideIn`}
-              >
-                <div className="lg:w-1/2 overflow-hidden group relative">
-                  <img
-                    src={island.image}
-                    alt={`Imagen de ${island.name}`}
-                    className="w-full h-72 lg:h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                </div>
-                <div className="lg:w-1/2 p-10 flex flex-col justify-center">
-                  <div className="flex items-center mb-6">
-                    <h3 className="text-3xl font-extrabold text-gray-900 mr-4">{island.name}</h3>
-                    <Badge
-                      className={`${island.color} px-4 py-1 text-sm font-semibold shadow-md transition-transform hover:scale-110`}
-                    >
-                      Isla Principal
-                    </Badge>
-                  </div>
-
-                  <p className="text-gray-700 mb-8 leading-relaxed">{island.description}</p>
-
-                  <div className="grid grid-cols-2 gap-6 mb-8 text-gray-600">
-                    <div>
-                      <h4 className="font-semibold mb-1 text-gray-900">Área</h4>
-                      <p>{island.area}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-1 text-gray-900">Población</h4>
-                      <p>{island.population}</p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-4">Atractivos Principales:</h4>
-                    <div className="flex flex-wrap gap-3">
-                      {island.highlights.map((highlight, idx) => (
-                        <Badge
-                          key={idx}
-                          variant="outline"
-                          className="cursor-default hover:bg-gray-200 transition-colors"
-                        >
-                          {highlight}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Historia y Cultura */}
-        <section className="animate-fadeInUp delay-450">
-          <div className="bg-white rounded-3xl p-10 lg:p-16 shadow-lg">
-            <h2 className="text-4xl font-extrabold text-gray-900 mb-8 text-center underline decoration-pink-400 underline-offset-8 decoration-4">
-              Historia y Cultura
-            </h2>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 text-gray-700 leading-relaxed">
-              <div className="space-y-10">
-                <div>
-                  <h3 className="text-2xl font-semibold mb-3">Época Precolombina y Colonial</h3>
-                  <p>
-                    Habitadas originalmente por indígenas Pech, las islas fueron visitadas por Cristóbal Colón en 1502. En los siglos XVII y XVIII, sirvieron como refugio para piratas y corsarios del Caribe.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-2xl font-semibold mb-3">Influencia Británica</h3>
-                  <p>
-                    La colonización británica dejó una huella cultural y lingüística que persiste, con el inglés y el criollo ampliamente hablados a pesar de ser parte de Honduras desde 1859.
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-10">
-                <div>
-                  <h3 className="text-2xl font-semibold mb-3">Cultura Garífuna</h3>
-                  <p>
-                    Los garífunas, descendientes de africanos y caribes, llegaron en el siglo XVIII. Su música, gastronomía y tradiciones son fundamentales en la identidad isleña.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-2xl font-semibold mb-3">Turismo Moderno</h3>
-                  <p>
-                    Desde los años 70, las islas se han desarrollado como destino turístico de renombre mundial, enfocado en buceo, ecoturismo y conservación ambiental.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Conservación */}
-        <section className="animate-fadeInUp delay-600">
-          <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-3xl p-10 lg:p-16 shadow-lg">
-            <div className="text-center mb-10">
-              <h2 className="text-4xl font-extrabold text-gray-900 mb-4 underline decoration-green-400 underline-offset-8 decoration-4">
-                Conservación y Sostenibilidad
-              </h2>
-              <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-                Las Islas de la Bahía están comprometidas con la protección y el manejo sostenible de sus recursos naturales para preservar su biodiversidad y belleza única.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-gray-700 leading-relaxed">
-              <div className="bg-white rounded-2xl p-8 shadow-md hover:shadow-xl transition-shadow">
-                <h3 className="text-2xl font-semibold mb-4">Arrecife Mesoamericano</h3>
-                <p>
-                  Parte del segundo arrecife de coral más grande del mundo, protegido mediante áreas marinas reguladas y proyectos de restauración coralina.
-                </p>
-              </div>
-
-              <div className="bg-white rounded-2xl p-8 shadow-md hover:shadow-xl transition-shadow">
-                <h3 className="text-2xl font-semibold mb-4">Turismo Responsable</h3>
-                <p>
-                  Se fomentan prácticas sostenibles que minimizan el impacto ambiental, regulan actividades acuáticas y promueven la educación ambiental entre visitantes y residentes.
-                </p>
-              </div>
-            </div>
-          </div>
+          <NearbyBusinesses />
         </section>
       </div>
-
-     
-
-      {/* Animations with Tailwind + custom styles */}
-      <style>{`
-        @keyframes fadeInUp {
-          0% {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes fadeInDown {
-          0% {
-            opacity: 0;
-            transform: translateY(-30px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes slideIn {
-          0% {
-            opacity: 0;
-            transform: translateX(-40px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-        .animate-fadeInUp {
-          animation: fadeInUp 0.8s ease forwards;
-        }
-        .animate-fadeInDown {
-          animation: fadeInDown 0.8s ease forwards;
-        }
-        .animate-slideIn {
-          animation: slideIn 0.9s ease forwards;
-        }
-        .delay-150 {
-          animation-delay: 0.15s;
-        }
-        .delay-300 {
-          animation-delay: 0.3s;
-        }
-        .delay-450 {
-          animation-delay: 0.45s;
-        }
-        .delay-600 {
-          animation-delay: 0.6s;
-        }
-      `}</style>
     </div>
   );
 };
 
 export default AboutPage;
+
+/* Component: NearbyBusinesses (defined below) */
+function NearbyBusinesses() {
+  const { mostFollowedBusinesses, loading } = useBusinesses() as any;
+  const [userCoords, setUserCoords] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [radiusKm, setRadiusKm] = useState<number>(5);
+  const [nearby, setNearby] = useState<any[]>([]);
+  const [selectedBiz, setSelectedBiz] = useState<any | null>(null);
+  const [showContactModal, setShowContactModal] = useState(false);
+
+  // Estados para el carrusel táctil
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const autoScrollInterval = useRef<NodeJS.Timeout | null>(null);
+
+  // Haversine formula
+  const distanceKm = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ) => {
+    const toRad = (v: number) => (v * Math.PI) / 180;
+    const R = 6371; // km
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  const computeNearby = () => {
+    if (!userCoords || !mostFollowedBusinesses) return setNearby([]);
+    console.log("Total businesses:", mostFollowedBusinesses.length);
+    const list = (mostFollowedBusinesses || [])
+      .map((b: any) => {
+        const lat = b.coordinates?.lat ?? b.latitude;
+        const lng = b.coordinates?.lng ?? b.longitude;
+        if (lat == null || lng == null) {
+          console.log(`Business ${b.name} sin coords:`, {
+            lat,
+            lng,
+            coords: b.coordinates,
+          });
+          return null;
+        }
+        const d = distanceKm(userCoords.lat, userCoords.lng, lat, lng);
+        console.log(`${b.name}: ${d.toFixed(2)} km`);
+        return { ...b, distance: d };
+      })
+      .filter(Boolean)
+      .filter((b: any) => b.distance <= radiusKm)
+      .sort((a: any, b: any) => a.distance - b.distance);
+    console.log("Nearby businesses:", list.length);
+    setNearby(list as any[]);
+  };
+
+  useEffect(() => {
+    computeNearby();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userCoords, mostFollowedBusinesses, radiusKm]);
+
+  const requestLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocalización no es soportada por tu navegador.");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      (err) => {
+        alert("No se pudo obtener la ubicación: " + err.message);
+      },
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 },
+    );
+  };
+
+  // Handlers para drag
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!carouselRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - carouselRef.current.offsetLeft);
+    setScrollLeft(carouselRef.current.scrollLeft);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!carouselRef.current) return;
+    setIsDragging(true);
+    setStartX(e.touches[0].pageX - carouselRef.current.offsetLeft);
+    setScrollLeft(carouselRef.current.scrollLeft);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !carouselRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - carouselRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    carouselRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || !carouselRef.current) return;
+    const x = e.touches[0].pageX - carouselRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    carouselRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+    updateCurrentIndex();
+  };
+
+  const updateCurrentIndex = () => {
+    if (!carouselRef.current || nearby.length === 0) return;
+    const scrollPosition = carouselRef.current.scrollLeft;
+    const cardWidth = 344; // 320px + 24px gap
+    const index = Math.round(scrollPosition / cardWidth);
+    setCurrentIndex(index % nearby.length);
+  };
+
+  const scrollToIndex = (index: number) => {
+    if (!carouselRef.current) return;
+    const cardWidth = 344;
+    carouselRef.current.scrollTo({
+      left: index * cardWidth,
+      behavior: "smooth",
+    });
+    setCurrentIndex(index);
+  };
+
+  const nextSlide = () => {
+    const nextIndex = (currentIndex + 1) % nearby.length;
+    scrollToIndex(nextIndex);
+  };
+
+  const prevSlide = () => {
+    const prevIndex = currentIndex === 0 ? nearby.length - 1 : currentIndex - 1;
+    scrollToIndex(prevIndex);
+  };
+
+  // Auto-scroll effect
+  useEffect(() => {
+    if (nearby.length === 0 || isPaused) return;
+
+    autoScrollInterval.current = setInterval(() => {
+      nextSlide();
+    }, 4000); // Cambiar cada 4 segundos
+
+    return () => {
+      if (autoScrollInterval.current) {
+        clearInterval(autoScrollInterval.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nearby.length, isPaused, currentIndex]);
+
+  return (
+    <div className="max-w-6xl mx-auto">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setRadiusKm(2)}
+            className={`px-3 py-1 rounded-full font-semibold ${radiusKm === 2 ? "bg-blue-600 text-white" : "bg-white border"}`}
+          >
+            2 km
+          </button>
+          <button
+            onClick={() => setRadiusKm(5)}
+            className={`px-3 py-1 rounded-full font-semibold ${radiusKm === 5 ? "bg-blue-600 text-white" : "bg-white border"}`}
+          >
+            5 km
+          </button>
+          <button
+            onClick={() => setRadiusKm(10)}
+            className={`px-3 py-1 rounded-full font-semibold ${radiusKm === 10 ? "bg-blue-600 text-white" : "bg-white border"}`}
+          >
+            10 km
+          </button>
+        </div>
+
+        <div>
+          {!userCoords ? (
+            <button
+              onClick={requestLocation}
+              className="px-4 py-2 bg-green-600 text-white rounded-md font-medium"
+            >
+              Usar mi ubicación
+            </button>
+          ) : (
+            <div className="text-sm text-gray-600">
+              Ubicación detectada ({userCoords.lat.toFixed(4)},{" "}
+              {userCoords.lng.toFixed(4)})
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div>
+        {loading && (
+          <div className="text-center text-gray-500">Cargando negocios...</div>
+        )}
+        {!loading && nearby.length === 0 && (
+          <div className="text-center text-gray-500">
+            No se encontraron negocios dentro de {radiusKm} km.
+          </div>
+        )}
+
+        <div className="mt-4">
+          {nearby.length > 0 ? (
+            <div className="relative">
+              {/* Botones de navegación */}
+              <button
+                onClick={prevSlide}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 transition-all"
+                aria-label="Anterior"
+              >
+                <ChevronLeft className="w-6 h-6 text-gray-700" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 transition-all"
+                aria-label="Siguiente"
+              >
+                <ChevronRight className="w-6 h-6 text-gray-700" />
+              </button>
+
+              {/* Carrusel arrastrable */}
+              <div
+                ref={carouselRef}
+                className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing scroll-smooth"
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleDragEnd}
+                onMouseLeave={(e) => {
+                  handleDragEnd();
+                  setIsPaused(false);
+                }}
+                onMouseEnter={() => setIsPaused(true)}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleDragEnd}
+                style={{
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                }}
+              >
+                <div className="flex gap-6 px-12 py-4">
+                  {nearby.map((b: any, idx: number) => (
+                    <div
+                      key={b.id + "-" + idx}
+                      className="w-80 flex-shrink-0 business-card"
+                    >
+                      <div className="relative rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-white to-gray-50 hover:shadow-2xl transform hover:scale-105 transition-all duration-500 group h-96">
+                        {/* Imagen con overlay gradiente */}
+                        <div className="relative h-52 overflow-hidden">
+                          <img
+                            src={b.coverImage}
+                            alt={b.name}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                            loading="lazy"
+                            draggable={false}
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                          {/* Punto verde pulsante */}
+                          <div className="absolute top-4 right-4">
+                            <span className="green-dot inline-block w-4 h-4 rounded-full shadow-lg" />
+                          </div>
+
+                          {/* Distancia */}
+                          <div className="absolute top-4 left-4">
+                            <div className="bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                              <span className="text-xs font-bold text-gray-800">
+                                {b.distance.toFixed(2)} km
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Nombre superpuesto en la imagen */}
+                          <div className="absolute bottom-0 left-0 right-0 p-4">
+                            <h4 className="font-bold text-lg text-white drop-shadow-lg line-clamp-1">
+                              {b.name}
+                            </h4>
+                          </div>
+                        </div>
+
+                        {/* Contenido */}
+                        <div className="p-4 flex flex-col justify-between h-44">
+                          {/* Descripción */}
+                          <div className="mb-3">
+                            <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed">
+                              {b.description ||
+                                "Descubre este increíble negocio cerca de ti."}
+                            </p>
+                          </div>
+
+                          {/* Categoría e isla */}
+                          <div className="flex gap-2 mb-3">
+                            <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
+                              {b.category}
+                            </span>
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
+                              {b.island}
+                            </span>
+                          </div>
+
+                          {/* Botón de contacto */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedBiz(b);
+                              setShowContactModal(true);
+                            }}
+                            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-3 rounded-xl font-semibold text-sm shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
+                          >
+                            <span>Contactar Ahora</span>
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Indicadores de posición */}
+              <div className="flex justify-center gap-2 mt-6">
+                {nearby.slice(0, Math.min(nearby.length, 10)).map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => scrollToIndex(idx)}
+                    className={`transition-all ${
+                      idx === currentIndex % nearby.length
+                        ? "w-8 h-2 bg-blue-600"
+                        : "w-2 h-2 bg-gray-300 hover:bg-gray-400"
+                    } rounded-full`}
+                    aria-label={`Ir a diapositiva ${idx + 1}`}
+                  />
+                ))}
+                {nearby.length > 10 && (
+                  <span className="text-xs text-gray-500 ml-2">
+                    +{nearby.length - 10}
+                  </span>
+                )}
+              </div>
+
+              {selectedBiz && (
+                <ContactModal
+                  business={selectedBiz}
+                  isOpen={showContactModal}
+                  onClose={() => {
+                    setShowContactModal(false);
+                    setSelectedBiz(null);
+                  }}
+                  contacts={selectedBiz?.contact}
+                />
+              )}
+
+              <style>{`
+                .scrollbar-hide::-webkit-scrollbar { display: none; }
+                .green-dot { 
+                  background: #16a34a; 
+                  box-shadow: 0 0 0 rgba(22,163,74,0.7); 
+                  animation: pulse-dot 2s infinite; 
+                }
+                @keyframes pulse-dot { 
+                  0% { box-shadow: 0 0 0 0 rgba(22,163,74,0.7); } 
+                  70% { box-shadow: 0 0 0 10px rgba(22,163,74,0); } 
+                  100% { box-shadow: 0 0 0 0 rgba(22,163,74,0); } 
+                }
+                .business-card {
+                  animation: slideInUp 0.6s ease-out;
+                }
+                @keyframes slideInUp {
+                  from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                  }
+                  to {
+                    opacity: 1;
+                    transform: translateY(0);
+                  }
+                }
+              `}</style>
+            </div>
+          ) : (
+            <div className="text-center text-gray-500 py-8">
+              {userCoords
+                ? `No se encontraron negocios dentro de ${radiusKm} km.`
+                : "Activa tu ubicación para ver negocios cercanos."}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
