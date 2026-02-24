@@ -10,6 +10,8 @@ import {
   Facebook,
   Instagram,
   Twitter,
+  Users,
+  TrendingUp,
 } from "lucide-react";
 import TikTokIcon from "@/components/icons/TikTokIcon";
 import { Business } from "@/types/business";
@@ -40,8 +42,6 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
   // Fallback para contactos: si no hay en la tabla contacts, usar los del objeto business.contact
   const fallbackContacts = business.contact || null;
 
-  // Show contact modal when clicking the card (no navigation)
-
   const getPriceRangeText = (priceRange: string) => {
     switch (priceRange) {
       case "$":
@@ -58,173 +58,186 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
   };
 
   const islandColors = {
-    Roatán: "bg-teal-100 text-teal-800",
-    Utila: "bg-emerald-100 text-emerald-800",
-    Guanaja: "bg-indigo-100 text-indigo-800",
-    "Jose Santos Guardiola": "bg-pink-100 text-pink-800",
+    Roatán: "bg-gradient-to-r from-teal-500 to-teal-600",
+    Utila: "bg-gradient-to-r from-emerald-500 to-emerald-600",
+    Guanaja: "bg-gradient-to-r from-indigo-500 to-indigo-600",
+    "Jose Santos Guardiola": "bg-gradient-to-r from-pink-500 to-pink-600",
   };
-  const islands = ["Roatán", "Utila", "Guanaja", "Jose Santos Guardiola"];
 
   return (
     <>
       <div
         className={cn(
-          "bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group relative cursor-pointer",
-          "w-full min-w-0",
+          "bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden group relative cursor-pointer border border-gray-100",
+          "transform hover:-translate-y-1",
         )}
-        style={{ minWidth: 0 }}
         onClick={() => {
           if (!showContactModal) {
             setShowContactModal(true);
           }
         }}
       >
-        {/* Header */}
-        <div className="p-2 border-b border-gray-100 bg-gradient-to-b from-gray-50 to-white">
-          <div className="flex items-center space-x-2">
-            <img
-              src={business.logo}
-              alt={`${business.name} logo`}
-              className="w-10 h-10 rounded-full object-cover border-2 border-teal-200 shadow-sm"
-            />
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-sm text-gray-900 truncate">
-                {business.name}
-              </h3>
-              <div className="flex items-center text-xs text-gray-500">
-                <MapPin className="h-3 w-3 text-teal-500 flex-shrink-0" />
-                <span className="ml-1 truncate">{business.location}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Imagen principal */}
-        <div className="relative">
+        {/* Imagen de portada con aspect ratio fijo */}
+        <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
           <img
             src={business.coverImage}
             alt={business.name}
-            className="w-full h-32 object-cover cursor-pointer group-hover:scale-105 transition-transform duration-500"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowGalleryModal(true);
-            }}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            loading="lazy"
           />
-          <div className="absolute top-2 right-2">
+          
+          {/* Overlay gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/20 group-hover:from-black/40 transition-all duration-300" />
+          
+          {/* Badge de departamento/isla - arriba izquierda */}
+          <div className="absolute top-3 left-3">
             <Badge
               className={cn(
-                "text-xs font-semibold shadow-sm px-1.5 py-0.5",
+                "text-xs font-semibold shadow-lg px-2.5 py-1 text-white border-0",
                 islandColors[
                   (business.departamento ||
                     business.island) as keyof typeof islandColors
-                ] || "bg-gray-200 text-gray-700",
+                ] || "bg-gradient-to-r from-gray-500 to-gray-600",
               )}
             >
+              <MapPin className="h-3 w-3 mr-1 inline" />
               {business.departamento || business.island}
             </Badge>
           </div>
+
+          {/* Galería indicator - abajo derecha */}
           {business.gallery && business.gallery.length > 1 && (
-            <div className="absolute bottom-2 right-2">
+            <div className="absolute bottom-3 right-3">
               <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => setShowGalleryModal(true)}
-                className="bg-black bg-opacity-60 text-white hover:bg-opacity-80 rounded-full px-2 py-0.5 text-xs h-6"
-              >
-                <Eye className="h-3 w-3 mr-0.5" /> +
-                {(business.gallery?.length || 0) - 1}
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Contenido */}
-        <div className="p-2">
-          {/* Categoría y precio */}
-          <div className="flex items-center justify-between mb-2">
-            <Badge
-              variant="outline"
-              className="text-teal-600 border-teal-600 text-xs px-1.5 py-0.5"
-            >
-              {business.category}
-            </Badge>
-            <div className="flex items-center space-x-1 text-xs">
-              <span className="text-gray-600">
-                {getPriceRangeText(business.priceRange)}
-              </span>
-            </div>
-          </div>
-
-          {/* Descripción */}
-          <p className="text-gray-600 text-xs mb-2 line-clamp-2">
-            {business.description || "Sin descripción disponible"}
-          </p>
-
-          {/* Amenidades */}
-          <div className="mb-2">
-            <div className="flex flex-wrap gap-1">
-              {business.amenities && business.amenities.length > 0 ? (
-                <>
-                  {business.amenities.slice(0, 3).map((amenity, index) => (
-                    <Badge
-                      key={index}
-                      variant="secondary"
-                      className="text-xs bg-gray-100 text-gray-700"
-                    >
-                      {amenity}
-                    </Badge>
-                  ))}
-                  {business.amenities.length > 3 && (
-                    <Badge
-                      variant="secondary"
-                      className="text-xs bg-gray-100 text-gray-700"
-                    >
-                      +{(business.amenities?.length || 0) - 3}
-                    </Badge>
-                  )}
-                </>
-              ) : (
-                <span className="text-xs text-gray-400">Sin amenidades</span>
-              )}
-            </div>
-          </div>
-
-          {/* Botones de acción */}
-          <div className="border-t border-gray-100 pt-2">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex space-x-3"></div>
-            </div>
-
-            {/* Botones de contacto */}
-            <div className="flex space-x-1.5 mt-1">
-              <Button
-                variant="outline"
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setShowContactModal(true);
+                  setShowGalleryModal(true);
                 }}
-                className="flex-1 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full text-xs h-7 px-2"
+                className="bg-white/90 backdrop-blur-sm text-gray-800 hover:bg-white rounded-full px-3 py-1.5 text-xs h-auto font-medium shadow-lg"
               >
-                <Phone className="h-3 w-3 mr-0.5" />
-                Contactar
+                <Eye className="h-3.5 w-3.5 mr-1.5" />
+                {business.gallery?.length} fotos
               </Button>
-              {contacts?.website && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.open(`https://${contacts.website}`, "_blank");
-                  }}
-                  className="flex-1 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-full text-xs h-7 px-2"
-                >
-                  <Globe className="h-3 w-3 mr-0.5" />
-                  Web
-                </Button>
+            </div>
+          )}
+
+          {/* Logo flotante */}
+          <div className="absolute -bottom-6 left-4">
+            <div className="w-16 h-16 rounded-2xl border-4 border-white shadow-xl overflow-hidden bg-white">
+              <img
+                src={business.logo}
+                alt={`${business.name} logo`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Contenido */}
+        <div className="p-4 pt-8">
+          {/* Header con nombre y categoría */}
+          <div className="mb-3">
+            <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-1 group-hover:text-teal-600 transition-colors">
+              {business.name}
+            </h3>
+            <div className="flex items-center justify-between gap-2">
+              <Badge
+                variant="outline"
+                className="text-teal-600 border-teal-300 bg-teal-50 text-xs px-2 py-0.5 font-medium"
+              >
+                {business.category}
+              </Badge>
+              {business.priceRange && (
+                <span className="text-xs text-gray-500 font-medium">
+                  {business.priceRange} · {getPriceRangeText(business.priceRange)}
+                </span>
               )}
             </div>
-            {/* Botón de seguidores alineado abajo, mismo diseño que los otros botones */}
+          </div>
+
+          {/* Ubicación */}
+          <div className="flex items-start gap-2 mb-3 text-sm text-gray-600">
+            <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
+            <span className="line-clamp-1">
+              {[
+                business.municipio || business.location,
+                business.colonia,
+              ]
+                .filter(Boolean)
+                .join(", ")}
+            </span>
+          </div>
+
+          {/* Descripción */}
+          <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+            {business.description || "Descubre este increíble negocio en Honduras"}
+          </p>
+
+          {/* Amenidades */}
+          {business.amenities && business.amenities.length > 0 && (
+            <div className="mb-4">
+              <div className="flex flex-wrap gap-1.5">
+                {business.amenities.slice(0, 3).map((amenity, index) => (
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 font-normal"
+                  >
+                    {amenity}
+                  </Badge>
+                ))}
+                {business.amenities.length > 3 && (
+                  <Badge
+                    variant="secondary"
+                    className="text-xs bg-gradient-to-r from-blue-100 to-teal-100 text-blue-700 px-2 py-0.5 font-medium"
+                  >
+                    +{business.amenities.length - 3} más
+                  </Badge>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Stats (seguidores si existe) */}
+          {followers !== undefined && followers > 0 && (
+            <div className="flex items-center gap-4 mb-4 pb-3 border-b border-gray-100">
+              <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                <Users className="h-4 w-4 text-teal-500" />
+                <span className="font-semibold text-gray-900">{followers}</span>
+                <span className="text-xs">seguidores</span>
+              </div>
+            </div>
+          )}
+
+          {/* Botones de acción */}
+          <div className="flex gap-2">
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowContactModal(true);
+              }}
+              className="flex-1 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-xl h-10 font-medium shadow-md hover:shadow-lg transition-all"
+            >
+              <Phone className="h-4 w-4 mr-2" />
+              Contactar
+            </Button>
+            {(contacts?.website || fallbackContacts?.website) && (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const website = contacts?.website || fallbackContacts?.website;
+                  const url = website?.startsWith('http') 
+                    ? website 
+                    : `https://${website}`;
+                  window.open(url, "_blank");
+                }}
+                variant="outline"
+                className="px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-xl h-10 font-medium transition-all"
+              >
+                <Globe className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
 
