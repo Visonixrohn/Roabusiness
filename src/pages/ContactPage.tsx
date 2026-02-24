@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import RegisterBusinessModal from "@/components/RegisterBusinessModal";
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -33,6 +34,8 @@ const ContactPage = () => {
     businessType: "",
     website: "", // Se agrega el campo website
   });
+
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   const formatUrl = (url) => {
     if (!url) return "";
@@ -392,7 +395,7 @@ const ContactPage = () => {
                 adaptarnos a las necesidades de tu negocio.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Button onClick={() => setShowRegisterModal(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
                   Registrar mi Negocio
                 </Button>
                 <Button variant="outline">Ver Planes y Precios</Button>
@@ -454,6 +457,7 @@ const ContactPage = () => {
       </div>
 
       <Footer />
+      <RegisterBusinessModal isOpen={showRegisterModal} onClose={() => setShowRegisterModal(false)} />
     </div>
   );
 };
