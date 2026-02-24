@@ -38,6 +38,7 @@ const DirectoryPage = () => {
     departamentos,
     municipios,
     municipiosFiltrados,
+    coloniasFiltradas,
     filters,
     loading: loadingBusinesses,
     error: businessError,
@@ -52,6 +53,7 @@ const DirectoryPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [departamentoInput, setDepartamentoInput] = useState("");
   const [municipioInput, setMunicipioInput] = useState("");
+  const [coloniaInput, setColoniaInput] = useState("");
   const [categoryInput, setCategoryInput] = useState("");
 
   const priceRanges = [
@@ -216,15 +218,25 @@ const DirectoryPage = () => {
                     disabled={!filters.departamento}
                   />
                   {/* Colonia */}
-                  <div className="relative">
-                    <Input
-                      placeholder="Colonia / Sector"
-                      value={filters.colonia}
-                      onChange={(e) =>
-                        updateFilters({ colonia: e.target.value })
-                      }
-                    />
-                  </div>
+                  <Combobox
+                    value={filters.colonia}
+                    onInputChange={setColoniaInput}
+                    onChange={(value) => {
+                      updateFilters({ colonia: value });
+                      setColoniaInput("");
+                    }}
+                    options={coloniasFiltradas.filter((c) =>
+                      c.toLowerCase().includes(coloniaInput.toLowerCase()),
+                    )}
+                    placeholder={
+                      filters.departamento || filters.municipio
+                        ? "Colonia / Sector"
+                        : "Primero selecciona ubicación"
+                    }
+                    inputValue={coloniaInput}
+                    clearable
+                    disabled={!filters.departamento && !filters.municipio}
+                  />
                   {/* Categoría */}
                   <Combobox
                     value={filters.category}

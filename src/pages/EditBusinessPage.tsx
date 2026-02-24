@@ -27,7 +27,10 @@ import { toast } from "sonner";
 import businessCategories from "@/data/businessCategories";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
-import { departamentos, getMunicipiosByDepartamento } from "@/data/hondurasLocations";
+import {
+  departamentos,
+  getMunicipiosByDepartamento,
+} from "@/data/hondurasLocations";
 import {
   getSubscriptionExpirationDate,
   isSubscriptionActive,
@@ -261,13 +264,13 @@ const EditBusinessPage = () => {
           ? business.subscription_months
           : 1,
     });
-    
+
     // Cargar municipios del departamento seleccionado
     const dept = business.departamento || business.island || "";
     if (dept) {
       setMunicipios(getMunicipiosByDepartamento(dept));
     }
-    
+
     setShowEditModal(true);
   };
 
@@ -1041,8 +1044,14 @@ const EditBusinessPage = () => {
                   <select
                     value={editForm.departamento}
                     onChange={(e) => {
-                      setEditForm({ ...editForm, departamento: e.target.value, municipio: "" });
-                      setMunicipios(getMunicipiosByDepartamento(e.target.value));
+                      setEditForm({
+                        ...editForm,
+                        departamento: e.target.value,
+                        municipio: "",
+                      });
+                      setMunicipios(
+                        getMunicipiosByDepartamento(e.target.value),
+                      );
                     }}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
                   >
@@ -1584,8 +1593,14 @@ const EditBusinessPage = () => {
                   <select
                     value={editForm.departamento}
                     onChange={(e) => {
-                      setEditForm({ ...editForm, departamento: e.target.value, municipio: "" });
-                      setMunicipios(getMunicipiosByDepartamento(e.target.value));
+                      setEditForm({
+                        ...editForm,
+                        departamento: e.target.value,
+                        municipio: "",
+                      });
+                      setMunicipios(
+                        getMunicipiosByDepartamento(e.target.value),
+                      );
                     }}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
                   >

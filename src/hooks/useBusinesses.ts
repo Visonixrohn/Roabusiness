@@ -132,6 +132,38 @@ export const useBusinesses = () => {
       .sort() as string[];
   }, [businessData, filters.departamento, municipios]);
 
+  // Colonias filtradas por departamento y municipio seleccionados
+  const coloniasFiltradas = useMemo(() => {
+    if (!businessData) return [];
+    
+    // Si no hay departamento ni municipio, mostrar todas las colonias
+    if (!filters.departamento && !filters.municipio) {
+      return Array.from(
+        new Set(
+          businessData.businesses
+            .map((b) => b.colonia?.trim())
+            .filter(Boolean)
+        ),
+      ).sort() as string[];
+    }
+
+    // Filtrar por departamento y/o municipio
+    return Array.from(
+      new Set(
+        businessData.businesses
+          .filter((b) => {
+            const matchesDept = !filters.departamento || 
+              (b.departamento || b.island) === filters.departamento;
+            const matchesMuni = !filters.municipio || 
+              (b.municipio || b.location) === filters.municipio;
+            return matchesDept && matchesMuni;
+          })
+          .map((b) => b.colonia?.trim())
+          .filter(Boolean)
+      ),
+    ).sort() as string[];
+  }, [businessData, filters.departamento, filters.municipio]);
+
   // Aplicar filtros
   const filteredBusinesses = useMemo(() => {
     if (!businessData) return [];
@@ -248,6 +280,7 @@ export const useBusinesses = () => {
     departamentos,
     municipios,
     municipiosFiltrados,
+    coloniasFiltradas,
     islands, // alias backward-compat
     filters,
     loading,
