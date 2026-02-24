@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
-import { Download } from 'lucide-react';
-import RegisterBusinessModal from '@/components/RegisterBusinessModal';
+import { useState, useRef } from "react";
+import { Download } from "lucide-react";
+import RegisterBusinessModal from "@/components/RegisterBusinessModal";
 
 const IslandsSection = ({ isStandalone, installPromptRef }) => {
   const [showTutorial, setShowTutorial] = useState(false);
@@ -9,20 +9,18 @@ const IslandsSection = ({ isStandalone, installPromptRef }) => {
   return (
     <section className="py-20 bg-gradient-to-b from-white to-blue-50">
       <div className="container mx-auto px-6 max-w-7xl">
-       
-
         {/* Botón de instalación y registro */}
         <div className="flex flex-col sm:flex-row justify-center gap-4 mt-16">
           <button
             onClick={async () => {
               if (isStandalone) {
-                alert('¡Ya tienes RoaBusiness como app en tu dispositivo!');
+                alert("¡Ya tienes RoaBusiness como app en tu dispositivo!");
                 return;
               }
               if (installPromptRef.current) {
                 installPromptRef.current.prompt();
                 const { outcome } = await installPromptRef.current.userChoice;
-                if (outcome === 'accepted') return;
+                if (outcome === "accepted") return;
               }
               setShowTutorial(true);
             }}
@@ -64,7 +62,7 @@ const IslandsSection = ({ isStandalone, installPromptRef }) => {
                 src="https://cdn-icons-png.flaticon.com/512/2288/2288494.png"
                 alt="Icono RoaBusiness"
                 className="w-20 h-20 mx-auto mb-4 rounded-full shadow"
-                style={{ background: '#fff' }}
+                style={{ background: "#fff" }}
               />
 
               <h3 className="text-xl font-bold mb-4 text-center text-gray-900">
@@ -76,7 +74,8 @@ const IslandsSection = ({ isStandalone, installPromptRef }) => {
                   Abre el menú <b>⋮</b> o <b>Compartir</b> de tu navegador.
                 </li>
                 <li>
-                  Selecciona <b>"Agregar a pantalla de inicio"</b> o <b>"Instalar app"</b>.
+                  Selecciona <b>"Agregar a pantalla de inicio"</b> o{" "}
+                  <b>"Instalar app"</b>.
                 </li>
                 <li>Confirma la instalación. ¡Listo!</li>
               </ol>
@@ -92,10 +91,12 @@ const IslandsSection = ({ isStandalone, installPromptRef }) => {
             </div>
           </div>
         )}
-
       </div>
 
-      <RegisterBusinessModal isOpen={showRegisterModal} onClose={() => setShowRegisterModal(false)} />
+      <RegisterBusinessModal
+        isOpen={showRegisterModal}
+        onClose={() => setShowRegisterModal(false)}
+      />
 
       <style>{`
         @keyframes fadeInUp {

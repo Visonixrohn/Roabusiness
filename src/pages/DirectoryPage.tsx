@@ -35,7 +35,8 @@ const DirectoryPage = () => {
   const {
     businesses,
     categories,
-    islands,
+    departamentos,
+    municipios,
     filters,
     loading: loadingBusinesses,
     error: businessError,
@@ -48,7 +49,8 @@ const DirectoryPage = () => {
   const { posts, loading: loadingPosts, error: postsError } = useRecentPosts();
   const [viewMode, setViewMode] = useState<"grid" | "map" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
-  const [islandInput, setIslandInput] = useState("");
+  const [departamentoInput, setDepartamentoInput] = useState("");
+  const [municipioInput, setMunicipioInput] = useState("");
   const [categoryInput, setCategoryInput] = useState("");
 
   const priceRanges = [
@@ -59,7 +61,12 @@ const DirectoryPage = () => {
   ];
 
   const hasActiveFilters =
-    filters.query || filters.category || filters.island || filters.priceRange;
+    filters.query ||
+    filters.category ||
+    filters.departamento ||
+    filters.municipio ||
+    filters.colonia ||
+    filters.priceRange;
 
   if (businessError) {
     return (
@@ -168,26 +175,51 @@ const DirectoryPage = () => {
 
                 {/* Filtros - Desktop y Móvil expandido */}
                 <div
-                  className={`grid grid-cols-1 md:grid-cols-4 gap-4 ${
-                    showFilters || "hidden lg:grid"
+                  className={`grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3 ${
+                    showFilters ? "" : "hidden lg:grid"
                   }`}
                 >
-                  {/* Isla con autocompletado */}
+                  {/* Departamento */}
                   <Combobox
-                    value={filters.island}
-                    onInputChange={setIslandInput}
+                    value={filters.departamento}
+                    onInputChange={setDepartamentoInput}
                     onChange={(value) => {
-                      updateFilters({ island: value });
-                      setIslandInput("");
+                      updateFilters({ departamento: value });
+                      setDepartamentoInput("");
                     }}
-                    options={islands.filter((island) =>
-                      island.toLowerCase().includes(islandInput.toLowerCase()),
+                    options={departamentos.filter((d) =>
+                      d.toLowerCase().includes(departamentoInput.toLowerCase()),
                     )}
-                    placeholder="Todas las islas"
-                    inputValue={islandInput}
+                    placeholder="Departamento"
+                    inputValue={departamentoInput}
                     clearable
                   />
-                  {/* Categoría con autocompletado */}
+                  {/* Municipio */}
+                  <Combobox
+                    value={filters.municipio}
+                    onInputChange={setMunicipioInput}
+                    onChange={(value) => {
+                      updateFilters({ municipio: value });
+                      setMunicipioInput("");
+                    }}
+                    options={municipios.filter((m) =>
+                      m.toLowerCase().includes(municipioInput.toLowerCase()),
+                    )}
+                    placeholder="Municipio"
+                    inputValue={municipioInput}
+                    clearable
+                  />
+                  {/* Colonia */}
+                  <div className="relative">
+                    <Input
+                      placeholder="Colonia / Sector"
+                      value={filters.colonia}
+                      onChange={(e) =>
+                        updateFilters({ colonia: e.target.value })
+                      }
+                    />
+                  </div>
+                  {/* Categoría */}
                   <Combobox
                     value={filters.category}
                     onInputChange={setCategoryInput}
@@ -198,11 +230,11 @@ const DirectoryPage = () => {
                     options={categories.filter((cat) =>
                       cat.toLowerCase().includes(categoryInput.toLowerCase()),
                     )}
-                    placeholder="Todas las categorías"
+                    placeholder="Categoría"
                     inputValue={categoryInput}
                     clearable
                   />
-                  {/* Precio igual que antes */}
+                  {/* Precio */}
                   <Select
                     value={filters.priceRange || "all"}
                     onValueChange={(value) =>
@@ -212,7 +244,7 @@ const DirectoryPage = () => {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Todos los precios" />
+                      <SelectValue placeholder="Precio" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todos los precios</SelectItem>
@@ -249,11 +281,33 @@ const DirectoryPage = () => {
                         </button>
                       </Badge>
                     )}
-                    {filters.island && (
+                    {filters.departamento && (
                       <Badge variant="secondary" className="gap-1">
-                        Isla: {filters.island}
+                        Departamento: {filters.departamento}
                         <button
-                          onClick={() => updateFilters({ island: "" })}
+                          onClick={() => updateFilters({ departamento: "" })}
+                          className="ml-1 hover:text-red-600"
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    )}
+                    {filters.municipio && (
+                      <Badge variant="secondary" className="gap-1">
+                        Municipio: {filters.municipio}
+                        <button
+                          onClick={() => updateFilters({ municipio: "" })}
+                          className="ml-1 hover:text-red-600"
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    )}
+                    {filters.colonia && (
+                      <Badge variant="secondary" className="gap-1">
+                        Colonia: {filters.colonia}
+                        <button
+                          onClick={() => updateFilters({ colonia: "" })}
                           className="ml-1 hover:text-red-600"
                         >
                           ×

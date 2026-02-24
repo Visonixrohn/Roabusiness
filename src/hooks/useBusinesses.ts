@@ -22,7 +22,9 @@ export const useBusinesses = () => {
   const [filters, setFilters] = useState<SearchFilters>({
     query: "",
     category: "",
-    island: "",
+    departamento: "",
+    municipio: "",
+    colonia: "",
     priceRange: "",
   });
 
@@ -87,14 +89,33 @@ export const useBusinesses = () => {
       .sort();
   }, [businessData]);
 
-  // Islas únicas
-  const islands = useMemo(() => {
+  // Departamentos únicos (ex-islands)
+  const departamentos = useMemo(() => {
     if (!businessData) return [];
     return Array.from(
-      new Set(businessData.businesses.map((b) => b.island?.trim())),
+      new Set(
+        businessData.businesses.map((b) =>
+          (b.departamento || b.island)?.trim(),
+        ),
+      ),
     )
       .filter(Boolean)
-      .sort();
+      .sort() as string[];
+  }, [businessData]);
+
+  // Alias para compatibilidad con código antiguo
+  const islands = departamentos;
+
+  // Municipios únicos
+  const municipios = useMemo(() => {
+    if (!businessData) return [];
+    return Array.from(
+      new Set(
+        businessData.businesses.map((b) => (b.municipio || b.location)?.trim()),
+      ),
+    )
+      .filter(Boolean)
+      .sort() as string[];
   }, [businessData]);
 
   // Aplicar filtros
@@ -109,20 +130,36 @@ export const useBusinesses = () => {
 
       const name = normalizeText(b.name);
       const desc = normalizeText(b.description || "");
-      const loc = normalizeText(b.location || "");
+      const dept = normalizeText(b.departamento || b.island || "");
+      const muni = normalizeText(b.municipio || b.location || "");
+      const col = normalizeText(b.colonia || "");
 
       const matchesQuery =
-        !q || name.includes(q) || desc.includes(q) || loc.includes(q);
+        !q ||
+        name.includes(q) ||
+        desc.includes(q) ||
+        dept.includes(q) ||
+        muni.includes(q);
       const matchesCategory =
         !filters.category ||
         normalizeText(b.category) === normalizeText(filters.category);
-      const matchesIsland =
-        !filters.island ||
-        normalizeText(b.island) === normalizeText(filters.island);
+      const matchesDepartamento =
+        !filters.departamento || dept === normalizeText(filters.departamento);
+      const matchesMunicipio =
+        !filters.municipio || muni.includes(normalizeText(filters.municipio));
+      const matchesColonia =
+        !filters.colonia || col.includes(normalizeText(filters.colonia));
       const matchesPrice =
         !filters.priceRange || b.priceRange === filters.priceRange;
 
-      return matchesQuery && matchesCategory && matchesIsland && matchesPrice;
+      return (
+        matchesQuery &&
+        matchesCategory &&
+        matchesDepartamento &&
+        matchesMunicipio &&
+        matchesColonia &&
+        matchesPrice
+      );
     });
   }, [businessData, filters]);
 
@@ -159,7 +196,14 @@ export const useBusinesses = () => {
   };
 
   const clearFilters = () => {
-    setFilters({ query: "", category: "", island: "", priceRange: "" });
+    setFilters({
+      query: "",
+      category: "",
+      departamento: "",
+      municipio: "",
+      colonia: "",
+      priceRange: "",
+    });
   };
 
   const getBusinessById = (id: string): Business | undefined => {
@@ -171,7 +215,9 @@ export const useBusinesses = () => {
     featuredBusinesses,
     mostFollowedBusinesses,
     categories,
-    islands,
+    departamentos,
+    municipios,
+    islands, // alias backward-compat
     filters,
     loading,
     error,

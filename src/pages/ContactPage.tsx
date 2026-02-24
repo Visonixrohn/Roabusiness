@@ -54,7 +54,7 @@ const ContactPage = () => {
 
     // Simular envío del formulario
     toast.success(
-      "¡Mensaje enviado exitosamente! Nos pondremos en contacto contigo pronto."
+      "¡Mensaje enviado exitosamente! Nos pondremos en contacto contigo pronto.",
     );
 
     // Limpiar formulario
@@ -70,7 +70,7 @@ const ContactPage = () => {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -395,7 +395,10 @@ const ContactPage = () => {
                 adaptarnos a las necesidades de tu negocio.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button onClick={() => setShowRegisterModal(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Button
+                  onClick={() => setShowRegisterModal(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
                   Registrar mi Negocio
                 </Button>
                 <Button variant="outline">Ver Planes y Precios</Button>
@@ -457,7 +460,10 @@ const ContactPage = () => {
       </div>
 
       <Footer />
-      <RegisterBusinessModal isOpen={showRegisterModal} onClose={() => setShowRegisterModal(false)} />
+      <RegisterBusinessModal
+        isOpen={showRegisterModal}
+        onClose={() => setShowRegisterModal(false)}
+      />
     </div>
   );
 };

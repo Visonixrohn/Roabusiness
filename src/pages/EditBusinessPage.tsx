@@ -36,8 +36,11 @@ interface Business {
   id: string;
   name: string;
   category: string;
-  island: string;
-  location: string;
+  departamento: string;
+  municipio: string;
+  colonia?: string;
+  /** @deprecated */ island?: string;
+  /** @deprecated */ location?: string;
   latitude?: number | null;
   longitude?: number | null;
   description: string;
@@ -72,8 +75,9 @@ interface Business {
 interface EditFormData {
   name: string;
   category: string;
-  island: string;
-  location: string;
+  departamento: string;
+  municipio: string;
+  colonia: string;
   latitude: number | null;
   longitude: number | null;
   description: string;
@@ -106,8 +110,9 @@ const EditBusinessPage = () => {
   const [editForm, setEditForm] = useState<EditFormData>({
     name: "",
     category: "",
-    island: "",
-    location: "",
+    departamento: "",
+    municipio: "",
+    colonia: "",
     latitude: null,
     longitude: null,
     description: "",
@@ -130,7 +135,7 @@ const EditBusinessPage = () => {
   const [newAmenity, setNewAmenity] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterIsland, setFilterIsland] = useState("");
+  const [filterDepartamento, setFilterDepartamento] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterStatus, setFilterStatus] = useState<
     "all" | "active" | "inactive"
@@ -213,21 +218,30 @@ const EditBusinessPage = () => {
   const handleEdit = (business: Business) => {
     if (business.latitude != null && business.longitude != null) {
       setMapCenter({ lat: business.latitude, lng: business.longitude });
-    } else if (business.island && islandCenters[business.island]) {
-      setMapCenter(islandCenters[business.island]);
+    } else if (
+      (business.departamento || business.island) &&
+      islandCenters[(business.departamento || business.island)!]
+    ) {
+      setMapCenter(islandCenters[(business.departamento || business.island)!]);
     }
 
     setSelectedBusiness(business);
     setEditForm({
       name: business.name || "",
       category: business.category || "",
-      island: business.island || "",
-      location: business.location || "",
+      departamento: business.departamento || business.island || "",
+      municipio: business.municipio || business.location || "",
+      colonia: business.colonia || "",
       latitude: business.latitude ?? null,
       longitude: business.longitude ?? null,
       description: business.description || "",
       email: business.contact?.email || "",
-      phones: business.contact?.phone ? business.contact.phone.split(/[,;]+/).map(p => p.trim()).filter(Boolean) : [""],
+      phones: business.contact?.phone
+        ? business.contact.phone
+            .split(/[,;]+/)
+            .map((p) => p.trim())
+            .filter(Boolean)
+        : [""],
       website: business.contact?.website || "",
       facebook: business.contact?.facebook || "",
       instagram: business.contact?.instagram || "",
@@ -274,8 +288,9 @@ const EditBusinessPage = () => {
       const payloadCamel = {
         name: editForm.name,
         category: editForm.category,
-        island: editForm.island,
-        location: editForm.location,
+        departamento: editForm.departamento,
+        municipio: editForm.municipio,
+        colonia: editForm.colonia || null,
         latitude: editForm.latitude,
         longitude: editForm.longitude,
         subscription_months: editForm.subscriptionMonths,
@@ -283,7 +298,7 @@ const EditBusinessPage = () => {
         description: editForm.description,
         contact: {
           email: editForm.email,
-          phone: editForm.phones.filter(p => p.trim()).join(", "),
+          phone: editForm.phones.filter((p) => p.trim()).join(", "),
           website: editForm.website,
           facebook: editForm.facebook,
           instagram: editForm.instagram,
@@ -309,8 +324,9 @@ const EditBusinessPage = () => {
       const payloadSnake = {
         name: editForm.name,
         category: editForm.category,
-        island: editForm.island,
-        location: editForm.location,
+        departamento: editForm.departamento,
+        municipio: editForm.municipio,
+        colonia: editForm.colonia || null,
         latitude: editForm.latitude,
         longitude: editForm.longitude,
         subscription_months: editForm.subscriptionMonths,
@@ -318,7 +334,7 @@ const EditBusinessPage = () => {
         description: editForm.description,
         contact: {
           email: editForm.email,
-          phone: editForm.phones.filter(p => p.trim()).join(", "),
+          phone: editForm.phones.filter((p) => p.trim()).join(", "),
           website: editForm.website,
           facebook: editForm.facebook,
           instagram: editForm.instagram,
@@ -382,8 +398,9 @@ const EditBusinessPage = () => {
     setEditForm({
       name: "",
       category: "",
-      island: "Roatán",
-      location: "",
+      departamento: "Islas de la Bahía",
+      municipio: "Roatán",
+      colonia: "",
       latitude: null,
       longitude: null,
       description: "",
@@ -408,7 +425,7 @@ const EditBusinessPage = () => {
   };
 
   const handleSubmitRegister = async () => {
-    if (!editForm.name || !editForm.category || !editForm.island) {
+    if (!editForm.name || !editForm.category || !editForm.departamento) {
       toast.error("Por favor, completa los campos obligatorios");
       return;
     }
@@ -419,8 +436,9 @@ const EditBusinessPage = () => {
       const payloadCamel = {
         name: editForm.name,
         category: editForm.category,
-        island: editForm.island,
-        location: editForm.location,
+        departamento: editForm.departamento,
+        municipio: editForm.municipio,
+        colonia: editForm.colonia || null,
         latitude: editForm.latitude,
         longitude: editForm.longitude,
         subscription_months: editForm.subscriptionMonths,
@@ -428,7 +446,7 @@ const EditBusinessPage = () => {
         description: editForm.description,
         contact: {
           email: editForm.email,
-          phone: editForm.phones.filter(p => p.trim()).join(", "),
+          phone: editForm.phones.filter((p) => p.trim()).join(", "),
           website: editForm.website,
           facebook: editForm.facebook,
           instagram: editForm.instagram,
@@ -453,8 +471,9 @@ const EditBusinessPage = () => {
       const payloadSnake = {
         name: editForm.name,
         category: editForm.category,
-        island: editForm.island,
-        location: editForm.location,
+        departamento: editForm.departamento,
+        municipio: editForm.municipio,
+        colonia: editForm.colonia || null,
         latitude: editForm.latitude,
         longitude: editForm.longitude,
         subscription_months: editForm.subscriptionMonths,
@@ -462,7 +481,7 @@ const EditBusinessPage = () => {
         description: editForm.description,
         contact: {
           email: editForm.email,
-          phone: editForm.phones.filter(p => p.trim()).join(", "),
+          phone: editForm.phones.filter((p) => p.trim()).join(", "),
           website: editForm.website,
           facebook: editForm.facebook,
           instagram: editForm.instagram,
@@ -485,7 +504,9 @@ const EditBusinessPage = () => {
 
       // Intentar primero con camelCase
       try {
-        const { error } = await supabase.from("businesses").insert([payloadCamel]);
+        const { error } = await supabase
+          .from("businesses")
+          .insert([payloadCamel]);
         if (error) throw error;
       } catch (err: any) {
         // Si falla por columnas, intentar con snake_case
@@ -498,7 +519,9 @@ const EditBusinessPage = () => {
           msg.includes("could not find") ||
           msg.includes("column")
         ) {
-          const { error } = await supabase.from("businesses").insert([payloadSnake]);
+          const { error } = await supabase
+            .from("businesses")
+            .insert([payloadSnake]);
           if (error) throw error;
         } else {
           throw err;
@@ -577,8 +600,8 @@ const EditBusinessPage = () => {
     const matchesSearch = business.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
-    const matchesIsland = filterIsland
-      ? business.island === filterIsland
+    const matchesIsland = filterDepartamento
+      ? (business.departamento || business.island) === filterDepartamento
       : true;
     const matchesCategory = filterCategory
       ? business.category === filterCategory
@@ -622,7 +645,10 @@ const EditBusinessPage = () => {
                 Administra todos los negocios registrados en la plataforma
               </p>
             </div>
-            <Button onClick={handleOpenRegisterModal} className="bg-green-600 hover:bg-green-700">
+            <Button
+              onClick={handleOpenRegisterModal}
+              className="bg-green-600 hover:bg-green-700"
+            >
               <Plus className="h-4 w-4 mr-2" />
               Nuevo Negocio
             </Button>
@@ -687,19 +713,27 @@ const EditBusinessPage = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Filtrar por isla
+                Filtrar por departamento
               </label>
               <select
-                value={filterIsland}
-                onChange={(e) => setFilterIsland(e.target.value)}
+                value={filterDepartamento}
+                onChange={(e) => setFilterDepartamento(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Todas las islas</option>
-                {islands.map((island) => (
-                  <option key={island} value={island}>
-                    {island}
-                  </option>
-                ))}
+                <option value="">Todos los departamentos</option>
+                {Array.from(
+                  new Set(
+                    businesses
+                      .map((b) => b.departamento || b.island)
+                      .filter(Boolean),
+                  ),
+                )
+                  .sort()
+                  .map((dep) => (
+                    <option key={dep} value={dep}>
+                      {dep}
+                    </option>
+                  ))}
               </select>
             </div>
             <div>
@@ -753,7 +787,7 @@ const EditBusinessPage = () => {
               No hay negocios
             </h3>
             <p className="text-gray-600 mb-4">
-              {searchTerm || filterIsland || filterCategory
+              {searchTerm || filterDepartamento || filterCategory
                 ? "No se encontraron negocios con los filtros aplicados"
                 : "Comienza registrando tu primer negocio"}
             </p>
@@ -762,7 +796,7 @@ const EditBusinessPage = () => {
                 variant="outline"
                 onClick={() => {
                   setSearchTerm("");
-                  setFilterIsland("");
+                  setFilterDepartamento("");
                   setFilterCategory("");
                 }}
               >
@@ -770,7 +804,10 @@ const EditBusinessPage = () => {
               </Button>
             )}
             {businesses.length === 0 && (
-              <Button onClick={handleOpenRegisterModal} className="bg-green-600 hover:bg-green-700">
+              <Button
+                onClick={handleOpenRegisterModal}
+                className="bg-green-600 hover:bg-green-700"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Registrar Primer Negocio
               </Button>
@@ -817,7 +854,7 @@ const EditBusinessPage = () => {
                           <Badge variant="secondary">{business.category}</Badge>
                           <Badge variant="outline">
                             <MapPin className="h-3 w-3 mr-1" />
-                            {business.island}
+                            {business.departamento || business.island}
                           </Badge>
                           <Badge
                             variant={
@@ -990,38 +1027,55 @@ const EditBusinessPage = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Isla *
+                    Departamento *
                   </label>
-                  <select
-                    value={editForm.island}
-                    onChange={(e) => {
-                      const nextIsland = e.target.value;
-                      setEditForm({ ...editForm, island: nextIsland });
-                      if (islandCenters[nextIsland]) {
-                        setMapCenter(islandCenters[nextIsland]);
-                      }
-                    }}
+                  <input
+                    list="edit-departamentos"
+                    value={editForm.departamento}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, departamento: e.target.value })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
-                    {islands.map((island) => (
-                      <option key={island} value={island}>
-                        {island}
-                      </option>
-                    ))}
-                  </select>
+                    placeholder="Ej: Islas de la Bahía"
+                  />
+                  <datalist id="edit-departamentos">
+                    <option value="Islas de la Bahía" />
+                    <option value="Cortés" />
+                    <option value="Francisco Morazán" />
+                    <option value="Atlántida" />
+                    <option value="Lempira" />
+                    <option value="Santa Bárbara" />
+                    <option value="Yoro" />
+                  </datalist>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ubicación *
+                    Municipio *
                   </label>
                   <input
                     type="text"
-                    value={editForm.location}
+                    value={editForm.municipio}
                     onChange={(e) =>
-                      setEditForm({ ...editForm, location: e.target.value })
+                      setEditForm({ ...editForm, municipio: e.target.value })
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Ej: Roátán"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Colonia / Sector
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.colonia}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, colonia: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Ej: West Bay Beach"
                   />
                 </div>
 
@@ -1162,7 +1216,9 @@ const EditBusinessPage = () => {
                           <button
                             type="button"
                             onClick={() => {
-                              const newPhones = editForm.phones.filter((_, i) => i !== index);
+                              const newPhones = editForm.phones.filter(
+                                (_, i) => i !== index,
+                              );
                               setEditForm({ ...editForm, phones: newPhones });
                             }}
                             className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -1175,7 +1231,12 @@ const EditBusinessPage = () => {
                     ))}
                     <button
                       type="button"
-                      onClick={() => setEditForm({ ...editForm, phones: [...editForm.phones, ""] })}
+                      onClick={() =>
+                        setEditForm({
+                          ...editForm,
+                          phones: [...editForm.phones, ""],
+                        })
+                      }
                       className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
                     >
                       <Plus className="h-4 w-4" /> Agregar otro teléfono
@@ -1502,38 +1563,55 @@ const EditBusinessPage = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Isla *
+                    Departamento *
                   </label>
-                  <select
-                    value={editForm.island}
-                    onChange={(e) => {
-                      const nextIsland = e.target.value;
-                      setEditForm({ ...editForm, island: nextIsland });
-                      if (islandCenters[nextIsland]) {
-                        setMapCenter(islandCenters[nextIsland]);
-                      }
-                    }}
+                  <input
+                    list="reg-departamentos"
+                    value={editForm.departamento}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, departamento: e.target.value })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
-                    {islands.map((island) => (
-                      <option key={island} value={island}>
-                        {island}
-                      </option>
-                    ))}
-                  </select>
+                    placeholder="Ej: Islas de la Bahía"
+                  />
+                  <datalist id="reg-departamentos">
+                    <option value="Islas de la Bahía" />
+                    <option value="Cortés" />
+                    <option value="Francisco Morazán" />
+                    <option value="Atlántida" />
+                    <option value="Lempira" />
+                    <option value="Santa Bárbara" />
+                    <option value="Yoro" />
+                  </datalist>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ubicación *
+                    Municipio *
                   </label>
                   <input
                     type="text"
-                    value={editForm.location}
+                    value={editForm.municipio}
                     onChange={(e) =>
-                      setEditForm({ ...editForm, location: e.target.value })
+                      setEditForm({ ...editForm, municipio: e.target.value })
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Ej: Roátán"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Colonia / Sector
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.colonia}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, colonia: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Ej: West Bay Beach"
                   />
                 </div>
 
@@ -1653,7 +1731,9 @@ const EditBusinessPage = () => {
                           <button
                             type="button"
                             onClick={() => {
-                              const newPhones = editForm.phones.filter((_, i) => i !== index);
+                              const newPhones = editForm.phones.filter(
+                                (_, i) => i !== index,
+                              );
                               setEditForm({ ...editForm, phones: newPhones });
                             }}
                             className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -1666,7 +1746,12 @@ const EditBusinessPage = () => {
                     ))}
                     <button
                       type="button"
-                      onClick={() => setEditForm({ ...editForm, phones: [...editForm.phones, ""] })}
+                      onClick={() =>
+                        setEditForm({
+                          ...editForm,
+                          phones: [...editForm.phones, ""],
+                        })
+                      }
                       className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
                     >
                       <Plus className="h-4 w-4" /> Agregar otro teléfono

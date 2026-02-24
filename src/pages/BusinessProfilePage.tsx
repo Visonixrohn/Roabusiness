@@ -364,7 +364,11 @@ const PostCard = ({
             className="flex-1 px-3 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             onKeyPress={(e) => e.key === "Enter" && handleCreateComment()}
           />
-          <Button size="sm" onClick={handleCreateComment} disabled={!commentText.trim()}>
+          <Button
+            size="sm"
+            onClick={handleCreateComment}
+            disabled={!commentText.trim()}
+          >
             Comentar
           </Button>
         </div>
@@ -498,7 +502,7 @@ const BusinessProfilePage = () => {
   const { posts, createPost, loading: postsLoading } = usePosts(businessId);
   const { isFollowing, followersCount, toggleFollow } = useFollowers(
     id!,
-    user?.id || ""
+    user?.id || "",
   );
   const { viewsCount, addView } = useViews({
     businessId: id,
@@ -546,7 +550,7 @@ const BusinessProfilePage = () => {
       });
       if (!result) {
         toast.error(
-          "Error al crear publicación. Revisa la consola o la estructura de la tabla en Supabase."
+          "Error al crear publicación. Revisa la consola o la estructura de la tabla en Supabase.",
         );
       } else {
         toast.success("¡Publicación creada!");
@@ -600,7 +604,9 @@ const BusinessProfilePage = () => {
     const ok = await toggleFollow();
     if (ok) {
       toast.success(
-        isFollowing ? "Has dejado de seguir este negocio" : "Ahora sigues este negocio"
+        isFollowing
+          ? "Has dejado de seguir este negocio"
+          : "Ahora sigues este negocio",
       );
     } else {
       toast.error("No se pudo actualizar el seguimiento. Intenta de nuevo.");
@@ -619,7 +625,7 @@ const BusinessProfilePage = () => {
         .select("*, users(id, name, avatar)")
         .in(
           "post_id",
-          posts.map((p) => p.id)
+          posts.map((p) => p.id),
         );
       setAllComments(commentsData || []);
       // Traer todos los likes de los posts visibles
@@ -628,7 +634,7 @@ const BusinessProfilePage = () => {
         .select("*")
         .in(
           "post_id",
-          posts.map((p) => p.id)
+          posts.map((p) => p.id),
         );
       setAllLikes(likesData || []);
     }
@@ -759,10 +765,13 @@ const BusinessProfilePage = () => {
               <div className="flex items-center space-x-4 text-sm">
                 <Badge
                   className={
-                    islandColors[business.island as keyof typeof islandColors]
+                    islandColors[
+                      (business.departamento ||
+                        business.island) as keyof typeof islandColors
+                    ]
                   }
                 >
-                  {business.island}
+                  {business.departamento || business.island}
                 </Badge>
                 <Badge
                   variant="outline"
@@ -800,7 +809,8 @@ const BusinessProfilePage = () => {
                 <div className="flex items-center text-gray-600 text-sm">
                   <MapPin className="h-4 w-4 mr-1" />
                   <span>
-                    {business.location}, {business.island}
+                    {business.municipio || business.location},{" "}
+                    {business.departamento || business.island}
                   </span>
                 </div>
               </div>
@@ -830,7 +840,7 @@ const BusinessProfilePage = () => {
                 onClick={() => {
                   const phone = (business.contact?.phone || "").replace(
                     /\D/g,
-                    ""
+                    "",
                   );
                   window.open(`https://wa.me/${phone}`);
                 }}
@@ -1056,7 +1066,8 @@ const BusinessProfilePage = () => {
               <div className="flex items-center">
                 <MapPin className="h-5 w-5 mr-3 text-gray-500" />
                 <span className="text-gray-700">
-                  {business.location}, {business.island}
+                  {business.municipio || business.location},{" "}
+                  {business.departamento || business.island}
                 </span>
               </div>
             </div>
@@ -1087,7 +1098,7 @@ const BusinessProfilePage = () => {
               {business.schedule && business.schedule.length > 0
                 ? weekDaysOrder.map((day) => {
                     const sch = business.schedule.find(
-                      (sch: any) => sch.day === day
+                      (sch: any) => sch.day === day,
                     );
                     return sch ? (
                       <div key={sch.day} className="flex justify-between">

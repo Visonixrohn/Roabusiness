@@ -130,7 +130,7 @@ const Header = () => {
                         {b.name}
                       </span>
                       <span className="ml-auto text-xs text-gray-500">
-                        {b.island}
+                        {b.departamento || b.island}
                       </span>
                     </button>
                   ))}
@@ -219,7 +219,7 @@ const Header = () => {
                     />
                     <span className="font-medium text-gray-800">{b.name}</span>
                     <span className="ml-auto text-xs text-gray-500">
-                      {b.island}
+                      {b.departamento || b.island}
                     </span>
                   </button>
                 ))}

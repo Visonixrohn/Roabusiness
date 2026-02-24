@@ -15,8 +15,13 @@ export interface Business {
   name: string;
   description: string;
   category: string;
-  island: string;
-  location: string;
+  departamento: string;
+  municipio: string;
+  colonia?: string;
+  /** @deprecated usar departamento */
+  island?: string;
+  /** @deprecated usar municipio */
+  location?: string;
   contact: BusinessContact;
   coverImage: string;
   logo: string;
@@ -46,13 +51,16 @@ export interface Business {
 export interface BusinessData {
   businesses: Business[];
   categories: string[];
-  islands: string[];
+  departamentos: string[];
+  municipios: string[];
 }
 
 export interface SearchFilters {
   query: string;
   category: string;
-  island: string;
+  departamento: string;
+  municipio: string;
+  colonia: string;
   priceRange: string;
 }
 

@@ -420,7 +420,7 @@ function NearbyBusinesses() {
                               {b.category}
                             </span>
                             <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
-                              {b.island}
+                              {b.departamento || b.island}
                             </span>
                           </div>
 

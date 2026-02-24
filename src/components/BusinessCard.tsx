@@ -114,11 +114,13 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
             <Badge
               className={cn(
                 "text-xs font-semibold shadow-sm px-1.5 py-0.5",
-                islandColors[business.island as keyof typeof islandColors] ||
-                  "bg-gray-200 text-gray-700",
+                islandColors[
+                  (business.departamento ||
+                    business.island) as keyof typeof islandColors
+                ] || "bg-gray-200 text-gray-700",
               )}
             >
-              {business.island}
+              {business.departamento || business.island}
             </Badge>
           </div>
           {business.gallery && business.gallery.length > 1 && (

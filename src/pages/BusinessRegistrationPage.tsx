@@ -34,8 +34,9 @@ interface FormData {
   // Información básica
   name: string;
   category: string;
-  island: string;
-  location: string;
+  departamento: string;
+  municipio: string;
+  colonia: string;
   latitude: number | null;
   longitude: number | null;
   description: string;
@@ -73,8 +74,9 @@ const BusinessRegistrationPage = () => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     category: "",
-    island: "",
-    location: "",
+    departamento: "",
+    municipio: "",
+    colonia: "",
     latitude: null,
     longitude: null,
     description: "",
@@ -122,7 +124,7 @@ const BusinessRegistrationPage = () => {
       [field]: value,
     }));
 
-    if (field === "island" && islandCenters[value]) {
+    if (field === "departamento" && islandCenters[value]) {
       setMapCenter(islandCenters[value]);
     }
   };
@@ -168,11 +170,15 @@ const BusinessRegistrationPage = () => {
         return !!(
           formData.name &&
           formData.category &&
-          formData.island &&
-          formData.location
+          formData.departamento &&
+          formData.municipio
         );
       case 2:
-        return !!(formData.description && formData.email && formData.phones.some(p => p.trim()));
+        return !!(
+          formData.description &&
+          formData.email &&
+          formData.phones.some((p) => p.trim())
+        );
       case 3:
         return formData.amenities.length > 0 && formData.subscriptionMonths > 0;
       case 4:
@@ -205,8 +211,9 @@ const BusinessRegistrationPage = () => {
       const payloadCamel = {
         name: formData.name,
         category: formData.category,
-        island: formData.island,
-        location: formData.location,
+        departamento: formData.departamento,
+        municipio: formData.municipio,
+        colonia: formData.colonia || null,
         description: formData.description,
         latitude: formData.latitude,
         longitude: formData.longitude,
@@ -214,7 +221,7 @@ const BusinessRegistrationPage = () => {
         subscription_started_at: new Date().toISOString(),
         contact: {
           email: formData.email,
-          phone: formData.phones.filter(p => p.trim()).join(", "),
+          phone: formData.phones.filter((p) => p.trim()).join(", "),
           website: formData.website,
           facebook: formData.facebook,
           instagram: formData.instagram,
@@ -240,8 +247,9 @@ const BusinessRegistrationPage = () => {
       const payloadSnake = {
         name: formData.name,
         category: formData.category,
-        island: formData.island,
-        location: formData.location,
+        departamento: formData.departamento,
+        municipio: formData.municipio,
+        colonia: formData.colonia || null,
         description: formData.description,
         latitude: formData.latitude,
         longitude: formData.longitude,
@@ -249,7 +257,7 @@ const BusinessRegistrationPage = () => {
         subscription_started_at: new Date().toISOString(),
         contact: {
           email: formData.email,
-          phone: formData.phones.filter(p => p.trim()).join(", "),
+          phone: formData.phones.filter((p) => p.trim()).join(", "),
           website: formData.website,
           facebook: formData.facebook,
           instagram: formData.instagram,
@@ -458,35 +466,69 @@ const BusinessRegistrationPage = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Isla *
+                    Departamento *
                   </label>
-                  <select
-                    value={formData.island}
+                  <input
+                    list="departamentos-list"
+                    value={formData.departamento}
                     onChange={(e) =>
-                      handleInputChange("island", e.target.value)
+                      handleInputChange("departamento", e.target.value)
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
-                  >
-                    <option value="">Selecciona una isla</option>
-                    {islands.map((island) => (
-                      <option key={island} value={island}>
-                        {island}
-                      </option>
-                    ))}
-                  </select>
+                    placeholder="Ej: Islas de la Bahía"
+                    required
+                  />
+                  <datalist id="departamentos-list">
+                    <option value="Islas de la Bahía" />
+                    <option value="Cortés" />
+                    <option value="Francisco Morazán" />
+                    <option value="Atlántida" />
+                    <option value="Colón" />
+                    <option value="Comayagua" />
+                    <option value="Copán" />
+                    <option value="El Paraíso" />
+                    <option value="Gracias a Dios" />
+                    <option value="Intibucá" />
+                    <option value="La Paz" />
+                    <option value="Lempira" />
+                    <option value="Ocotepeque" />
+                    <option value="Olancho" />
+                    <option value="Santa Bárbara" />
+                    <option value="Valle" />
+                    <option value="Yoro" />
+                  </datalist>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ubicación Específica *
+                    Municipio *
                   </label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                     <input
                       type="text"
-                      value={formData.location}
+                      value={formData.municipio}
                       onChange={(e) =>
-                        handleInputChange("location", e.target.value)
+                        handleInputChange("municipio", e.target.value)
+                      }
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
+                      placeholder="Ej: Roatán"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Colonia / Sector
+                  </label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    <input
+                      type="text"
+                      value={formData.colonia}
+                      onChange={(e) =>
+                        handleInputChange("colonia", e.target.value)
                       }
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
                       placeholder="Ej: West Bay Beach"
@@ -643,7 +685,9 @@ const BusinessRegistrationPage = () => {
                           <button
                             type="button"
                             onClick={() => {
-                              const newPhones = formData.phones.filter((_, i) => i !== index);
+                              const newPhones = formData.phones.filter(
+                                (_, i) => i !== index,
+                              );
                               setFormData({ ...formData, phones: newPhones });
                             }}
                             className="px-3 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-gray-300"
@@ -656,7 +700,12 @@ const BusinessRegistrationPage = () => {
                     ))}
                     <button
                       type="button"
-                      onClick={() => setFormData({ ...formData, phones: [...formData.phones, ""] })}
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          phones: [...formData.phones, ""],
+                        })
+                      }
                       className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-1"
                     >
                       <Plus className="h-4 w-4" /> Agregar otro teléfono

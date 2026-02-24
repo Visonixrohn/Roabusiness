@@ -41,8 +41,11 @@ interface Business {
   id: string;
   name: string;
   category: string;
-  island: string;
-  location: string;
+  departamento: string;
+  municipio: string;
+  colonia?: string;
+  /** @deprecated */ island?: string;
+  /** @deprecated */ location?: string;
   description: string;
   contact: {
     email: string;
@@ -73,7 +76,9 @@ const AdminPanel = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<ModalType>(null);
-  const [selectedItem, setSelectedItem] = useState<User | Business | null>(null);
+  const [selectedItem, setSelectedItem] = useState<User | Business | null>(
+    null,
+  );
   const [filterType, setFilterType] = useState<string>("all");
 
   // Form states
@@ -87,8 +92,9 @@ const AdminPanel = () => {
   const [businessForm, setBusinessForm] = useState({
     name: "",
     category: "",
-    island: "",
-    location: "",
+    departamento: "",
+    municipio: "",
+    colonia: "",
     description: "",
     email: "",
     phone: "",
@@ -148,8 +154,9 @@ const AdminPanel = () => {
         setBusinessForm({
           name: business.name,
           category: business.category,
-          island: business.island,
-          location: business.location,
+          departamento: business.departamento || business.island || "",
+          municipio: business.municipio || business.location || "",
+          colonia: business.colonia || "",
           description: business.description,
           email: business.contact?.email || "",
           phone: business.contact?.phone || "",
@@ -190,8 +197,9 @@ const AdminPanel = () => {
     setBusinessForm({
       name: "",
       category: "",
-      island: "",
-      location: "",
+      departamento: "",
+      municipio: "",
+      colonia: "",
       description: "",
       email: "",
       phone: "",
@@ -239,7 +247,11 @@ const AdminPanel = () => {
 
   const handleSaveBusiness = async () => {
     try {
-      if (!businessForm.name || !businessForm.category || !businessForm.island) {
+      if (
+        !businessForm.name ||
+        !businessForm.category ||
+        !businessForm.departamento
+      ) {
         toast.error("Por favor completa todos los campos obligatorios");
         return;
       }
@@ -248,8 +260,9 @@ const AdminPanel = () => {
       const payloadCamel: any = {
         name: businessForm.name,
         category: businessForm.category,
-        island: businessForm.island,
-        location: businessForm.location,
+        departamento: businessForm.departamento,
+        municipio: businessForm.municipio,
+        colonia: businessForm.colonia || null,
         description: businessForm.description,
         contact: {
           email: businessForm.email,
@@ -272,8 +285,9 @@ const AdminPanel = () => {
       const payloadSnake: any = {
         name: businessForm.name,
         category: businessForm.category,
-        island: businessForm.island,
-        location: businessForm.location,
+        departamento: businessForm.departamento,
+        municipio: businessForm.municipio,
+        colonia: businessForm.colonia || null,
         description: businessForm.description,
         contact: {
           email: businessForm.email,
@@ -297,7 +311,10 @@ const AdminPanel = () => {
         if (modalType === "add") {
           return await supabase.from("businesses").insert([payload]);
         } else {
-          return await supabase.from("businesses").update(payload).eq("id", selectedItem?.id);
+          return await supabase
+            .from("businesses")
+            .update(payload)
+            .eq("id", selectedItem?.id);
         }
       };
 
@@ -305,15 +322,27 @@ const AdminPanel = () => {
       try {
         const { error } = await tryUpsert(payloadCamel as any);
         if (error) throw error;
-        toast.success(modalType === "add" ? "Negocio creado exitosamente" : "Negocio actualizado exitosamente");
+        toast.success(
+          modalType === "add"
+            ? "Negocio creado exitosamente"
+            : "Negocio actualizado exitosamente",
+        );
       } catch (err: any) {
         // si el error menciona columnas faltantes, intentar con snake_case
         const msg = String(err?.message || err);
-        if (msg.includes("cover_image") || msg.includes("could not find the") || msg.includes("column") ) {
+        if (
+          msg.includes("cover_image") ||
+          msg.includes("could not find the") ||
+          msg.includes("column")
+        ) {
           try {
             const { error } = await tryUpsert(payloadSnake as any);
             if (error) throw error;
-            toast.success(modalType === "add" ? "Negocio creado exitosamente" : "Negocio actualizado exitosamente");
+            toast.success(
+              modalType === "add"
+                ? "Negocio creado exitosamente"
+                : "Negocio actualizado exitosamente",
+            );
           } catch (err2: any) {
             throw err2;
           }
@@ -344,7 +373,10 @@ const AdminPanel = () => {
   };
 
   const addAmenity = () => {
-    if (newAmenity.trim() && !businessForm.amenities.includes(newAmenity.trim())) {
+    if (
+      newAmenity.trim() &&
+      !businessForm.amenities.includes(newAmenity.trim())
+    ) {
       setBusinessForm((prev) => ({
         ...prev,
         amenities: [...prev.amenities, newAmenity.trim()],
@@ -372,10 +404,12 @@ const AdminPanel = () => {
     const matchesSearch =
       business.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       business.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      business.island.toLowerCase().includes(searchTerm.toLowerCase());
+      (business.departamento || business.island || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
     const matchesFilter =
       filterType === "all" ||
-      business.island === filterType ||
+      (business.departamento || business.island) === filterType ||
       business.category === filterType;
     return matchesSearch && matchesFilter;
   });
@@ -407,7 +441,9 @@ const AdminPanel = () => {
               variant="outline"
               className="flex items-center gap-2 hover:bg-blue-50 transition-colors"
             >
-              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+              />
               Actualizar
             </Button>
           </div>
@@ -419,20 +455,22 @@ const AdminPanel = () => {
         <div className="bg-white rounded-xl shadow-md p-2 mb-6 flex gap-2">
           <button
             onClick={() => setActiveTab("users")}
-            className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${activeTab === "users"
+            className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
+              activeTab === "users"
                 ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-105"
                 : "text-gray-600 hover:bg-gray-100"
-              }`}
+            }`}
           >
             <Users className="h-5 w-5" />
             Usuarios ({users.length})
           </button>
           <button
             onClick={() => setActiveTab("businesses")}
-            className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${activeTab === "businesses"
+            className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
+              activeTab === "businesses"
                 ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-105"
                 : "text-gray-600 hover:bg-gray-100"
-              }`}
+            }`}
           >
             <Building2 className="h-5 w-5" />
             Negocios ({businesses.length})
@@ -542,17 +580,20 @@ const AdminPanel = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <Badge
-                            className={`${user.type === "business"
+                            className={`${
+                              user.type === "business"
                                 ? "bg-purple-100 text-purple-800 border-purple-200"
                                 : "bg-blue-100 text-blue-800 border-blue-200"
-                              } border px-3 py-1`}
+                            } border px-3 py-1`}
                           >
                             {user.type === "business" ? "Negocio" : "Usuario"}
                           </Badge>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                           {user.created_at
-                            ? new Date(user.created_at).toLocaleDateString("es-ES")
+                            ? new Date(user.created_at).toLocaleDateString(
+                                "es-ES",
+                              )
                             : "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -625,7 +666,7 @@ const AdminPanel = () => {
                                 {business.name}
                               </div>
                               <div className="text-xs text-gray-500">
-                                {business.location}
+                                {business.municipio || business.location}
                               </div>
                             </div>
                           </div>
@@ -638,27 +679,32 @@ const AdminPanel = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-700 flex items-center gap-2">
                             <MapPin className="h-4 w-4 text-gray-400" />
-                            {business.island}
+                            {business.departamento || business.island}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-700">
                             <div className="flex items-center gap-2 mb-1">
                               <Mail className="h-3 w-3 text-gray-400" />
-                              <span className="text-xs">{business.contact?.email}</span>
+                              <span className="text-xs">
+                                {business.contact?.email}
+                              </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <Phone className="h-3 w-3 text-gray-400" />
-                              <span className="text-xs">{business.contact?.phone}</span>
+                              <span className="text-xs">
+                                {business.contact?.phone}
+                              </span>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <Badge
-                            className={`${business.is_public
+                            className={`${
+                              business.is_public
                                 ? "bg-green-100 text-green-800 border-green-200"
                                 : "bg-gray-100 text-gray-800 border-gray-200"
-                              } border`}
+                            } border`}
                           >
                             {business.is_public ? (
                               <div className="flex items-center gap-1">
@@ -700,7 +746,8 @@ const AdminPanel = () => {
           {/* Empty State */}
           {!loading &&
             ((activeTab === "users" && filteredUsers.length === 0) ||
-              (activeTab === "businesses" && filteredBusinesses.length === 0)) && (
+              (activeTab === "businesses" &&
+                filteredBusinesses.length === 0)) && (
               <div className="text-center py-20">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
                   {activeTab === "users" ? (
@@ -840,7 +887,10 @@ const AdminPanel = () => {
                           type="text"
                           value={businessForm.name}
                           onChange={(e) =>
-                            setBusinessForm({ ...businessForm, name: e.target.value })
+                            setBusinessForm({
+                              ...businessForm,
+                              name: e.target.value,
+                            })
                           }
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                           placeholder="Ej: Hotel Paradise Bay"
@@ -867,41 +917,81 @@ const AdminPanel = () => {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Isla *
+                          Departamento *
                         </label>
-                        <select
-                          value={businessForm.island}
+                        <input
+                          type="text"
+                          list="admin-departamentos-list"
+                          value={businessForm.departamento}
                           onChange={(e) =>
-                            setBusinessForm({ ...businessForm, island: e.target.value })
+                            setBusinessForm({
+                              ...businessForm,
+                              departamento: e.target.value,
+                            })
                           }
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        >
-                          <option value="">Selecciona una isla</option>
-                          {islands.map((island) => (
-                            <option key={island} value={island}>
-                              {island}
-                            </option>
-                          ))}
-                        </select>
+                          placeholder="Ej: Islas de la Bahía"
+                        />
+                        <datalist id="admin-departamentos-list">
+                          <option value="Islas de la Bahía" />
+                          <option value="Cortés" />
+                          <option value="Francisco Morazán" />
+                          <option value="Atlántida" />
+                          <option value="Comayagua" />
+                          <option value="Santa Bárbara" />
+                          <option value="Olancho" />
+                          <option value="Choluteca" />
+                          <option value="El Paraíso" />
+                          <option value="Yoro" />
+                          <option value="Colón" />
+                          <option value="Copán" />
+                          <option value="Lempira" />
+                          <option value="Intibucá" />
+                          <option value="La Paz" />
+                          <option value="Valle" />
+                          <option value="Ocotepeque" />
+                          <option value="Gracias a Dios" />
+                        </datalist>
                       </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Ubicación *
+                          Municipio *
                         </label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                           <input
                             type="text"
-                            value={businessForm.location}
+                            value={businessForm.municipio}
                             onChange={(e) =>
                               setBusinessForm({
                                 ...businessForm,
-                                location: e.target.value,
+                                municipio: e.target.value,
                               })
                             }
                             className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                            placeholder="Ej: West Bay Beach"
+                            placeholder="Ej: Roatán"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Colonia / Barrio
+                        </label>
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                          <input
+                            type="text"
+                            value={businessForm.colonia || ""}
+                            onChange={(e) =>
+                              setBusinessForm({
+                                ...businessForm,
+                                colonia: e.target.value,
+                              })
+                            }
+                            className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                            placeholder="Ej: West Bay"
                           />
                         </div>
                       </div>
@@ -985,7 +1075,10 @@ const AdminPanel = () => {
                             type="email"
                             value={businessForm.email}
                             onChange={(e) =>
-                              setBusinessForm({ ...businessForm, email: e.target.value })
+                              setBusinessForm({
+                                ...businessForm,
+                                email: e.target.value,
+                              })
                             }
                             className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                             placeholder="contacto@negocio.com"
@@ -1003,7 +1096,10 @@ const AdminPanel = () => {
                             type="tel"
                             value={businessForm.phone}
                             onChange={(e) =>
-                              setBusinessForm({ ...businessForm, phone: e.target.value })
+                              setBusinessForm({
+                                ...businessForm,
+                                phone: e.target.value,
+                              })
                             }
                             className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                             placeholder="+504 2445-1234"
@@ -1090,8 +1186,8 @@ const AdminPanel = () => {
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                          <Twitter className="h-4 w-4 text-blue-400" />
-                          X (Twitter)
+                          <Twitter className="h-4 w-4 text-blue-400" />X
+                          (Twitter)
                         </label>
                         <input
                           type="url"
@@ -1141,7 +1237,8 @@ const AdminPanel = () => {
                         className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                         placeholder="Agregar servicio..."
                         onKeyPress={(e) =>
-                          e.key === "Enter" && (e.preventDefault(), addAmenity())
+                          e.key === "Enter" &&
+                          (e.preventDefault(), addAmenity())
                         }
                       />
                       <Button
@@ -1190,10 +1287,16 @@ const AdminPanel = () => {
                         </label>
                         <ImageUpload
                           onImageUploaded={(url) =>
-                            setBusinessForm({ ...businessForm, cover_image: url })
+                            setBusinessForm({
+                              ...businessForm,
+                              cover_image: url,
+                            })
                           }
                           onImageRemoved={() =>
-                            setBusinessForm({ ...businessForm, cover_image: "" })
+                            setBusinessForm({
+                              ...businessForm,
+                              cover_image: "",
+                            })
                           }
                           currentImage={businessForm.cover_image}
                           label="Portada"
@@ -1233,7 +1336,9 @@ const AdminPanel = () => {
                 Cancelar
               </Button>
               <Button
-                onClick={activeTab === "users" ? handleSaveUser : handleSaveBusiness}
+                onClick={
+                  activeTab === "users" ? handleSaveUser : handleSaveBusiness
+                }
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 shadow-lg hover:shadow-xl transition-all"
               >
                 {modalType === "add" ? "Crear" : "Actualizar"}

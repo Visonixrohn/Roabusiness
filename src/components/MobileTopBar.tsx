@@ -143,7 +143,7 @@ export default function MobileTopBar() {
                       {b.name}
                     </span>
                     <span className="ml-auto text-xs text-gray-500">
-                      {b.island}
+                      {b.departamento || b.island}
                     </span>
                   </button>
                 ))}

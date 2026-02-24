@@ -90,8 +90,15 @@ const ContactModal = ({
       Guanaja: { lat: 16.45, lng: -85.9 },
       "Jose Santos Guardiola": { lat: 16.36, lng: -86.35 },
     };
-    return centers[business.island] || GOOGLE_MAPS_CONFIG.defaultCenter;
-  }, [business.island]);
+    const dep = business.departamento || business.island || "";
+    const muni = business.municipio || business.location || "";
+    return centers[muni] || centers[dep] || GOOGLE_MAPS_CONFIG.defaultCenter;
+  }, [
+    business.departamento,
+    business.island,
+    business.municipio,
+    business.location,
+  ]);
 
   const initialLat = parseCoordinate(
     business.latitude ?? business.coordinates?.lat,
@@ -119,7 +126,7 @@ const ContactModal = ({
     }
 
     const geocoder = new window.google.maps.Geocoder();
-    const address = `${business.location}, ${business.island}, Islas de la Bahía, Honduras`;
+    const address = `${business.municipio || business.location}, ${business.departamento || business.island}, Honduras`;
 
     geocoder.geocode({ address }, (results, status) => {
       if (status === "OK" && results?.[0]?.geometry?.location) {
@@ -132,8 +139,10 @@ const ContactModal = ({
     });
   }, [
     isOpen,
-    business.location,
+    business.departamento,
     business.island,
+    business.municipio,
+    business.location,
     initialLat,
     initialLng,
     islandCenter,
@@ -244,7 +253,8 @@ const ContactModal = ({
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-gray-500" />
                 <span>
-                  {business.location}, {business.island}
+                  {business.municipio || business.location},{" "}
+                  {business.departamento || business.island}
                 </span>
               </div>
               <div className="flex items-start gap-2">
@@ -299,7 +309,8 @@ const ContactModal = ({
               variant="outline"
               size="sm"
               onClick={() => {
-                const firstPhone = contacts?.phone?.split(/[,;]+/)[0]?.trim() || "";
+                const firstPhone =
+                  contacts?.phone?.split(/[,;]+/)[0]?.trim() || "";
                 window.open(`tel:${firstPhone}`);
               }}
               className="flex-1 flex items-center justify-center gap-2"
@@ -330,7 +341,8 @@ const ContactModal = ({
               <Button
                 size="sm"
                 onClick={() => {
-                  const firstPhone = contacts.phone.split(/[,;]+/)[0]?.trim() || "";
+                  const firstPhone =
+                    contacts.phone.split(/[,;]+/)[0]?.trim() || "";
                   const phone = firstPhone.replace(/\D/g, "");
                   window.open(`https://wa.me/${phone}`);
                 }}
@@ -411,7 +423,7 @@ const ContactModal = ({
                   className="hover:scale-110 transition-transform"
                 >
                   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#34E0A1">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm-5 9c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm10 0c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"/>
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm-5 9c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm10 0c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z" />
                   </svg>
                 </a>
               )}
