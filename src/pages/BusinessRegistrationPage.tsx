@@ -29,6 +29,10 @@ import { toast } from "sonner";
 import businessCategories from "@/data/businessCategories";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
+import {
+  departamentos,
+  getMunicipiosByDepartamento,
+} from "@/data/hondurasLocations";
 
 interface FormData {
   // Información básica
@@ -69,6 +73,7 @@ const BusinessRegistrationPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newAmenity, setNewAmenity] = useState("");
+  const [municipios, setMunicipios] = useState<string[]>([]);
   // password/reset UI removed — admin registers businesses via this URL
 
   const [formData, setFormData] = useState<FormData>({
@@ -124,8 +129,15 @@ const BusinessRegistrationPage = () => {
       [field]: value,
     }));
 
-    if (field === "departamento" && islandCenters[value]) {
-      setMapCenter(islandCenters[value]);
+    if (field === "departamento") {
+      // Actualizar lista de municipios y resetear municipio seleccionado
+      setMunicipios(getMunicipiosByDepartamento(value));
+      setFormData((prev) => ({ ...prev, municipio: "" }));
+
+      // Si hay centro definido para este departamento, actualizar mapa
+      if (islandCenters[value]) {
+        setMapCenter(islandCenters[value]);
+      }
     }
   };
 
@@ -468,54 +480,43 @@ const BusinessRegistrationPage = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Departamento *
                   </label>
-                  <input
-                    list="departamentos-list"
+                  <select
                     value={formData.departamento}
                     onChange={(e) =>
                       handleInputChange("departamento", e.target.value)
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
-                    placeholder="Ej: Islas de la Bahía"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md bg-white"
                     required
-                  />
-                  <datalist id="departamentos-list">
-                    <option value="Islas de la Bahía" />
-                    <option value="Cortés" />
-                    <option value="Francisco Morazán" />
-                    <option value="Atlántida" />
-                    <option value="Colón" />
-                    <option value="Comayagua" />
-                    <option value="Copán" />
-                    <option value="El Paraíso" />
-                    <option value="Gracias a Dios" />
-                    <option value="Intibucá" />
-                    <option value="La Paz" />
-                    <option value="Lempira" />
-                    <option value="Ocotepeque" />
-                    <option value="Olancho" />
-                    <option value="Santa Bárbara" />
-                    <option value="Valle" />
-                    <option value="Yoro" />
-                  </datalist>
+                  >
+                    <option value="">Selecciona un departamento</option>
+                    {departamentos.map((dep) => (
+                      <option key={dep} value={dep}>
+                        {dep}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Municipio *
                   </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                    <input
-                      type="text"
-                      value={formData.municipio}
-                      onChange={(e) =>
-                        handleInputChange("municipio", e.target.value)
-                      }
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
-                      placeholder="Ej: Roatán"
-                      required
-                    />
-                  </div>
+                  <select
+                    value={formData.municipio}
+                    onChange={(e) =>
+                      handleInputChange("municipio", e.target.value)
+                    }
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md bg-white"
+                    required
+                    disabled={!formData.departamento}
+                  >
+                    <option value="">Selecciona un municipio</option>
+                    {municipios.map((mun) => (
+                      <option key={mun} value={mun}>
+                        {mun}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>

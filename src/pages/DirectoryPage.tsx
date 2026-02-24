@@ -37,6 +37,7 @@ const DirectoryPage = () => {
     categories,
     departamentos,
     municipios,
+    municipiosFiltrados,
     filters,
     loading: loadingBusinesses,
     error: businessError,
@@ -202,12 +203,17 @@ const DirectoryPage = () => {
                       updateFilters({ municipio: value });
                       setMunicipioInput("");
                     }}
-                    options={municipios.filter((m) =>
+                    options={municipiosFiltrados.filter((m) =>
                       m.toLowerCase().includes(municipioInput.toLowerCase()),
                     )}
-                    placeholder="Municipio"
+                    placeholder={
+                      filters.departamento
+                        ? "Municipio"
+                        : "Primero selecciona departamento"
+                    }
                     inputValue={municipioInput}
                     clearable
+                    disabled={!filters.departamento}
                   />
                   {/* Colonia */}
                   <div className="relative">

@@ -8,6 +8,7 @@ interface ComboboxProps {
   placeholder?: string;
   inputValue?: string;
   clearable?: boolean;
+  disabled?: boolean;
 }
 
 export const Combobox: React.FC<ComboboxProps> = ({
@@ -18,6 +19,7 @@ export const Combobox: React.FC<ComboboxProps> = ({
   placeholder = "Selecciona...",
   inputValue = "",
   clearable = false,
+  disabled = false,
 }) => {
   const [open, setOpen] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -33,15 +35,17 @@ export const Combobox: React.FC<ComboboxProps> = ({
       <input
         ref={inputRef}
         type="text"
-        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
         placeholder={placeholder}
         value={inputValue !== undefined ? inputValue : value}
-        onFocus={() => setOpen(true)}
+        onFocus={() => !disabled && setOpen(true)}
         onChange={(e) => {
+          if (disabled) return;
           onInputChange?.(e.target.value);
           setOpen(true);
         }}
         readOnly={!!onInputChange && !onInputChange}
+        disabled={disabled}
         autoComplete="off"
       />
       {clearable && value && (

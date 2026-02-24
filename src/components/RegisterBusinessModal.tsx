@@ -6,6 +6,10 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { Building2, MapPin, Globe, FileText, X } from "lucide-react";
+import {
+  departamentos,
+  getMunicipiosByDepartamento,
+} from "@/data/hondurasLocations";
 
 interface Props {
   isOpen: boolean;
@@ -16,27 +20,43 @@ const RegisterBusinessModal = ({ isOpen, onClose }: Props) => {
   const [form, setForm] = useState({
     name: "",
     description: "",
-    lugar: "",
+    departamento: "",
+    municipio: "",
+    colonia: "",
     hasWebsite: "no",
     website: "",
   });
 
+  const [municipios, setMunicipios] = useState<string[]>([]);
+
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     setForm((p) => ({ ...p, [name]: value }));
+
+    // Si cambia departamento, actualizar lista de municipios y resetear municipio
+    if (name === "departamento") {
+      setMunicipios(getMunicipiosByDepartamento(value));
+      setForm((p) => ({ ...p, municipio: "" }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const phone = "50488857653";
     const hasWebsiteText = form.hasWebsite === "yes" ? "Sí" : "No";
+    const lugarText = [form.departamento, form.municipio, form.colonia]
+      .filter(Boolean)
+      .join(", ");
+
     const text =
       `Hola, quiero registrar mi negocio 🏢\n\n` +
       `📌 *Nombre:* ${form.name}\n` +
       `📝 *Descripción:* ${form.description}\n` +
-      `📍 *Lugar:* ${form.lugar || "No especificado"}\n` +
+      `📍 *Ubicación:* ${lugarText || "No especificado"}\n` +
       `🌐 *Tiene página web:* ${hasWebsiteText}` +
       (form.hasWebsite === "yes" && form.website
         ? `\n🔗 *Web:* ${form.website}`
@@ -48,10 +68,13 @@ const RegisterBusinessModal = ({ isOpen, onClose }: Props) => {
     setForm({
       name: "",
       description: "",
-      lugar: "",
+      departamento: "",
+      municipio: "",
+      colonia: "",
       hasWebsite: "no",
       website: "",
     });
+    setMunicipios([]);
     onClose();
   };
 
@@ -116,20 +139,66 @@ const RegisterBusinessModal = ({ isOpen, onClose }: Props) => {
             />
           </div>
 
-          {/* Lugar */}
+          {/* Departamento */}
           <div>
             <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-1.5">
               <MapPin className="h-4 w-4 text-blue-500" />
-              Lugar de tu negocio
+              Departamento
             </label>
-            <Input
-              name="lugar"
-              value={form.lugar}
+            <select
+              name="departamento"
+              value={form.departamento}
               onChange={handleChange}
-              placeholder="Ej: Roatán, West Bay / Tegucigalpa, Col. Palmira"
-              className="rounded-lg border-gray-200 focus:border-blue-400 focus:ring-blue-400"
-            />
+              className="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-400 bg-white text-sm"
+            >
+              <option value="">Selecciona un departamento</option>
+              {departamentos.map((dep) => (
+                <option key={dep} value={dep}>
+                  {dep}
+                </option>
+              ))}
+            </select>
           </div>
+
+          {/* Municipio */}
+          {form.departamento && (
+            <div>
+              <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-1.5">
+                <MapPin className="h-4 w-4 text-blue-500" />
+                Municipio
+              </label>
+              <select
+                name="municipio"
+                value={form.municipio}
+                onChange={handleChange}
+                className="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-400 bg-white text-sm"
+              >
+                <option value="">Selecciona un municipio</option>
+                {municipios.map((mun) => (
+                  <option key={mun} value={mun}>
+                    {mun}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Colonia */}
+          {form.municipio && (
+            <div>
+              <label className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 mb-1.5">
+                <MapPin className="h-4 w-4 text-blue-500" />
+                Colonia / Barrio (Opcional)
+              </label>
+              <Input
+                name="colonia"
+                value={form.colonia}
+                onChange={handleChange}
+                placeholder="Ej: Col. Palmira, West Bay..."
+                className="rounded-lg border-gray-200 focus:border-blue-400 focus:ring-blue-400"
+              />
+            </div>
+          )}
 
           {/* Tiene página web */}
           <div>

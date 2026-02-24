@@ -24,6 +24,7 @@ import { Facebook, Instagram, Twitter } from "lucide-react";
 import TikTokIcon from "@/components/icons/TikTokIcon";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
+import { supabase } from "@/lib/supabaseClient";
 
 interface ContactModalProps {
   business: Business;
@@ -106,6 +107,27 @@ const ContactModal = ({
   const initialLng = parseCoordinate(
     business.longitude ?? business.coordinates?.lng,
   );
+
+  // Incrementar contador de contactos cuando se abre el modal
+  useEffect(() => {
+    if (!isOpen || !business.id) return;
+
+    const incrementarContador = async () => {
+      try {
+        const { error } = await supabase.rpc("incrementar_contador_destacado", {
+          p_business_id: business.id,
+        });
+
+        if (error) {
+          console.error("Error al incrementar contador destacado:", error);
+        }
+      } catch (err) {
+        console.error("Error al incrementar contador destacado:", err);
+      }
+    };
+
+    incrementarContador();
+  }, [isOpen, business.id]);
 
   useEffect(() => {
     if (!isOpen) return;

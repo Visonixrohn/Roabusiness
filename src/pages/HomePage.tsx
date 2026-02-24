@@ -4,13 +4,15 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BusinessCard from "@/components/BusinessCard";
 import { useBusinesses } from "@/hooks/useBusinesses";
+import { useNegociosDestacados } from "@/hooks/useNegociosDestacados";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
 import IslandsSection from "@/components/Islansection";
 import HeroSection from "@/components/Hero";
 import AboutPage from "./AboutPage";
 const HomePage = () => {
-  // Usar negocios más seguidos y destacados dinámicamente
+  // Usar negocios destacados por contador de contactos
+  const { destacados, loading: loadingDestacados } = useNegociosDestacados(6);
   const { mostFollowedBusinesses, loading, followersMap } = useBusinesses();
   // Nuevo: obtener todos los negocios públicos
   const { businesses } = useBusinesses();
@@ -76,9 +78,7 @@ const HomePage = () => {
               Negocios Destacados
             </h2>
             <p className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto leading-relaxed">
-              Descubre los negocios con más{" "}
-              <span className="font-semibold text-teal-600">seguidores</span> en
-              las Islas de la Bahía
+              Los negocios más contactados por nuestros usuarios
             </p>
             <div className="mt-6 flex justify-center space-x-3">
               <span className="inline-block w-20 h-1 bg-teal-500 rounded-full animate-pulse"></span>
@@ -87,7 +87,7 @@ const HomePage = () => {
             </div>
           </div>
 
-          {loading ? (
+          {loadingDestacados ? (
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="bg-white rounded-lg p-6 animate-pulse">
@@ -99,7 +99,7 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {mostFollowedBusinesses
+              {destacados
                 .filter((business) => business.is_public !== false)
                 .slice(0, 6)
                 .map((business) => (

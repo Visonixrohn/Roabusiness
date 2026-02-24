@@ -106,7 +106,7 @@ export const useBusinesses = () => {
   // Alias para compatibilidad con código antiguo
   const islands = departamentos;
 
-  // Municipios únicos
+  // Municipios únicos (todos)
   const municipios = useMemo(() => {
     if (!businessData) return [];
     return Array.from(
@@ -117,6 +117,20 @@ export const useBusinesses = () => {
       .filter(Boolean)
       .sort() as string[];
   }, [businessData]);
+
+  // Municipios filtrados por departamento seleccionado
+  const municipiosFiltrados = useMemo(() => {
+    if (!businessData || !filters.departamento) return municipios;
+    return Array.from(
+      new Set(
+        businessData.businesses
+          .filter((b) => (b.departamento || b.island) === filters.departamento)
+          .map((b) => (b.municipio || b.location)?.trim()),
+      ),
+    )
+      .filter(Boolean)
+      .sort() as string[];
+  }, [businessData, filters.departamento, municipios]);
 
   // Aplicar filtros
   const filteredBusinesses = useMemo(() => {
@@ -192,7 +206,23 @@ export const useBusinesses = () => {
 
   // Filtros
   const updateFilters = (newFilters: Partial<SearchFilters>) => {
-    setFilters((prev) => ({ ...prev, ...newFilters }));
+    setFilters((prev) => {
+      // Si se cambia el departamento, resetear municipio y colonia
+      if (
+        "departamento" in newFilters &&
+        newFilters.departamento !== prev.departamento
+      ) {
+        return { ...prev, ...newFilters, municipio: "", colonia: "" };
+      }
+      // Si se cambia el municipio, resetear colonia
+      if (
+        "municipio" in newFilters &&
+        newFilters.municipio !== prev.municipio
+      ) {
+        return { ...prev, ...newFilters, colonia: "" };
+      }
+      return { ...prev, ...newFilters };
+    });
   };
 
   const clearFilters = () => {
@@ -217,6 +247,7 @@ export const useBusinesses = () => {
     categories,
     departamentos,
     municipios,
+    municipiosFiltrados,
     islands, // alias backward-compat
     filters,
     loading,

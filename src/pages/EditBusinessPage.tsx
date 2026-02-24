@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import businessCategories from "@/data/businessCategories";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
+import { departamentos, getMunicipiosByDepartamento } from "@/data/hondurasLocations";
 import {
   getSubscriptionExpirationDate,
   isSubscriptionActive,
@@ -157,6 +158,7 @@ const EditBusinessPage = () => {
   };
   const [mapCenter, setMapCenter] = useState(GOOGLE_MAPS_CONFIG.defaultCenter);
   const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
+  const [municipios, setMunicipios] = useState<string[]>([]);
 
   useEffect(() => {
     fetchBusinesses();
@@ -259,6 +261,13 @@ const EditBusinessPage = () => {
           ? business.subscription_months
           : 1,
     });
+    
+    // Cargar municipios del departamento seleccionado
+    const dept = business.departamento || business.island || "";
+    if (dept) {
+      setMunicipios(getMunicipiosByDepartamento(dept));
+    }
+    
     setShowEditModal(true);
   };
 
@@ -1029,39 +1038,46 @@ const EditBusinessPage = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Departamento *
                   </label>
-                  <input
-                    list="edit-departamentos"
+                  <select
                     value={editForm.departamento}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, departamento: e.target.value })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="Ej: Islas de la Bahía"
-                  />
-                  <datalist id="edit-departamentos">
-                    <option value="Islas de la Bahía" />
-                    <option value="Cortés" />
-                    <option value="Francisco Morazán" />
-                    <option value="Atlántida" />
-                    <option value="Lempira" />
-                    <option value="Santa Bárbara" />
-                    <option value="Yoro" />
-                  </datalist>
+                    onChange={(e) => {
+                      setEditForm({ ...editForm, departamento: e.target.value, municipio: "" });
+                      setMunicipios(getMunicipiosByDepartamento(e.target.value));
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
+                  >
+                    <option value="">Selecciona un departamento</option>
+                    {departamentos.map((dep) => (
+                      <option key={dep} value={dep}>
+                        {dep}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Municipio *
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={editForm.municipio}
                     onChange={(e) =>
                       setEditForm({ ...editForm, municipio: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="Ej: Roátán"
-                  />
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
+                    disabled={!editForm.departamento}
+                  >
+                    <option value="">
+                      {editForm.departamento
+                        ? "Selecciona un municipio"
+                        : "Primero selecciona un departamento"}
+                    </option>
+                    {municipios.map((mun) => (
+                      <option key={mun} value={mun}>
+                        {mun}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
@@ -1565,39 +1581,46 @@ const EditBusinessPage = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Departamento *
                   </label>
-                  <input
-                    list="reg-departamentos"
+                  <select
                     value={editForm.departamento}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, departamento: e.target.value })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="Ej: Islas de la Bahía"
-                  />
-                  <datalist id="reg-departamentos">
-                    <option value="Islas de la Bahía" />
-                    <option value="Cortés" />
-                    <option value="Francisco Morazán" />
-                    <option value="Atlántida" />
-                    <option value="Lempira" />
-                    <option value="Santa Bárbara" />
-                    <option value="Yoro" />
-                  </datalist>
+                    onChange={(e) => {
+                      setEditForm({ ...editForm, departamento: e.target.value, municipio: "" });
+                      setMunicipios(getMunicipiosByDepartamento(e.target.value));
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
+                  >
+                    <option value="">Selecciona un departamento</option>
+                    {departamentos.map((dep) => (
+                      <option key={dep} value={dep}>
+                        {dep}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Municipio *
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={editForm.municipio}
                     onChange={(e) =>
                       setEditForm({ ...editForm, municipio: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="Ej: Roátán"
-                  />
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
+                    disabled={!editForm.departamento}
+                  >
+                    <option value="">
+                      {editForm.departamento
+                        ? "Selecciona un municipio"
+                        : "Primero selecciona un departamento"}
+                    </option>
+                    {municipios.map((mun) => (
+                      <option key={mun} value={mun}>
+                        {mun}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
