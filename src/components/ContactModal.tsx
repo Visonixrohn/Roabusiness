@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   X,
   Phone,
@@ -9,6 +9,9 @@ import {
   Satellite,
   Navigation,
   Save,
+  Facebook,
+  Instagram,
+  Twitter,
 } from "lucide-react";
 import { Business } from "@/types/business";
 import { Button } from "@/components/ui/button";
@@ -19,71 +22,29 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Facebook, Instagram, Twitter } from "lucide-react";
-import TikTokIcon from "@/components/icons/TikTokIcon";
-import { GoogleMap, Marker } from "@react-google-maps/api";
+import TikTokIcon from "@/components/icons/TikTokIcon"; // Asegúrate de que este componente exista y sea genérico
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
 import { supabase } from "@/lib/supabaseClient";
 
-interface ContactModalProps {
-  business: Business;
-  isOpen: boolean;
-  onClose: () => void;
-  contacts?: { phone: string; email: string; website: string } | null;
+// --- Custom Hooks y Utilidades ---
+
+// Define la interfaz ContactData para una mejor tipificación
+interface ContactData {
+  phone?: string;
+  email?: string;
+  website?: string;
 }
 
-const ContactModal = ({
-  business,
-  isOpen,
-  onClose,
-  contacts,
-}: ContactModalProps) => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  });
-  const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
+// Hook para geocoding
+const useMapPosition = (business: Business, isOpen: boolean) => {
   const [resolvedMapPosition, setResolvedMapPosition] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success("¡Mensaje enviado exitosamente!");
-    setFormData({ name: "", email: "", phone: "", message: "" });
-    onClose();
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const formatUrl = (url: string) => {
-    if (!url) return "";
-    const normalizedUrl = url.replace(/^https?:\/\//, ""); // Elimina cualquier esquema existente
-    return `https://${normalizedUrl}`;
-  };
-
-  const parseCoordinate = (value: unknown) => {
-    if (typeof value === "number") {
-      return Number.isFinite(value) ? value : null;
-    }
-    if (typeof value === "string") {
-      const parsed = Number(value);
-      return Number.isFinite(parsed) ? parsed : null;
-    }
-    return null;
-  };
 
   const islandCenter = useMemo(() => {
     const centers: Record<string, { lat: number; lng: number }> = {
@@ -102,12 +63,518 @@ const ContactModal = ({
     business.location,
   ]);
 
-  const initialLat = parseCoordinate(
-    business.latitude ?? business.coordinates?.lat,
+  const parseCoordinate = (value: unknown) => {
+    if (typeof value === "number") {
+      return Number.isFinite(value) ? value : null;
+    }
+    if (typeof value === "string") {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const initialLat = parseCoordinate(
+      business.latitude ?? business.coordinates?.lat,
+    );
+    const initialLng = parseCoordinate(
+      business.longitude ?? business.coordinates?.lng,
+    );
+
+    if (initialLat != null && initialLng != null) {
+      setResolvedMapPosition({ lat: initialLat, lng: initialLng });
+      return;
+    }
+
+    const hasGoogleGeocoder =
+      typeof window !== "undefined" && !!window.google?.maps?.Geocoder;
+
+    if (!hasGoogleGeocoder || !business.location) {
+      setResolvedMapPosition(islandCenter);
+      return;
+    }
+
+    const geocoder = new window.google.maps.Geocoder();
+    const address = `${business.municipio || business.location}, ${business.departamento || business.island}, Honduras`;
+
+    geocoder.geocode({ address }, (results, status) => {
+      if (status === "OK" && results?.[0]?.geometry?.location) {
+        const location = results[0].geometry.location;
+        setResolvedMapPosition({ lat: location.lat(), lng: location.lng() });
+        return;
+      }
+      setResolvedMapPosition(islandCenter);
+    });
+  }, [
+    isOpen,
+    business.latitude,
+    business.coordinates,
+    business.departamento,
+    business.island,
+    business.municipio,
+    business.location,
+    islandCenter,
+  ]);
+
+  return resolvedMapPosition;
+};
+
+// Utilidad para guardar contacto (VCF)
+const sanitizeForVcard = (s?: string) =>
+  (s || "").replace(/\r?\n/g, " ").replace(/;/g, ",").trim();
+
+const formatUrl = (url: string) => {
+  if (!url) return "";
+  const normalizedUrl = url.replace(/^https?:\/\//, "");
+  return `https://${normalizedUrl}`;
+};
+
+const handleSaveContact = (business: Business, contacts?: ContactData) => {
+  try {
+    const lines: string[] = [];
+    lines.push("BEGIN:VCARD", "VERSION:3.0");
+    lines.push(`FN:${sanitizeForVcard(business.name)}`);
+    lines.push(`ORG:${sanitizeForVcard(business.name)}`);
+
+    const addrParts = [
+      business.location || business.municipio || "",
+      business.departamento || business.island || "",
+      "Honduras",
+    ];
+    const adr = addrParts.filter(Boolean).join("; ");
+    lines.push(`ADR:;;${sanitizeForVcard(adr)}`);
+
+    if (contacts?.phone) {
+      contacts.phone.split(/[,;]+/).forEach((tel) => {
+        const t = tel.trim();
+        if (t) lines.push(`TEL;TYPE=WORK,VOICE:${t}`);
+      });
+    }
+
+    if (contacts?.email) {
+      lines.push(`EMAIL;TYPE=INTERNET:${sanitizeForVcard(contacts.email)}`);
+    }
+
+    if (contacts?.website) {
+      lines.push(`URL:${formatUrl(contacts.website)}`);
+    }
+
+    const socials: string[] = [];
+    if (business.facebook) socials.push(`Facebook: ${business.facebook}`);
+    if (business.instagram) socials.push(`Instagram: ${business.instagram}`);
+    if (business.twitter) socials.push(`Twitter: ${business.twitter}`);
+    if (business.tiktok) socials.push(`TikTok: ${business.tiktok}`);
+    if (business.tripadvisor)
+      socials.push(`TripAdvisor: ${business.tripadvisor}`);
+    if (socials.length)
+      lines.push(`NOTE:${sanitizeForVcard(socials.join(" | "))}`);
+
+    lines.push("END:VCARD");
+
+    const vcard = lines.join("\r\n");
+    const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(business.name || "contact").replace(/\s+/g, "_")}.vcf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    toast.success("Contacto guardado (archivo.vcf descargado)");
+  } catch (err) {
+    console.error(err);
+    toast.error("No se pudo guardar el contacto");
+  }
+};
+
+// --- Componentes hijos ---
+
+interface MapDisplayProps {
+  business: Business;
+  mapPosition: { lat: number; lng: number } | null;
+  mapType: "roadmap" | "satellite";
+  setMapType: React.Dispatch<React.SetStateAction<"roadmap" | "satellite">>;
+}
+
+const MapDisplay = ({
+  business,
+  mapPosition,
+  mapType,
+  setMapType,
+}: MapDisplayProps) => {
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: GOOGLE_MAPS_CONFIG.apiKey,
+    language: "es",
+    region: "HN",
+  });
+
+  const googleMapsUrl = mapPosition
+    ? `https://www.google.com/maps/search/?api=1&query=${mapPosition.lat},${mapPosition.lng}`
+    : "";
+
+  if (loadError)
+    return (
+      <div className="text-red-500 text-center py-4">
+        Error al cargar el mapa.
+      </div>
+    );
+  if (!isLoaded)
+    return (
+      <div className="text-gray-500 text-center py-4">Cargando mapa...</div>
+    );
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <h4 className="font-semibold text-gray-900 flex items-center gap-2 text-base">
+          <MapPin className="h-5 w-5 text-red-500" />
+          Ubicación
+        </h4>
+      </div>
+      {mapPosition ? (
+        <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+          <GoogleMap
+            mapContainerStyle={{ width: "100%", height: "180px" }}
+            center={mapPosition}
+            zoom={18}
+            options={{
+              mapTypeId: mapType,
+              mapTypeControl: false,
+              streetViewControl: false,
+              fullscreenControl: false,
+              zoomControl: true,
+              disableDefaultUI: false,
+            }}
+          >
+            <Marker
+              position={mapPosition}
+              title={business.name}
+              icon={{
+                url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+                  <svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <g filter="drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
+                      <path d="M24 2C16.268 2 10 8.268 10 16c0 9.5 14 28 14 28s14-18.5 14-28c0-7.732-6.268-14-14-14z" fill="#EF4444"/>
+                      <circle cx="24" cy="16" r="6" fill="white"/>
+                    </g>
+                  </svg>
+                `)}`,
+                scaledSize: new window.google.maps.Size(48, 48),
+                anchor: new window.google.maps.Point(24, 48),
+              }}
+            />
+          </GoogleMap>
+          <div className="p-2 bg-white border-t">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="w-full text-sm"
+              onClick={() => window.open(googleMapsUrl, "_blank")}
+              aria-label="Ver en Google Maps"
+            >
+              <Navigation className="h-4 w-4 mr-2" />
+              Ver en Google Maps
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setMapType((prev) =>
+                  prev === "roadmap" ? "satellite" : "roadmap",
+                )
+              }
+              className="h-8 text-xs px-2"
+              aria-label={
+                mapType === "roadmap"
+                  ? "Ver vista satelital"
+                  : "Ver vista de mapa"
+              }
+            >
+              <Satellite className="h-4 w-4 mr-1" />
+              {mapType === "roadmap" ? "Satélite" : "Mapa"}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <p className="text-xs text-gray-500 italic">
+          No se pudieron cargar las coordenadas del mapa para este negocio.
+        </p>
+      )}
+    </div>
   );
-  const initialLng = parseCoordinate(
-    business.longitude ?? business.coordinates?.lng,
+};
+
+interface ContactInfoSectionProps {
+  business: Business;
+  contacts?: ContactData;
+}
+
+const ContactInfoSection = ({
+  business,
+  contacts,
+}: ContactInfoSectionProps) => (
+  <div className="border-t pt-4">
+    <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2 text-base">
+      <Mail className="h-5 w-5 text-gray-500" />
+      Datos de Contacto
+    </h4>
+    <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-gray-700 shadow-inner">
+      <div className="flex items-center gap-2">
+        <MapPin className="h-4 w-4 text-gray-500" />
+        <span className="text-sm">
+          {business.municipio || business.location},{" "}
+          {business.departamento || business.island}
+        </span>
+      </div>
+      <div className="flex items-start gap-2">
+        <Phone className="h-4 w-4 text-gray-500 mt-0.5" />
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
+          {contacts?.phone ? (
+            contacts.phone.split(/[,;]+/).map((tel, idx) => {
+              const trimmedTel = tel.trim();
+              return trimmedTel ? (
+                <a
+                  key={idx}
+                  href={`tel:${trimmedTel}`}
+                  className="text-blue-600 hover:underline"
+                >
+                  {trimmedTel}
+                </a>
+              ) : (
+                ""
+              );
+            })
+          ) : (
+            <span className="text-gray-500 italic">No disponible</span>
+          )}
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Mail className="h-4 w-4 text-gray-500" />
+        {contacts?.email ? (
+          <a
+            href={`mailto:${contacts.email}`}
+            className="text-blue-600 hover:underline text-sm"
+          >
+            {contacts.email}
+          </a>
+        ) : (
+          <span className="text-gray-500 italic text-sm">No disponible</span>
+        )}
+      </div>
+      {contacts?.website && (
+        <div className="flex items-center gap-2">
+          <Globe className="h-4 w-4 text-gray-500" />
+          <a
+            href={formatUrl(contacts.website)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline text-sm"
+          >
+            {contacts.website}
+          </a>
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+interface QuickActionsProps {
+  business: Business;
+  contacts?: ContactData;
+}
+
+const QuickActions = ({ business, contacts }: QuickActionsProps) => (
+  <div className="border-t pt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => {
+        const firstPhone = contacts?.phone?.split(/[,;]+/)[0]?.trim();
+        if (firstPhone) window.open(`tel:${firstPhone}`);
+      }}
+      className="flex items-center justify-center gap-2 text-sm"
+      disabled={!contacts?.phone}
+      aria-label="Llamar al negocio"
+    >
+      <Phone className="h-4 w-4" /> Llamar
+    </Button>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => {
+        if (contacts?.email) window.open(`mailto:${contacts.email}`);
+      }}
+      className="flex items-center justify-center gap-2 text-sm"
+      disabled={!contacts?.email}
+      aria-label="Enviar email al negocio"
+    >
+      <Mail className="h-4 w-4" /> Email
+    </Button>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() => handleSaveContact(business, contacts)} // <-- Se mantiene la función que descarga VCF
+      className="flex items-center justify-center gap-2 text-sm"
+      aria-label="Guardar contacto (VCF)" // <-- Etiqueta cambiada para ser explícita
+    >
+      <Save className="h-4 w-4" /> Guardar {/* <-- Texto del botón cambiado */}
+    </Button>
+    {contacts?.website && (
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => window.open(formatUrl(contacts.website), "_blank")}
+        className="flex items-center justify-center gap-2 text-sm"
+        aria-label="Visitar sitio web"
+      >
+        <Globe className="h-4 w-4" /> Web
+      </Button>
+    )}
+    {contacts?.phone && (
+      <Button
+        size="sm"
+        onClick={() => {
+          const firstPhone = contacts.phone.split(/[,;]+/)[0]?.trim();
+          if (firstPhone) {
+            const phone = firstPhone.replace(/\D/g, "");
+            window.open(`https://wa.me/${phone}`);
+          }
+        }}
+        className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white text-sm col-span-2 sm:col-span-1"
+        aria-label="Contactar por WhatsApp"
+      >
+        <svg
+          viewBox="0 0 32 32"
+          width="18"
+          height="18"
+          fill="currentColor"
+          className="mr-1"
+        >
+          <path d="M16 3C9.373 3 4 8.373 4 15c0 2.637.86 5.08 2.34 7.09L4 29l7.18-2.31A12.93 12.93 0 0 0 16 27c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 22c-1.98 0-3.89-.52-5.54-1.5l-.39-.23-4.27 1.37 1.4-4.15-.25-.4A9.93 9.93 0 0 1 6 15c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10zm5.07-7.75c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.44-2.25-1.4-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.34.42-.51.14-.17.18-.29.28-.48.09-.19.05-.36-.02-.5-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.62-.47-.16-.01-.36-.01-.56-.01-.19 0-.5.07-.76.36-.26.28-1 1-.97 2.43.03 1.43 1.03 2.81 1.18 3.01.15.2 2.03 3.1 4.93 4.22.69.3 1.23.48 1.65.61.69.22 1.32.19 1.82.12.56-.08 1.65-.67 1.88-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.33z"></path>
+        </svg>
+        WhatsApp
+      </Button>
+    )}
+  </div>
+);
+
+interface SocialMediaLinksProps {
+  business: Business;
+}
+
+const SocialMediaLinks = ({ business }: SocialMediaLinksProps) => {
+  const hasSocials =
+    business.facebook ||
+    business.instagram ||
+    business.twitter ||
+    business.tiktok ||
+    business.tripadvisor;
+
+  if (!hasSocials) return null;
+
+  return (
+    <div className="border-t pt-4">
+      <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2 text-base">
+        <Globe className="h-5 w-5 text-gray-500" />
+        Redes Sociales
+      </h4>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {business.facebook && (
+          <a
+            href={business.facebook}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook"
+            className="flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-gray-300 hover:border-blue-600 hover:text-blue-600 transition-colors duration-200"
+          >
+            <Facebook className="h-5 w-5 text-blue-600" />
+            <span className="text-sm hidden sm:inline">Facebook</span>
+          </a>
+        )}
+        {business.instagram && (
+          <a
+            href={business.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+            className="flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-gray-300 hover:border-pink-500 hover:text-pink-500 transition-colors duration-200"
+          >
+            <Instagram className="h-5 w-5 text-pink-500" />
+            <span className="text-sm hidden sm:inline">Instagram</span>
+          </a>
+        )}
+        {business.twitter && (
+          <a
+            href={business.twitter}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="X (Twitter)"
+            className="flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-gray-300 hover:border-blue-400 hover:text-blue-400 transition-colors duration-200"
+          >
+            <Twitter className="h-5 w-5 text-blue-400" />
+            <span className="text-sm hidden sm:inline">X (Twitter)</span>
+          </a>
+        )}
+        {business.tiktok && (
+          <a
+            href={business.tiktok}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="TikTok"
+            className="flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-gray-300 hover:border-black hover:text-black transition-colors duration-200"
+          >
+            <TikTokIcon className="h-5 w-5 text-black" />
+            <span className="text-sm hidden sm:inline">TikTok</span>
+          </a>
+        )}
+        {business.tripadvisor && (
+          <a
+            href={business.tripadvisor}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="TripAdvisor"
+            className="flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-gray-300 hover:border-[#34E0A1] hover:text-[#34E0A1] transition-colors duration-200"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm-5 9c0-1.1.9-2 2-2s2.9 2 2-.9 2-2 2-2-.9-2-2zm10 0c0 1.1-.9 2-2 2s-2-.9-2-2.9-2 2-2 2.9 2 2z" />
+            </svg>
+            <span className="text-sm hidden sm:inline">TripAdvisor</span>
+          </a>
+        )}
+      </div>
+    </div>
   );
+};
+
+// --- Componente ContactModal principal ---
+
+interface ContactModalProps {
+  business: Business;
+  isOpen: boolean;
+  onClose: () => void;
+  contacts?: ContactData | null;
+}
+
+const ContactModal = ({
+  business,
+  isOpen,
+  onClose,
+  contacts,
+}: ContactModalProps) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+  const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
+
+  const mapPosition = useMapPosition(business, isOpen);
 
   // Incrementar contador de contactos cuando se abre el modal
   useEffect(() => {
@@ -130,393 +597,96 @@ const ContactModal = ({
     incrementarContador();
   }, [isOpen, business.id]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-
-    if (initialLat != null && initialLng != null) {
-      setResolvedMapPosition({ lat: initialLat, lng: initialLng });
-      return;
-    }
-
-    const hasGoogleGeocoder =
-      typeof window !== "undefined" &&
-      !!window.google?.maps?.Geocoder &&
-      !!business.location;
-
-    if (!hasGoogleGeocoder) {
-      setResolvedMapPosition(islandCenter);
-      return;
-    }
-
-    const geocoder = new window.google.maps.Geocoder();
-    const address = `${business.municipio || business.location}, ${business.departamento || business.island}, Honduras`;
-
-    geocoder.geocode({ address }, (results, status) => {
-      if (status === "OK" && results?.[0]?.geometry?.location) {
-        const location = results[0].geometry.location;
-        setResolvedMapPosition({ lat: location.lat(), lng: location.lng() });
-        return;
-      }
-
-      setResolvedMapPosition(islandCenter);
-    });
-  }, [
-    isOpen,
-    business.departamento,
-    business.island,
-    business.municipio,
-    business.location,
-    initialLat,
-    initialLng,
-    islandCenter,
-  ]);
-
-  const mapPosition = resolvedMapPosition;
-
-  const googleMapsUrl = mapPosition
-    ? `https://www.google.com/maps/search/?api=1&query=${mapPosition.lat},${mapPosition.lng}`
-    : "";
-
-  const handleOpenChange = (open: boolean) => {
-    if (!open) {
-      onClose();
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success("¡Mensaje enviado exitosamente!");
+    setFormData({ name: "", email: "", phone: "", message: "" });
+    // Aquí iría la lógica para enviar el formulario, por ejemplo, a un backend.
+    onClose();
   };
 
-  const sanitize = (s?: string) => (s || "").replace(/\r?\n/g, " ").replace(/;/g, ",").trim();
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    },
+    [],
+  );
 
-  const handleSaveContact = () => {
-    try {
-      const lines: string[] = [];
-      lines.push("BEGIN:VCARD", "VERSION:3.0");
-      lines.push(`FN:${sanitize(business.name)}`);
-      lines.push(`ORG:${sanitize(business.name)}`);
-
-      const addrParts = [business.location || business.municipio || "", business.departamento || business.island || "", "Honduras"];
-      const adr = addrParts.filter(Boolean).join("; ");
-      lines.push(`ADR:;;${sanitize(adr)}`);
-
-      if (contacts?.phone) {
-        contacts.phone.split(/[,;]+/).forEach((tel) => {
-          const t = tel.trim();
-          if (t) lines.push(`TEL;TYPE=WORK,VOICE:${t}`);
-        });
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        onClose();
       }
-
-      if (contacts?.email) {
-        lines.push(`EMAIL;TYPE=INTERNET:${sanitize(contacts.email)}`);
-      }
-
-      if (contacts?.website) {
-        lines.push(`URL:${formatUrl(contacts.website)}`);
-      }
-
-      const socials: string[] = [];
-      if (business.facebook) socials.push(`Facebook: ${business.facebook}`);
-      if (business.instagram) socials.push(`Instagram: ${business.instagram}`);
-      if (business.twitter) socials.push(`Twitter: ${business.twitter}`);
-      if (business.tiktok) socials.push(`TikTok: ${business.tiktok}`);
-      if (business.tripadvisor) socials.push(`TripAdvisor: ${business.tripadvisor}`);
-      if (socials.length) lines.push(`NOTE:${sanitize(socials.join(' | '))}`);
-
-      lines.push("END:VCARD");
-
-      const vcard = lines.join("\r\n");
-      const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${(business.name || "contact").replace(/\s+/g, "_")}.vcf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-
-      toast.success("Contacto guardado (archivo .vcf descargado)");
-    } catch (err) {
-      console.error(err);
-      toast.error("No se pudo guardar el contacto");
-    }
-  };
+    },
+    [onClose],
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto px-4 py-4 rounded-2xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2 text-lg font-semibold text-gray-900">
+      <DialogContent className="sm:max-w-xl max-h-[95vh] overflow-y-auto p-6 rounded-xl flex flex-col gap-6 shadow-lg">
+        {business.coverImage && (
+          // Banner visible en pantallas md+
+          <div className="-mx-6 -mt-6 mb-2 overflow-hidden rounded-t-xl hidden md:block">
+            <img
+              src={business.coverImage}
+              alt={`${business.name} portada`}
+              className="w-full h-36 object-cover"
+            />
+          </div>
+        )}
+
+        <DialogHeader className="relative flex flex-row items-center gap-3 border-b pb-4">
+          {/* Background móvil: imagen absoluta detrás del título/descr (solo visible < md) */}
+          {business.coverImage && (
+            <div className="absolute inset-0 md:hidden pointer-events-none">
+              <img
+                src={business.coverImage}
+                alt={`${business.name} portada`}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/45" />
+            </div>
+          )}
+
+          <div className="relative z-10 flex items-center gap-3">
             <img
               src={business.logo}
               alt={business.name}
-              className="w-8 h-8 rounded-full object-cover border"
+              className="w-12 h-12 rounded-full object-cover border-2 border-gray-100 shadow-sm"
             />
-            <span className="text-base">Contactar a {business.name}</span>
-          </DialogTitle>
+            <div>
+              <DialogTitle className="text-2xl font-bold text-white md:text-gray-900 leading-tight">
+                Contactar a {business.name}
+              </DialogTitle>
+              <DialogDescription className="text-sm text-white/90 md:text-gray-600 mt-1">
+                {business.description ||
+                  "Encuentra toda la información de contacto y ubicación."}
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
-        <div className="space-y-4 text-sm">
-          {/* Mapa de ubicación */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="font-medium text-gray-900 flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-red-500" />
-                Ubicación
-              </h4>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setMapType((prev) =>
-                    prev === "roadmap" ? "satellite" : "roadmap",
-                  )
-                }
-                className="h-8"
-              >
-                <Satellite className="h-4 w-4 mr-1" />
-                {mapType === "roadmap" ? "Ver satélite" : "Ver mapa"}
-              </Button>
-            </div>
-            {mapPosition ? (
-              <div className="overflow-hidden rounded-xl border border-gray-200">
-                <GoogleMap
-                  mapContainerStyle={{ width: "100%", height: "150px" }}
-                  center={mapPosition}
-                  zoom={18}
-                  options={{
-                    mapTypeId: mapType,
-                    mapTypeControl: false,
-                    streetViewControl: false,
-                    fullscreenControl: false,
-                    zoomControl: true,
-                    disableDefaultUI: false,
-                  }}
-                >
-                  <Marker
-                    position={mapPosition}
-                    title={business.name}
-                    icon={{
-                      url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
-                        <svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                          <g filter="drop-shadow(0 2px 4px rgba(0,0,0,0.3))">
-                            <path d="M24 2C16.268 2 10 8.268 10 16c0 9.5 14 28 14 28s14-18.5 14-28c0-7.732-6.268-14-14-14z" fill="#EF4444"/>
-                            <circle cx="24" cy="16" r="6" fill="white"/>
-                          </g>
-                        </svg>
-                      `)}`,
-                      scaledSize: new window.google.maps.Size(48, 48),
-                      anchor: new window.google.maps.Point(24, 48),
-                    }}
-                  />
-                </GoogleMap>
-                <div className="p-2 bg-white border-t">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => window.open(googleMapsUrl, "_blank")}
-                  >
-                    <Navigation className="h-4 w-4 mr-2" />
-                    Ver en Google Maps
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <p className="text-xs text-gray-500">
-                Este negocio aún no tiene coordenadas de mapa registradas.
-              </p>
-            )}
-          </div>
+        <div className="flex flex-col gap-6 text-sm">
+          {/* Sección de Información de Contacto */}
+          <ContactInfoSection business={business} contacts={contacts} />
 
-          {/* Info del negocio */}
-          <div className="border-t pt-4">
-            <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-gray-700 shadow-inner">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-gray-500" />
-                <span>
-                  {business.municipio || business.location},{" "}
-                  {business.departamento || business.island}
-                </span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Phone className="h-4 w-4 text-gray-500 mt-0.5" />
-                <div className="flex flex-wrap gap-x-3 gap-y-1">
-                  {contacts?.phone ? (
-                    contacts.phone.split(/[,;]+/).map((tel, idx) => {
-                      const trimmedTel = tel.trim();
-                      return trimmedTel ? (
-                        <a
-                          key={idx}
-                          href={`tel:${trimmedTel}`}
-                          className="text-blue-600 hover:underline"
-                        >
-                          {trimmedTel}
-                        </a>
-                      ) : null;
-                    })
-                  ) : (
-                    <span>No disponible</span>
-                  )}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-gray-500" />
-                <a
-                  href={`mailto:${contacts?.email || ""}`}
-                  className="text-blue-600 hover:underline"
-                >
-                  {contacts?.email || "No disponible"}
-                </a>
-              </div>
-              {contacts?.website && (
-                <div className="flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-gray-500" />
-                  <a
-                    href={formatUrl(contacts.website)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
-                  >
-                    {contacts.website}
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
+          {/* Sección de Redes Sociales - Ahora más destacada y con estilo */}
+          <SocialMediaLinks business={business} />
 
-          {/* Botones rápidos */}
-          <div className="border-t pt-4 flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const firstPhone =
-                  contacts?.phone?.split(/[,;]+/)[0]?.trim() || "";
-                window.open(`tel:${firstPhone}`);
-              }}
-              className="flex-1 flex items-center justify-center gap-2"
-            >
-              <Phone className="h-4 w-4" /> Llamar
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => window.open(`mailto:${contacts?.email || ""}`)}
-              className="flex-1 flex items-center justify-center gap-2"
-            >
-              <Mail className="h-4 w-4" /> Email
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSaveContact}
-              className="flex-1 flex items-center justify-center gap-2"
-            >
-              <Save className="h-4 w-4" /> Guardar contacto
-            </Button>
-            {contacts?.website && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  window.open(formatUrl(contacts.website), "_blank")
-                }
-                className="flex-1 flex items-center justify-center gap-2"
-              >
-                <Globe className="h-4 w-4" /> Web
-              </Button>
-            )}
-            {contacts?.phone && (
-              <Button
-                size="sm"
-                onClick={() => {
-                  const firstPhone =
-                    contacts.phone.split(/[,;]+/)[0]?.trim() || "";
-                  const phone = firstPhone.replace(/\D/g, "");
-                  window.open(`https://wa.me/${phone}`);
-                }}
-                className="flex-1 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white"
-                aria-label="Contactar por WhatsApp"
-              >
-                <svg
-                  viewBox="0 0 32 32"
-                  width="20"
-                  height="20"
-                  fill="currentColor"
-                  className="mr-1"
-                >
-                  <path d="M16 3C9.373 3 4 8.373 4 15c0 2.637.86 5.08 2.34 7.09L4 29l7.18-2.31A12.93 12.93 0 0 0 16 27c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 22c-1.98 0-3.89-.52-5.54-1.5l-.39-.23-4.27 1.37 1.4-4.15-.25-.4A9.93 9.93 0 0 1 6 15c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10zm5.07-7.75c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.44-2.25-1.4-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.34.42-.51.14-.17.18-.29.28-.48.09-.19.05-.36-.02-.5-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.62-.47-.16-.01-.36-.01-.56-.01-.19 0-.5.07-.76.36-.26.28-1 1-.97 2.43.03 1.43 1.03 2.81 1.18 3.01.15.2 2.03 3.1 4.93 4.22.69.3 1.23.48 1.65.61.69.22 1.32.19 1.82.12.56-.08 1.65-.67 1.88-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.33z"></path>
-                </svg>
-                WhatsApp
-              </Button>
-            )}
-          </div>
-
-          {/* Redes sociales desde las columnas principales del negocio */}
-          {(business.facebook ||
-            business.instagram ||
-            business.twitter ||
-            business.tiktok ||
-            business.tripadvisor) && (
-            <div className="flex gap-3 mt-2 justify-center">
-              {business.facebook && (
-                <a
-                  href={business.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Facebook"
-                  className="hover:scale-110 transition-transform"
-                >
-                  <Facebook className="h-5 w-5 text-blue-600" />
-                </a>
-              )}
-              {business.instagram && (
-                <a
-                  href={business.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                  className="hover:scale-110 transition-transform"
-                >
-                  <Instagram className="h-5 w-5 text-pink-500" />
-                </a>
-              )}
-              {business.twitter && (
-                <a
-                  href={business.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="X"
-                  className="hover:scale-110 transition-transform"
-                >
-                  <Twitter className="h-5 w-5 text-blue-400" />
-                </a>
-              )}
-              {business.tiktok && (
-                <a
-                  href={business.tiktok}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="TikTok"
-                  className="hover:scale-110 transition-transform"
-                >
-                  <TikTokIcon className="h-5 w-5 text-black" />
-                </a>
-              )}
-              {business.tripadvisor && (
-                <a
-                  href={business.tripadvisor}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="TripAdvisor"
-                  className="hover:scale-110 transition-transform"
-                >
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#34E0A1">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm-5 9c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm10 0c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z" />
-                  </svg>
-                </a>
-              )}
-            </div>
-          )}
+          {/* Sección de Acciones Rápidas */}
+          <QuickActions business={business} contacts={contacts} />
         </div>
+        {/* Sección de Mapa */}
+        <MapDisplay
+          business={business}
+          mapPosition={mapPosition}
+          mapType={mapType}
+          setMapType={setMapType}
+        />
       </DialogContent>
     </Dialog>
   );
