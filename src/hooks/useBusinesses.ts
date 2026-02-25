@@ -135,14 +135,12 @@ export const useBusinesses = () => {
   // Colonias filtradas por departamento y municipio seleccionados
   const coloniasFiltradas = useMemo(() => {
     if (!businessData) return [];
-    
+
     // Si no hay departamento ni municipio, mostrar todas las colonias
     if (!filters.departamento && !filters.municipio) {
       return Array.from(
         new Set(
-          businessData.businesses
-            .map((b) => b.colonia?.trim())
-            .filter(Boolean)
+          businessData.businesses.map((b) => b.colonia?.trim()).filter(Boolean),
         ),
       ).sort() as string[];
     }
@@ -152,14 +150,16 @@ export const useBusinesses = () => {
       new Set(
         businessData.businesses
           .filter((b) => {
-            const matchesDept = !filters.departamento || 
+            const matchesDept =
+              !filters.departamento ||
               (b.departamento || b.island) === filters.departamento;
-            const matchesMuni = !filters.municipio || 
+            const matchesMuni =
+              !filters.municipio ||
               (b.municipio || b.location) === filters.municipio;
             return matchesDept && matchesMuni;
           })
           .map((b) => b.colonia?.trim())
-          .filter(Boolean)
+          .filter(Boolean),
       ),
     ).sort() as string[];
   }, [businessData, filters.departamento, filters.municipio]);

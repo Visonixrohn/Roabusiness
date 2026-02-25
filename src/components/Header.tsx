@@ -61,12 +61,37 @@ const Header = () => {
 
   const isActive = (href: string) => location.pathname === href;
 
-  // Filtrar negocios por nombre
+  // Filtrar negocios por nombre, descripción, categoría y amenidades
+  const normalize = (text = "") =>
+    text
+      .toString()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .trim();
+
+  const q = normalize(searchQuery);
   const filteredBusinesses =
-    searchQuery.length > 0
-      ? businesses.filter((b) =>
-          b.name.toLowerCase().includes(searchQuery.toLowerCase()),
-        )
+    q.length > 0
+      ? businesses.filter((b) => {
+          const name = normalize(b.name || "");
+          const desc = normalize(b.description || "");
+          const category = normalize(b.category || "");
+          const amenities = normalize((b.amenities || []).join(" "));
+          const contactText = normalize(
+            [b.contact?.phone, b.contact?.email, b.contact?.website]
+              .filter(Boolean)
+              .join(" "),
+          );
+
+          return (
+            name.includes(q) ||
+            desc.includes(q) ||
+            category.includes(q) ||
+            amenities.includes(q) ||
+            contactText.includes(q)
+          );
+        })
       : [];
 
   return (

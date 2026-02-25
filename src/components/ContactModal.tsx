@@ -8,6 +8,7 @@ import {
   Send,
   Satellite,
   Navigation,
+  Save,
 } from "lucide-react";
 import { Business } from "@/types/business";
 import { Button } from "@/components/ui/button";
@@ -182,6 +183,62 @@ const ContactModal = ({
     }
   };
 
+  const sanitize = (s?: string) => (s || "").replace(/\r?\n/g, " ").replace(/;/g, ",").trim();
+
+  const handleSaveContact = () => {
+    try {
+      const lines: string[] = [];
+      lines.push("BEGIN:VCARD", "VERSION:3.0");
+      lines.push(`FN:${sanitize(business.name)}`);
+      lines.push(`ORG:${sanitize(business.name)}`);
+
+      const addrParts = [business.location || business.municipio || "", business.departamento || business.island || "", "Honduras"];
+      const adr = addrParts.filter(Boolean).join("; ");
+      lines.push(`ADR:;;${sanitize(adr)}`);
+
+      if (contacts?.phone) {
+        contacts.phone.split(/[,;]+/).forEach((tel) => {
+          const t = tel.trim();
+          if (t) lines.push(`TEL;TYPE=WORK,VOICE:${t}`);
+        });
+      }
+
+      if (contacts?.email) {
+        lines.push(`EMAIL;TYPE=INTERNET:${sanitize(contacts.email)}`);
+      }
+
+      if (contacts?.website) {
+        lines.push(`URL:${formatUrl(contacts.website)}`);
+      }
+
+      const socials: string[] = [];
+      if (business.facebook) socials.push(`Facebook: ${business.facebook}`);
+      if (business.instagram) socials.push(`Instagram: ${business.instagram}`);
+      if (business.twitter) socials.push(`Twitter: ${business.twitter}`);
+      if (business.tiktok) socials.push(`TikTok: ${business.tiktok}`);
+      if (business.tripadvisor) socials.push(`TripAdvisor: ${business.tripadvisor}`);
+      if (socials.length) lines.push(`NOTE:${sanitize(socials.join(' | '))}`);
+
+      lines.push("END:VCARD");
+
+      const vcard = lines.join("\r\n");
+      const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${(business.name || "contact").replace(/\s+/g, "_")}.vcf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      toast.success("Contacto guardado (archivo .vcf descargado)");
+    } catch (err) {
+      console.error(err);
+      toast.error("No se pudo guardar el contacto");
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto px-4 py-4 rounded-2xl">
@@ -346,6 +403,14 @@ const ContactModal = ({
               className="flex-1 flex items-center justify-center gap-2"
             >
               <Mail className="h-4 w-4" /> Email
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSaveContact}
+              className="flex-1 flex items-center justify-center gap-2"
+            >
+              <Save className="h-4 w-4" /> Guardar contacto
             </Button>
             {contacts?.website && (
               <Button

@@ -85,10 +85,10 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
             loading="lazy"
           />
-          
+
           {/* Overlay gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/20 group-hover:from-black/40 transition-all duration-300" />
-          
+
           {/* Badge de departamento/isla - arriba izquierda */}
           <div className="absolute top-3 left-3">
             <Badge
@@ -150,7 +150,8 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
               </Badge>
               {business.priceRange && (
                 <span className="text-xs text-gray-500 font-medium">
-                  {business.priceRange} · {getPriceRangeText(business.priceRange)}
+                  {business.priceRange} ·{" "}
+                  {getPriceRangeText(business.priceRange)}
                 </span>
               )}
             </div>
@@ -160,10 +161,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
           <div className="flex items-start gap-2 mb-3 text-sm text-gray-600">
             <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
             <span className="line-clamp-1">
-              {[
-                business.municipio || business.location,
-                business.colonia,
-              ]
+              {[business.municipio || business.location, business.colonia]
                 .filter(Boolean)
                 .join(", ")}
             </span>
@@ -171,7 +169,8 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
 
           {/* Descripción */}
           <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
-            {business.description || "Descubre este increíble negocio en Honduras"}
+            {business.description ||
+              "Descubre este increíble negocio en Honduras"}
           </p>
 
           {/* Amenidades */}
@@ -226,9 +225,10 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
               <Button
                 onClick={(e) => {
                   e.stopPropagation();
-                  const website = contacts?.website || fallbackContacts?.website;
-                  const url = website?.startsWith('http') 
-                    ? website 
+                  const website =
+                    contacts?.website || fallbackContacts?.website;
+                  const url = website?.startsWith("http")
+                    ? website
                     : `https://${website}`;
                   window.open(url, "_blank");
                 }}
