@@ -25,6 +25,7 @@ const RegisterBusinessModal = ({ isOpen, onClose }: Props) => {
     colonia: "",
     hasWebsite: "no",
     website: "",
+    months: "6",
   });
 
   const [municipios, setMunicipios] = useState<string[]>([]);
@@ -56,6 +57,7 @@ const RegisterBusinessModal = ({ isOpen, onClose }: Props) => {
       `📌 *Nombre:* ${form.name}\n` +
       `📝 *Descripción:* ${form.description}\n` +
       `📍 *Ubicación:* ${lugarText || "No especificado"}\n` +
+      `⏳ *Duración (meses):* ${form.months || '6'}\n` +
       `🌐 *Tiene página web:* ${hasWebsiteText}` +
       (form.hasWebsite === "yes" && form.website
        ? `\n🔗 *Web:* ${form.website}`
@@ -72,6 +74,7 @@ const RegisterBusinessModal = ({ isOpen, onClose }: Props) => {
       colonia: "",
       hasWebsite: "no",
       website: "",
+      months: "6",
     });
     setMunicipios([]);
     onClose();
@@ -145,6 +148,34 @@ const RegisterBusinessModal = ({ isOpen, onClose }: Props) => {
                 rows={3}
                 className="rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 resize-y transition-all text-base"
               />
+            </div>
+          </fieldset>
+
+          {/* Duración en meses */}
+          <fieldset className="space-y-4 p-3 sm:p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+            <legend className="text-lg font-bold text-gray-800 flex items-center gap-2 px-2 -ml-2">
+              <svg className="h-5 w-5 text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M3 8h18M3 12h18M3 16h18" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Tiempo de duración (meses)
+            </legend>
+            <div className="flex flex-wrap gap-3">
+              {['6','12','18','24','30','36'].map((m) => (
+                <label
+                  key={m}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 cursor-pointer text-sm font-medium ${form.months === m ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-md' : 'border-gray-300 text-gray-600 hover:border-blue-300 hover:bg-gray-50'}`}
+                >
+                  <input
+                    type="radio"
+                    name="months"
+                    value={m}
+                    checked={form.months === m}
+                    onChange={(e) => setForm((p) => ({ ...p, months: e.target.value }))}
+                    className="sr-only"
+                  />
+                  {m}
+                </label>
+              ))}
             </div>
           </fieldset>
 
