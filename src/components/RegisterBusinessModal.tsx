@@ -79,25 +79,25 @@ const RegisterBusinessModal = ({ isOpen, onClose }: Props) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) =>!open && onClose()}>
-      <DialogContent className="sm:max-w-xl p-0 overflow-hidden rounded-2xl shadow-2xl border-0"> {/* Aumenté el tamaño del modal */}
+      <DialogContent className="w-full max-w-full sm:max-w-xl p-0 rounded-2xl shadow-2xl border-0 mx-3 sm:mx-0 max-h-[90vh] overflow-y-auto"> {/* Mejor responsividad y scroll en móvil */}
         {/* Header mejorado */}
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-700 px-6 py-5 relative flex items-center justify-between">
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-700 px-5 py-4 relative flex flex-col sm:flex-row items-start sm:items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-white/20 rounded-xl p-2.5 flex items-center justify-center">
               <Building2 className="h-7 w-7 text-white" /> {/* Icono más grande */}
             </div>
             <div>
-              <h2 className="text-white font-extrabold text-xl leading-tight"> {/* Fuente más bold */}
+              <h2 className="text-white font-extrabold text-lg sm:text-xl leading-tight"> {/* Fuente responsive */}
                 Registra tu Negocio
               </h2>
-              <p className="text-blue-100 text-sm mt-0.5 opacity-90"> {/* Texto más legible */}
+              <p className="text-blue-100 text-sm mt-0.5 opacity-90 max-w-xs"> {/* Texto más legible */}
                 Completa el formulario y te contactaremos por WhatsApp
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-white/70 hover:text-white transition-colors rounded-full p-1 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="mt-3 sm:mt-0 text-white/90 hover:text-white transition-colors rounded-full p-1 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/50"
             aria-label="Cerrar"
           >
             <X className="h-6 w-6" />
@@ -105,9 +105,9 @@ const RegisterBusinessModal = ({ isOpen, onClose }: Props) => {
         </div>
 
         {/* Formulario */}
-        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-6 bg-gray-50"> {/* Fondo más suave */}
+        <form onSubmit={handleSubmit} className="px-4 py-4 sm:px-6 sm:py-5 space-y-6 bg-gray-50"> {/* Padding responsive */}
           {/* Sección de Información General */}
-          <fieldset className="space-y-4 p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+          <fieldset className="space-y-4 p-3 sm:p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
             <legend className="text-lg font-bold text-gray-800 flex items-center gap-2 px-2 -ml-2">
               <FileText className="h-5 w-5 text-indigo-500" />
               Información del Negocio
@@ -149,7 +149,7 @@ const RegisterBusinessModal = ({ isOpen, onClose }: Props) => {
           </fieldset>
 
           {/* Sección de Ubicación */}
-          <fieldset className="space-y-4 p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+          <fieldset className="space-y-4 p-3 sm:p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
             <legend className="text-lg font-bold text-gray-800 flex items-center gap-2 px-2 -ml-2">
               <MapPin className="h-5 w-5 text-indigo-500" />
               Ubicación
@@ -220,7 +220,7 @@ const RegisterBusinessModal = ({ isOpen, onClose }: Props) => {
           </fieldset>
 
           {/* Sección de Página Web */}
-          <fieldset className="space-y-4 p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+          <fieldset className="space-y-4 p-3 sm:p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
             <legend className="text-lg font-bold text-gray-800 flex items-center gap-2 px-2 -ml-2">
               <Globe className="h-5 w-5 text-indigo-500" />
               Presencia Online
@@ -280,18 +280,18 @@ const RegisterBusinessModal = ({ isOpen, onClose }: Props) => {
           </fieldset>
 
           {/* Acciones */}
-          <div className="flex gap-3 pt-4 border-t border-gray-200 mt-6"> {/* Separador sutil */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200 mt-6"> {/* Separador sutil y stack en móvil */}
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              className="flex-1 rounded-lg border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors py-2.5 h-auto text-base"
+              className="w-full sm:flex-1 rounded-lg border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors py-2.5 h-auto text-base"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
-              className="flex-1 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-lg shadow-green-300/50 transition-all transform hover:-translate-y-0.5 py-2.5 h-auto text-base flex items-center justify-center gap-2"
+              className="w-full sm:flex-1 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold shadow-lg shadow-green-300/50 transition-all transform hover:-translate-y-0.5 py-2.5 h-auto text-base flex items-center justify-center gap-2"
             >
               <svg
                 className="h-5 w-5"
