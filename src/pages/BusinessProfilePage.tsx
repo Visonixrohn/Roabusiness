@@ -156,15 +156,10 @@ const BusinessInfoHeader = ({
 // Componente: Botones de acción rápida
 interface QuickActionsBarProps {
   business: Business;
-  onContact: () => void;
   contacts?: any;
 }
 
-const QuickActionsBar = ({
-  business,
-  onContact,
-  contacts,
-}: QuickActionsBarProps) => {
+const QuickActionsBar = ({ business, contacts }: QuickActionsBarProps) => {
   const contactData = contacts || business.contact || {};
 
   const handleWhatsApp = () => {
@@ -178,23 +173,25 @@ const QuickActionsBar = ({
     }
   };
 
-  const handleContact = () => {
-    // Scroll a la sección de contacto
-    const contactSection = document.getElementById("contact-section");
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: "smooth", block: "start" });
-      toast.success("Revisa la información de contacto abajo");
+  const handleCall = () => {
+    // Intentar obtener el teléfono de contacts o business.contact
+    const phoneSource = contactData?.phone || "";
+    const phone = phoneSource.split(/[,;]+/)[0]?.trim();
+    if (phone) {
+      window.location.href = `tel:${phone}`;
+    } else {
+      toast.error("No hay número de teléfono disponible");
     }
   };
 
   return (
     <div className="border-t pt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
       <Button
-        onClick={handleContact}
+        onClick={handleCall}
         className="flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700"
       >
-        <MessageCircle className="h-4 w-4" />
-        Contactar
+        <Phone className="h-4 w-4" />
+        Llamar
       </Button>
 
       <Button
@@ -224,23 +221,6 @@ const QuickActionsBar = ({
     </div>
   );
 };
-
-// Componente: Descripción del negocio
-interface BusinessDescriptionProps {
-  business: Business;
-}
-
-const BusinessDescription = ({ business }: BusinessDescriptionProps) => {
-  return (
-    <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-6 shadow-sm">
-      <h3 className="font-semibold text-lg text-gray-900 mb-3">Acerca de</h3>
-      <p className="text-gray-700 leading-relaxed">
-        {business.description || "Sin descripción disponible"}
-      </p>
-    </div>
-  );
-};
-
 // Componente: Información de contacto
 interface ContactInfoSectionProps {
   business: Business;
@@ -325,6 +305,23 @@ const ContactInfoSection = ({
           </div>
         )}
       </div>
+    </div>
+  );
+};
+
+
+// Componente: Descripción del negocio
+interface BusinessDescriptionProps {
+  business: Business;
+}
+
+const BusinessDescription = ({ business }: BusinessDescriptionProps) => {
+  return (
+    <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-6 shadow-sm">
+      <h3 className="font-semibold text-lg text-gray-900 mb-3">Acerca de</h3>
+      <p className="text-gray-700 leading-relaxed">
+        {business.description || "Sin descripción disponible"}
+      </p>
     </div>
   );
 };
@@ -862,11 +859,7 @@ const BusinessProfilePage = () => {
               totalRatings={totalRatings}
             />
 
-            <QuickActionsBar
-              business={business}
-              onContact={() => {}}
-              contacts={contacts}
-            />
+            <QuickActionsBar business={business} contacts={contacts} />
           </div>
         </div>
 
@@ -874,6 +867,9 @@ const BusinessProfilePage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Columna Izquierda */}
           <div className="space-y-6">
+            {/* Redes sociales */}
+            <SocialMediaLinks business={business} />
+
             {/* Descripción */}
             <BusinessDescription business={business} />
 
@@ -888,9 +884,6 @@ const BusinessProfilePage = () => {
           <div className="space-y-6">
             {/* Calificaciones */}
             <RatingsSection businessId={business.id} />
-
-            {/* Redes sociales */}
-            <SocialMediaLinks business={business} />
 
             {/* Mapa */}
             <MapSection business={business} />
