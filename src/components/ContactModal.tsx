@@ -751,8 +751,8 @@ const ContactModal = ({
             </div>
           )}
           
-          {/* Botón Ver perfil - Siempre visible */}
-          <div className="absolute top-3 right-3 z-20">
+          {/* Botón Ver perfil - Siempre visible en la parte inferior */}
+          <div className="absolute bottom-3 right-3 z-20">
             <Button
               onClick={() => {
                 const profileUrl = business.profile_name
