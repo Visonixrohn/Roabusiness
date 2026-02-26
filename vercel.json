@@ -6,8 +6,8 @@
     }
   },
   "rewrites": [
-    { "source": "/negocio/@:profileName", "destination": "/api/negocio" },
-    { "source": "/negocio/:profileName", "destination": "/api/negocio" },
+    { "source": "/negocio/@:profileName", "destination": "/api/negocio?profileName=@:profileName" },
+    { "source": "/negocio/:profileName", "destination": "/api/negocio?profileName=:profileName" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [

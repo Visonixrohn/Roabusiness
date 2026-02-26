@@ -42,52 +42,37 @@ module.exports = async (req, res) => {
     console.log('Supabase configured:', !!supabaseUrl && !!supabaseKey);
     
     // Extraer profile_name de la URL
-    const match = urlPath.match(/\/negocio\/@?([^\/\?]+)/);
+    const match = urlPath.match(/\/negocio\/@?([^\/\?&]+)/);
     
     if (!match) {
       console.log('No profile_name match found');
-      // Si NO es un bot Y no hay match, servir un HTML con script de redirección
-      if (!isBot(userAgent)) {
-        return res.status(200).send(`
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <script>
-    // Redirigir preservando la ruta original
-    window.location.href = window.location.pathname;
-  </script>
-</head>
-<body>Cargando...</body>
-</html>
-        `);
-      }
       return res.status(400).send('Invalid URL');
     }
 
-    const profileName = match[1];
+    const profileName = match[1].replace(/^@/, '');
     console.log('Profile Name:', profileName);
 
-    // Si NO es un bot, servir HTML mínimo con redirección a la SPA
+    // Si NO es un bot, hacer fetch del index.html y servirlo
     if (!isBot(userAgent)) {
-      console.log('Not a bot, redirecting to SPA');
-      return res.status(200).send(`
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RoaBusiness</title>
-  <script>
-    // Redirigir inmediatamente a la ruta del perfil en la SPA
-    window.location.href = '/negocio/@${profileName}';
-  </script>
-</head>
-<body>
-  <p>Redirigiendo...</p>
-</body>
-</html>
-      `);
+      console.log('Not a bot, fetching SPA index.html');
+      try {
+        const protocol = req.headers['x-forwarded-proto'] || 'https';
+        const host = req.headers['host'];
+        const indexUrl = `${protocol}://${host}/index.html`;
+        
+        console.log('Fetching:', indexUrl);
+        const response = await fetch(indexUrl);
+        const html = await response.text();
+        
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        return res.status(200).send(html);
+      } catch (err) {
+        console.error('Error fetching index.html:', err);
+        // Fallback: redirigir a la raíz
+        return res.redirect(302, '/');
+      }
+    }
     }
 
     // ES UN BOT: Generar HTML con meta tags
