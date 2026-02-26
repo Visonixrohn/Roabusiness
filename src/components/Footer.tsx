@@ -23,34 +23,14 @@ const Footer = () => {
             </div>
             <p className="text-gray-600 text-sm max-w-lg leading-relaxed">
               Descubre los mejores negocios, restaurantes, hoteles y actividades
-              en las hermosas Islas de la Bahía. Tu puerta de entrada al paraíso
+              en las hermosas Islas de la Bahía y Honduras. Tu puerta de entrada al paraíso
               caribeño de Honduras.
             </p>
           </div>
 
          
 
-          {/* Islas */}
-          <div>
-            <h3 className="text-base font-semibold mb-3 text-pink-600 tracking-wide">
-              Nuestras Islas
-            </h3>
-            <ul className="space-y-2 text-gray-600">
-              {[
-                { name: "Roatán", desc: "La isla principal" },
-                { name: "Utila", desc: "Paraíso del buceo" },
-                { name: "Guanaja", desc: "La isla verde" },
-              ].map(({ name, desc }) => (
-                <li
-                  key={name}
-                  className="hover:text-pink-600 transition-colors cursor-default"
-                >
-                  <p className="font-semibold text-sm">{name}</p>
-                  <p className="text-xs">{desc}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
+          
         </div>
 
         {/* Línea divisoria */}

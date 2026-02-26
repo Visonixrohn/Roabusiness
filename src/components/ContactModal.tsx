@@ -14,6 +14,7 @@ import {
   Twitter,
   Star,
   Share2,
+  User,
 } from "lucide-react";
 import { Business } from "@/types/business";
 import { Button } from "@/components/ui/button";
@@ -597,64 +598,61 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
   const hasAlreadyRated = deviceRating !== null && deviceRating > 0;
 
   return (
-    <div className="rounded-xl bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 p-5">
-      <div className="flex items-center gap-2 mb-3">
-        <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-        <h3 className="font-semibold text-gray-900">Califica este negocio</h3>
+    <div className="rounded-lg bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 p-3 sm:p-4">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+          <h3 className="font-semibold text-gray-900 text-sm">Calificaciones</h3>
+        </div>
+        {average !== null && average > 0 && (
+          <span className="text-xl font-bold text-gray-900">
+            {average.toFixed(1)}
+          </span>
+        )}
       </div>
 
       {/* Mostrar promedio */}
-      <div className="mb-4 pb-4 border-b border-yellow-200">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-gray-600">Calificación promedio</span>
-          {average !== null && average > 0 && (
-            <span className="text-2xl font-bold text-gray-900">
-              {average.toFixed(1)}
-            </span>
-          )}
+      <div className="mb-3 pb-3 border-b border-yellow-200">
+        <div className="flex items-center gap-2">
+          <StarRating
+            value={average || 0}
+            readOnly
+            size={16}
+            showValue={false}
+            className="justify-start"
+          />
+          <p className="text-xs text-gray-500">
+            {totalRatings > 0
+              ? `(${totalRatings} ${totalRatings === 1 ? "valoración" : "valoraciones"})`
+              : "Sin valoraciones"}
+          </p>
         </div>
-        <StarRating
-          value={average || 0}
-          readOnly
-          size={24}
-          showValue={false}
-          className="justify-start"
-        />
-        <p className="text-xs text-gray-500 mt-1">
-          {totalRatings > 0
-            ? `Basado en ${totalRatings} ${totalRatings === 1 ? "valoración" : "valoraciones"}`
-            : "Sé el primero en calificar"}
-        </p>
       </div>
 
       {/* Calificar */}
       <div>
         {hasAlreadyRated ? (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
-            <p className="text-sm text-green-800 font-medium flex items-center gap-2">
-              <Star className="h-4 w-4 fill-green-600 text-green-600" />
-              Ya calificaste este negocio con {deviceRating} estrella
-              {deviceRating === 1 ? "" : "s"}
-            </p>
-            <p className="text-xs text-green-700 mt-1">
-              Puedes cambiar tu calificación tocando las estrellas abajo
+          <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-2">
+            <p className="text-xs text-green-800 font-medium flex items-center gap-1.5">
+              <Star className="h-3.5 w-3.5 fill-green-600 text-green-600" />
+              Tu calificación: {deviceRating} estrella{deviceRating === 1 ? "" : "s"}
             </p>
           </div>
         ) : (
-          <p className="text-sm text-gray-700 mb-2">
+          <p className="text-xs text-gray-700 mb-1.5">
             ¿Qué te pareció este negocio?
           </p>
         )}
         <StarRating
           value={deviceRating || 0}
           onChange={handleRate}
-          size={32}
+          size={24}
           showValue={false}
           interactive={!isRating && !loading}
           className="justify-start"
         />
         {!hasAlreadyRated && (
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-xs text-gray-500 mt-1.5">
             Toca una estrella para calificar
           </p>
         )}
@@ -742,12 +740,27 @@ const ContactModal = ({
       <DialogContent className="sm:max-w-xl max-h-[95vh] overflow-y-auto p-6 rounded-xl flex flex-col gap-6 shadow-lg">
         {business.coverImage && (
           // Banner visible en pantallas md+
-          <div className="-mx-6 -mt-6 mb-2 overflow-hidden rounded-t-xl hidden md:block">
+          <div className="-mx-6 -mt-6 mb-2 overflow-hidden rounded-t-xl hidden md:block relative">
             <img
               src={business.coverImage}
               alt={`${business.name} portada`}
               className="w-full h-36 object-cover"
             />
+            {/* Botón Ver perfil - Desktop con imagen */}
+            <div className="absolute bottom-3 right-3">
+              <Button
+                onClick={() => {
+                  const profileUrl = business.profile_name
+                    ? `/negocio/${business.profile_name}`
+                    : `/negocio/${business.id}`;
+                  window.location.href = profileUrl;
+                }}
+                className="bg-white/90 hover:bg-white text-gray-900 shadow-lg backdrop-blur-sm px-3 py-1.5 h-auto text-xs sm:text-sm font-medium rounded-lg transition-all"
+              >
+                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
+                Ver perfil
+              </Button>
+            </div>
           </div>
         )}
 
@@ -761,6 +774,41 @@ const ContactModal = ({
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black/45" />
+            </div>
+          )}
+          
+          {/* Botón Ver perfil - Móvil */}
+          <div className="absolute top-2 right-2 z-20 md:hidden">
+            <Button
+              onClick={() => {
+                const profileUrl = business.profile_name
+                  ? `/negocio/${business.profile_name}`
+                  : `/negocio/${business.id}`;
+                window.location.href = profileUrl;
+              }}
+              className="bg-white/90 hover:bg-white text-gray-900 shadow-lg backdrop-blur-sm px-2.5 py-1.5 h-auto text-xs font-medium rounded-lg transition-all"
+            >
+              <User className="h-3.5 w-3.5 mr-1" />
+              Ver perfil
+            </Button>
+          </div>
+          
+          {/* Botón Ver perfil - Desktop sin imagen */}
+          {!business.coverImage && (
+            <div className="absolute top-2 right-2 z-20 hidden md:block">
+              <Button
+                onClick={() => {
+                  const profileUrl = business.profile_name
+                    ? `/negocio/${business.profile_name}`
+                    : `/negocio/${business.id}`;
+                  window.location.href = profileUrl;
+                }}
+                variant="outline"
+                className="px-3 py-1.5 h-auto text-xs sm:text-sm font-medium rounded-lg transition-all"
+              >
+                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
+                Ver perfil
+              </Button>
             </div>
           )}
 
@@ -795,13 +843,15 @@ const ContactModal = ({
           {/* Sección de Calificaciones */}
           <RatingsSection businessId={business.id} />
         </div>
-        {/* Sección de Mapa */}
-        <MapDisplay
-          business={business}
-          mapPosition={mapPosition}
-          mapType={mapType}
-          setMapType={setMapType}
-        />
+        {/* Sección de Mapa - Solo mostrar si hay coordenadas */}
+        {mapPosition && (
+          <MapDisplay
+            business={business}
+            mapPosition={mapPosition}
+            mapType={mapType}
+            setMapType={setMapType}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

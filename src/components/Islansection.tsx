@@ -20,7 +20,7 @@ const IslandsSection = ({ isStandalone, installPromptRef }) => {
         </div>
 
         {/* Botón de instalación y registro */}
-        <div className="flex flex-col sm:flex-row justify-center gap-6 mt-16"> {/* Aumenté el gap y puse más espaciado arriba */}
+        <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 mt-12 sm:mt-16 px-4"> {/* Gap y espaciado responsivos */}
           <button
             onClick={async () => {
               if (isStandalone) {
@@ -34,27 +34,27 @@ const IslandsSection = ({ isStandalone, installPromptRef }) => {
               }
               setShowTutorial(true);
             }}
-            className="group relative bg-gradient-to-r from-blue-600 to-blue-700 text-white px-10 py-4 rounded-full shadow-lg flex items-center justify-center gap-3 text-lg font-semibold overflow-hidden
+            className="group relative bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 sm:px-8 md:px-10 py-3 sm:py-3.5 md:py-4 rounded-full shadow-lg flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base md:text-lg font-semibold overflow-hidden
                        focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400 focus-visible:ring-offset-2 transition-all duration-300 ease-in-out
-                       transform hover:scale-105 active:scale-95 active:shadow-none hover:from-blue-700 hover:to-blue-800"
+                       transform hover:scale-105 active:scale-95 active:shadow-none hover:from-blue-700 hover:to-blue-800 w-full sm:w-auto"
             aria-label="Instalar RoaBusiness en tu dispositivo"
             type="button"
           >
-            <Download className="h-6 w-6 text-white transition-transform duration-500 group-hover:translate-y-[-2px] group-hover:rotate-[5deg]"/> {/* Animación más sutil */}
-            Instalar RoaBusiness
+            <Download className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-white transition-transform duration-500 group-hover:translate-y-[-2px] group-hover:rotate-[5deg]"/> {/* Animación más sutil */}
+            <span className="truncate">Instalar RoaBusiness</span>
             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white opacity-20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out"></span> {/* Subrayado animado */}
           </button>
 
           <button
             onClick={() => setShowRegisterModal(true)}
-            className="group relative bg-gradient-to-r from-green-500 to-emerald-600 text-white px-10 py-4 rounded-full shadow-lg flex items-center justify-center gap-3 text-lg font-semibold overflow-hidden
+            className="group relative bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 sm:px-8 md:px-10 py-3 sm:py-3.5 md:py-4 rounded-full shadow-lg flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base md:text-lg font-semibold overflow-hidden
                        focus:outline-none focus-visible:ring-4 focus-visible:ring-green-400 focus-visible:ring-offset-2 transition-all duration-300 ease-in-out
-                       transform hover:scale-105 active:scale-95 active:shadow-none hover:from-green-600 hover:to-emerald-700"
+                       transform hover:scale-105 active:scale-95 active:shadow-none hover:from-green-600 hover:to-emerald-700 w-full sm:w-auto"
             aria-label="Registrar negocio"
             type="button"
           >
-            <PlusCircle className="h-6 w-6 text-white transition-transform duration-500 group-hover:rotate-90" /> {/* Animación al pasar el mouse */}
-            Registrar Negocio
+            <PlusCircle className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-white transition-transform duration-500 group-hover:rotate-90" /> {/* Animación al pasar el mouse */}
+            <span className="truncate">Registrar Negocio</span>
             <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white opacity-20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out"></span> {/* Subrayado animado */}
           </button>
         </div>
@@ -108,7 +108,7 @@ const IslandsSection = ({ isStandalone, installPromptRef }) => {
               <div className="flex justify-center mt-8"> {/* Centrado y más margen */}
                 <button
                   onClick={() => setShowTutorial(false)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition-colors duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 sm:py-3 px-6 sm:px-8 rounded-full shadow-lg transition-colors duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400 text-sm sm:text-base w-full sm:w-auto"
                 >
                   Entendido
                 </button>

@@ -119,10 +119,10 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
                   e.stopPropagation();
                   setShowGalleryModal(true);
                 }}
-                className="bg-white/90 backdrop-blur-sm text-gray-800 hover:bg-white rounded-full px-3 py-1.5 text-xs h-auto font-medium shadow-lg"
+                className="bg-white/90 backdrop-blur-sm text-gray-800 hover:bg-white rounded-full px-2.5 sm:px-3 py-1.5 text-xs h-auto font-medium shadow-lg"
               >
-                <Eye className="h-3.5 w-3.5 mr-1.5" />
-                {business.gallery?.length} fotos
+                <Eye className="h-3.5 w-3.5 mr-1 sm:mr-1.5" />
+                <span>{business.gallery?.length} foto{business.gallery.length !== 1 ? 's' : ''}</span>
               </Button>
             </div>
           )}
@@ -227,16 +227,16 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
           )}
 
           {/* Botones de acción */}
-          <div className="flex gap-2">
+          <div className="flex gap-1.5 sm:gap-2">
             <Button
               onClick={(e) => {
                 e.stopPropagation();
                 setShowContactModal(true);
               }}
-              className="flex-1 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-xl h-10 font-medium shadow-md hover:shadow-lg transition-all"
+              className="flex-1 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-xl h-9 sm:h-10 font-medium shadow-md hover:shadow-lg transition-all text-xs sm:text-sm px-2 sm:px-4"
             >
-              <Phone className="h-4 w-4 mr-2" />
-              Contactar
+              <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2" />
+              <span className="hidden sm:inline ml-1.5 sm:ml-0">Contactar</span>
             </Button>
             <Button
               onClick={(e) => {
@@ -248,10 +248,10 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
                 );
               }}
               variant="outline"
-              className="px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-xl h-10 font-medium transition-all"
+              className="px-2.5 sm:px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-xl h-9 sm:h-10 font-medium transition-all min-w-[2.25rem] sm:min-w-[2.5rem] flex items-center justify-center"
               aria-label="Compartir enlace del negocio"
             >
-              <Share2 className="h-4 w-4" />
+              <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
             {(contacts?.website || fallbackContacts?.website) && (
               <Button
@@ -265,9 +265,10 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
                   window.open(url, "_blank");
                 }}
                 variant="outline"
-                className="px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-xl h-10 font-medium transition-all"
+                className="px-2.5 sm:px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-xl h-9 sm:h-10 font-medium transition-all min-w-[2.25rem] sm:min-w-[2.5rem] flex items-center justify-center"
+                aria-label="Ir al sitio web"
               >
-                <Globe className="h-4 w-4" />
+                <Globe className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
             )}
           </div>

@@ -765,9 +765,12 @@ const BusinessProfilePage = () => {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Negocio no encontrado
           </h2>
-          <Link to="/directorio" className="text-teal-600 hover:underline">
-            Volver al directorio
-          </Link>
+          <button
+            onClick={() => window.history.back()}
+            className="text-teal-600 hover:underline transition-colors"
+          >
+            Volver
+          </button>
         </div>
       </div>
     );
@@ -857,13 +860,13 @@ const BusinessProfilePage = () => {
       {/* Container principal */}
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         {/* Navigation */}
-        <Link
-          to="/directorio"
-          className="inline-flex items-center text-teal-600 hover:text-teal-700 mb-6 font-medium"
+        <button
+          onClick={() => window.history.back()}
+          className="inline-flex items-center text-teal-600 hover:text-teal-700 mb-6 font-medium transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver al directorio
-        </Link>
+          Volver
+        </button>
 
         {/* Hero Section */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
