@@ -1,5 +1,9 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "rewrites": [
+    { "source": "/negocio/@:profileName", "destination": "/api/negocio" },
+    { "source": "/negocio/:profileName", "destination": "/api/negocio" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
