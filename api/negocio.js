@@ -1,5 +1,5 @@
-// Vercel Function que intercepta todas las peticiones a /negocio/*
-// Detecta bots y sirve HTML personalizado
+// Vercel Function que intercepta peticiones a /negocio/*
+// Detecta bots y sirve HTML personalizado, usuarios normales ven la SPA
 
 const { createClient } = require('@supabase/supabase-js');
 
@@ -25,33 +25,57 @@ const escapeHtml = (text) => {
 
 module.exports = async (req, res) => {
   const userAgent = req.headers['user-agent'] || '';
+  const urlPath = req.url || '';
   
-  // Si NO es un bot, redirigir a la SPA (dejar que Vercel maneje con su rewrite normal)
-  if (!isBot(userAgent)) {
-    // No hacemos nada, dejamos que el siguiente rewrite lo maneje
-    // Esto significa que la petición continuará y Vercel servirá /index.html
-    return res.status(200).send(`
-<!DOCTYPE html>
-<html>
-<head>
-  <meta http-equiv="refresh" content="0;url=/">
-  <script>window.location.href="/";</script>
-</head>
-<body>Loading...</body>
-</html>
-    `);
-  }
-
-  // Es un bot: extraer profile_name de la URL
-  const urlPath = req.url || req.path || '';
+  console.log('API Negocio called:', { userAgent, urlPath, isBot: isBot(userAgent) });
+  
+  // Extraer profile_name de la URL
   const match = urlPath.match(/\/negocio\/@?([^\/\?]+)/);
   
   if (!match) {
+    // Si NO es un bot Y no hay match, servir un HTML con script de redirección
+    if (!isBot(userAgent)) {
+      return res.status(200).send(`
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <script>
+    // Redirigir preservando la ruta original
+    window.location.href = window.location.pathname;
+  </script>
+</head>
+<body>Cargando...</body>
+</html>
+      `);
+    }
     return res.status(400).send('Invalid URL');
   }
 
   const profileName = match[1];
 
+  // Si NO es un bot, servir HTML mínimo con redirección a la SPA
+  if (!isBot(userAgent)) {
+    return res.status(200).send(`
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoaBusiness</title>
+  <script>
+    // Redirigir inmediatamente a la ruta del perfil en la SPA
+    window.location.href = '/negocio/@${profileName}';
+  </script>
+</head>
+<body>
+  <p>Redirigiendo...</p>
+</body>
+</html>
+    `);
+  }
+
+  // ES UN BOT: Generar HTML con meta tags
   try {
     const { data: business, error } = await supabase
       .from('businesses')
@@ -60,6 +84,7 @@ module.exports = async (req, res) => {
       .single();
 
     if (error || !business) {
+      console.error('Business not found:', profileName, error);
       return res.status(404).send(`
 <!DOCTYPE html>
 <html lang="es">
@@ -73,6 +98,8 @@ module.exports = async (req, res) => {
 </html>
       `);
     }
+
+    console.log('Business found:', business.name, 'Logo:', business.logo);
 
     const title = escapeHtml(`${business.name} - RoaBusiness`);
     const description = escapeHtml(business.description?.substring(0, 200) || `Visita ${business.name} en Roatán`);
@@ -100,9 +127,6 @@ module.exports = async (req, res) => {
   <meta property="og:image:alt" content="${escapeHtml(business.name)}">
   <meta property="og:site_name" content="RoaBusiness">
   <meta property="og:locale" content="es_HN">
-  <meta property="business:contact_data:locality" content="${escapeHtml(business.departamento || 'Roatán')}">
-  <meta property="business:contact_data:region" content="Islas de la Bahía">
-  <meta property="business:contact_data:country_name" content="Honduras">
   
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
@@ -111,8 +135,6 @@ module.exports = async (req, res) => {
   <meta name="twitter:image" content="${image}">
   <meta name="twitter:image:alt" content="${escapeHtml(business.name)}">
   
-  <!-- Additional meta tags -->
-  <meta name="keywords" content="${escapeHtml(business.name)}, ${category}, Roatán, Honduras, negocios">
   <link rel="canonical" href="https://www.roabusiness.com/negocio/@${business.profile_name}">
 </head>
 <body style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -130,6 +152,6 @@ module.exports = async (req, res) => {
     
   } catch (error) {
     console.error('Error fetching business:', error);
-    return res.status(500).send('Internal server error');
+    return res.status(500).send(`Internal server error: ${error.message}`);
   }
 };
