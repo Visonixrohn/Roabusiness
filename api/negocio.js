@@ -1,9 +1,7 @@
 // Vercel Function que intercepta todas las peticiones a /negocio/*
-// Detecta bots y sirve HTML personalizado, o sirve la SPA para usuarios reales
+// Detecta bots y sirve HTML personalizado
 
 const { createClient } = require('@supabase/supabase-js');
-const fs = require('fs');
-const path = require('path');
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
@@ -28,16 +26,20 @@ const escapeHtml = (text) => {
 module.exports = async (req, res) => {
   const userAgent = req.headers['user-agent'] || '';
   
-  // Si no es un bot, servir el index.html de la SPA
+  // Si NO es un bot, redirigir a la SPA (dejar que Vercel maneje con su rewrite normal)
   if (!isBot(userAgent)) {
-    try {
-      const indexPath = path.join(__dirname, '../dist/index.html');
-      const indexHtml = fs.readFileSync(indexPath, 'utf-8');
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      return res.status(200).send(indexHtml);
-    } catch (error) {
-      return res.status(500).send('Error loading page');
-    }
+    // No hacemos nada, dejamos que el siguiente rewrite lo maneje
+    // Esto significa que la petición continuará y Vercel servirá /index.html
+    return res.status(200).send(`
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="refresh" content="0;url=/">
+  <script>window.location.href="/";</script>
+</head>
+<body>Loading...</body>
+</html>
+    `);
   }
 
   // Es un bot: extraer profile_name de la URL
@@ -58,7 +60,6 @@ module.exports = async (req, res) => {
       .single();
 
     if (error || !business) {
-      // Si no se encuentra, servir HTML básico
       return res.status(404).send(`
 <!DOCTYPE html>
 <html lang="es">
@@ -112,7 +113,7 @@ module.exports = async (req, res) => {
   
   <!-- Additional meta tags -->
   <meta name="keywords" content="${escapeHtml(business.name)}, ${category}, Roatán, Honduras, negocios">
-  <link rel="canonical" content="https://www.roabusiness.com/negocio/@${business.profile_name}">
+  <link rel="canonical" href="https://www.roabusiness.com/negocio/@${business.profile_name}">
 </head>
 <body style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
   <h1>${business.name}</h1>

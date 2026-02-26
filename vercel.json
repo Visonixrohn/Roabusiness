@@ -1,4 +1,10 @@
 {
+  "functions": {
+    "api/negocio.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
   "rewrites": [
     { "source": "/negocio/@:profileName", "destination": "/api/negocio" },
     { "source": "/negocio/:profileName", "destination": "/api/negocio" },
