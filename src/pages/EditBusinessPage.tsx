@@ -328,16 +328,21 @@ const EditBusinessPage = () => {
     setIsSubmitting(true);
     try {
       // Validar que profile_name no esté duplicado (si cambió)
-      if (editForm.profile_name && editForm.profile_name !== (selectedBusiness as any).profile_name) {
+      if (
+        editForm.profile_name &&
+        editForm.profile_name !== (selectedBusiness as any).profile_name
+      ) {
         const { data: existingBusiness } = await supabase
           .from("businesses")
           .select("id")
           .eq("profile_name", editForm.profile_name)
           .neq("id", selectedBusiness.id)
           .single();
-        
+
         if (existingBusiness) {
-          toast.error(`El nombre de perfil @${editForm.profile_name} ya está en uso. Por favor elige otro.`);
+          toast.error(
+            `El nombre de perfil @${editForm.profile_name} ya está en uso. Por favor elige otro.`,
+          );
           setIsSubmitting(false);
           return;
         }
@@ -501,9 +506,11 @@ const EditBusinessPage = () => {
           .select("id")
           .eq("profile_name", editForm.profile_name)
           .single();
-        
+
         if (existingBusiness) {
-          toast.error(`El nombre de perfil @${editForm.profile_name} ya está en uso. Por favor elige otro.`);
+          toast.error(
+            `El nombre de perfil @${editForm.profile_name} ya está en uso. Por favor elige otro.`,
+          );
           setIsSubmitting(false);
           return;
         }

@@ -199,10 +199,10 @@ const QuickActionsBar = ({
 
       <Button
         onClick={() => {
-          console.log('🔍 Debug compartir:', {
+          console.log("🔍 Debug compartir:", {
             profile_name: business.profile_name,
             id: business.id,
-            usando: business.profile_name || business.id
+            usando: business.profile_name || business.id,
           });
           shareBusinessLink(
             business.profile_name || business.id,
@@ -626,7 +626,10 @@ const AmenitiesSection = ({ business }: AmenitiesSectionProps) => {
 // ========== COMPONENTE PRINCIPAL ==========
 
 const BusinessProfilePage = () => {
-  const { profileName, id } = useParams<{ profileName?: string; id?: string }>();
+  const { profileName, id } = useParams<{
+    profileName?: string;
+    id?: string;
+  }>();
   const { user } = useAuth();
   const { getBusinessById } = useBusinesses();
 
@@ -645,7 +648,8 @@ const BusinessProfilePage = () => {
 
   // Detecta si un string es un UUID
   const isUUID = (str: string) => {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     return uuidRegex.test(str);
   };
 
@@ -657,7 +661,7 @@ const BusinessProfilePage = () => {
       if (!searchParam) return;
 
       // Remover @ del inicio si existe (para rutas como /negocio/@username)
-      searchParam = searchParam.replace(/^@/, '');
+      searchParam = searchParam.replace(/^@/, "");
 
       let data = null;
       let error = null;
@@ -688,25 +692,25 @@ const BusinessProfilePage = () => {
         return;
       }
 
-      console.log('📊 Negocio cargado desde Supabase:', {
+      console.log("📊 Negocio cargado desde Supabase:", {
         id: data.id,
         name: data.name,
         profile_name: data.profile_name,
         tiene_profile_name: !!data.profile_name,
-        todos_los_campos: Object.keys(data)
+        todos_los_campos: Object.keys(data),
       });
 
       // Asegurar que profile_name existe en el objeto
       const businessData = {
         ...data,
-        profile_name: data.profile_name
+        profile_name: data.profile_name,
       } as Business;
 
-      console.log('📊 Business object final:', {
+      console.log("📊 Business object final:", {
         id: businessData.id,
         name: businessData.name,
         profile_name: businessData.profile_name,
-        tiene_profile_name: !!businessData.profile_name
+        tiene_profile_name: !!businessData.profile_name,
       });
 
       setBusiness(businessData);
@@ -760,29 +764,78 @@ const BusinessProfilePage = () => {
       {/* Meta tags dinámicos para compartir en redes sociales */}
       <Helmet>
         <title>{business.name} - RoaBusiness</title>
-        <meta name="description" content={business.description?.substring(0, 160) || `Visita ${business.name} en Roatán`} />
-        
+        <meta
+          name="description"
+          content={
+            business.description?.substring(0, 160) ||
+            `Visita ${business.name} en Roatán`
+          }
+        />
+
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="business.business" />
         <meta property="og:url" content={window.location.href} />
         <meta property="og:title" content={`${business.name} - RoaBusiness`} />
-        <meta property="og:description" content={business.description?.substring(0, 200) || `Visita ${business.name} en Roatán`} />
-        <meta property="og:image" content={business.logo || business.coverImage || 'https://roabusiness.vercel.app/og-image.jpg'} />
+        <meta
+          property="og:description"
+          content={
+            business.description?.substring(0, 200) ||
+            `Visita ${business.name} en Roatán`
+          }
+        />
+        <meta
+          property="og:image"
+          content={
+            business.logo ||
+            business.coverImage ||
+            "https://roabusiness.vercel.app/og-image.jpg"
+          }
+        />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        
+
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content={window.location.href} />
         <meta name="twitter:title" content={`${business.name} - RoaBusiness`} />
-        <meta name="twitter:description" content={business.description?.substring(0, 200) || `Visita ${business.name} en Roatán`} />
-        <meta name="twitter:image" content={business.logo || business.coverImage || 'https://roabusiness.vercel.app/og-image.jpg'} />
-        
+        <meta
+          name="twitter:description"
+          content={
+            business.description?.substring(0, 200) ||
+            `Visita ${business.name} en Roatán`
+          }
+        />
+        <meta
+          name="twitter:image"
+          content={
+            business.logo ||
+            business.coverImage ||
+            "https://roabusiness.vercel.app/og-image.jpg"
+          }
+        />
+
         {/* Información adicional del negocio */}
-        {business.contact?.phone && <meta property="business:contact_data:phone_number" content={business.contact.phone} />}
-        {business.contact?.email && <meta property="business:contact_data:email" content={business.contact.email} />}
-        {business.departamento && <meta property="business:contact_data:locality" content={business.departamento} />}
-        {business.category && <meta property="business:category" content={business.category} />}
+        {business.contact?.phone && (
+          <meta
+            property="business:contact_data:phone_number"
+            content={business.contact.phone}
+          />
+        )}
+        {business.contact?.email && (
+          <meta
+            property="business:contact_data:email"
+            content={business.contact.email}
+          />
+        )}
+        {business.departamento && (
+          <meta
+            property="business:contact_data:locality"
+            content={business.departamento}
+          />
+        )}
+        {business.category && (
+          <meta property="business:category" content={business.category} />
+        )}
       </Helmet>
 
       <Header />

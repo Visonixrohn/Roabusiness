@@ -1,17 +1,20 @@
 # Solución para Compartir en Redes Sociales
 
 ## Problema
+
 Las SPAs (Single Page Applications) con React no generan meta tags dinámicos en el servidor, por lo que redes sociales como WhatsApp, Facebook y Twitter no pueden leer la información personalizada de cada negocio.
 
 ## Soluciones Implementadas
 
 ### 1. Función Serverless `/api/negocio.js`
+
 - Detecta automáticamente bots de redes sociales (WhatsApp, Facebook, Twitter, etc.)
 - Consulta la base de datos de Supabase para obtener información del negocio
 - Genera HTML con Open Graph meta tags personalizados
 - Sirve este HTML a los bots para que puedan extraer la información
 
 ### 2. Rewrites en `vercel.json`
+
 ```json
 {
   "rewrites": [

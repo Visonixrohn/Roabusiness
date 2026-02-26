@@ -43,11 +43,11 @@ interface AuthContextType {
   user: User | null;
   login: (
     email: string,
-    password: string
+    password: string,
   ) => Promise<{ success: boolean; message: string }>;
   register: (
     data: any,
-    type: "business" | "user"
+    type: "business" | "user",
   ) => Promise<{ success: boolean; message: string }>;
   logout: () => void;
   updateProfile: (data: any) => Promise<boolean>;
@@ -84,7 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const login = async (
     email: string,
-    password: string
+    password: string,
   ): Promise<{ success: boolean; message: string }> => {
     try {
       // Login sin Auth: buscar usuario por email en la tabla `users`
@@ -94,10 +94,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         .eq("email", email)
         .maybeSingle();
       if (userError || !userData) {
-        return { success: false, message: "No se encontraron datos de usuario" };
+        return {
+          success: false,
+          message: "No se encontraron datos de usuario",
+        };
       }
       // Buscar datos adicionales en tabla users
-      let userObj: any = { ...userData, userData: { name: userData.name, avatar: userData.avatar } };
+      let userObj: any = {
+        ...userData,
+        userData: { name: userData.name, avatar: userData.avatar },
+      };
       // Si es negocio, buscar datos del negocio
       if (userData.type === "business") {
         const { data: businessData } = await supabase
@@ -120,7 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const register = async (
     data: any,
-    type: "business" | "user"
+    type: "business" | "user",
   ): Promise<{ success: boolean; message: string }> => {
     try {
       // Crear registro en tabla `users` sin usar Supabase Auth
@@ -140,7 +146,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (userError || !userData) {
         return {
           success: false,
-          message: userError?.message || "Error al crear usuario en tabla users",
+          message:
+            userError?.message || "Error al crear usuario en tabla users",
         };
       }
 
@@ -194,7 +201,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const userObj =
         type === "business"
           ? { ...userData, businessData }
-          : { ...userData, userData: { name: userData.name, avatar: userData.avatar } };
+          : {
+              ...userData,
+              userData: { name: userData.name, avatar: userData.avatar },
+            };
 
       setUser(userObj);
       localStorage.setItem("currentUser", JSON.stringify(userObj));
@@ -244,7 +254,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Recuperación de contraseña deshabilitada (no hay Auth)
   const recoverPassword = async (email: string) => {
-    return { error: new Error('Recuperación de contraseña deshabilitada') };
+    return { error: new Error("Recuperación de contraseña deshabilitada") };
   };
 
   return (

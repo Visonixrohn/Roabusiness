@@ -1,19 +1,21 @@
 // Vercel Serverless Function para generar meta tags dinámicos
 // Esta función detecta bots y sirve HTML personalizado, o redirige a la SPA
 
-const { createClient } = require('@supabase/supabase-js');
+const { createClient } = require("@supabase/supabase-js");
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
-  process.env.VITE_SUPABASE_ANON_KEY
+  process.env.VITE_SUPABASE_ANON_KEY,
 );
 
 const isBot = (userAgent) => {
-  return /facebookexternalhit|WhatsApp|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Discordbot|Pinterest|Skype/i.test(userAgent);
+  return /facebookexternalhit|WhatsApp|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Discordbot|Pinterest|Skype/i.test(
+    userAgent,
+  );
 };
 
 module.exports = async (req, res) => {
-  const userAgent = req.headers['user-agent'] || '';
+  const userAgent = req.headers["user-agent"] || "";
   const { profileName } = req.query;
 
   // Si no es un bot, redirigir a la SPA normal
@@ -22,17 +24,17 @@ module.exports = async (req, res) => {
   }
 
   if (!profileName) {
-    return res.status(400).json({ error: 'profileName is required' });
+    return res.status(400).json({ error: "profileName is required" });
   }
 
   try {
     // Buscar negocio por profile_name
-    const cleanProfileName = profileName.replace(/^@/, '');
-    
+    const cleanProfileName = profileName.replace(/^@/, "");
+
     const { data: business, error } = await supabase
-      .from('businesses')
-      .select('*')
-      .eq('profile_name', cleanProfileName)
+      .from("businesses")
+      .select("*")
+      .eq("profile_name", cleanProfileName)
       .single();
 
     if (error || !business) {
@@ -54,18 +56,25 @@ module.exports = async (req, res) => {
 
     // Escapar caracteres especiales para HTML
     const escapeHtml = (text) => {
-      if (!text) return '';
+      if (!text) return "";
       return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     };
 
     const title = escapeHtml(`${business.name} - RoaBusiness`);
-    const description = escapeHtml(business.description?.substring(0, 200) || `Visita ${business.name} en Roatán`);
-    const image = business.logo || business.coverimage || business.cover_image || 'https://www.roabusiness.com/images/roatan-beach.png';
+    const description = escapeHtml(
+      business.description?.substring(0, 200) ||
+        `Visita ${business.name} en Roatán`,
+    );
+    const image =
+      business.logo ||
+      business.coverimage ||
+      business.cover_image ||
+      "https://www.roabusiness.com/images/roatan-beach.png";
 
     // Generar HTML con meta tags personalizados para bots
     const html = `<!DOCTYPE html>
@@ -105,12 +114,13 @@ module.exports = async (req, res) => {
 </body>
 </html>`;
 
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate');
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate");
     return res.status(200).send(html);
-    
   } catch (error) {
-    console.error('Error fetching business:', error);
-    return res.status(500).json({ error: 'Internal server error', details: error.message });
+    console.error("Error fetching business:", error);
+    return res
+      .status(500)
+      .json({ error: "Internal server error", details: error.message });
   }
 };

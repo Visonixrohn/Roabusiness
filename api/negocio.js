@@ -36,13 +36,18 @@ module.exports = async (req, res) => {
     const urlPath = req.url || '';
     
     console.log('=== API Negocio Called ===');
-    console.log('URL:', urlPath);
+    console.log('Full URL:', urlPath);
     console.log('User-Agent:', userAgent);
-    console.log('Is Bot:', isBot(userAgent));
     console.log('Supabase configured:', !!supabaseUrl && !!supabaseKey);
     
+    // Extraer originalPath del query param (viene del middleware)
+    const url = new URL(urlPath, `https://${req.headers.host || 'localhost'}`);
+    const originalPath = url.searchParams.get('originalPath') || urlPath;
+    
+    console.log('Original Path:', originalPath);
+    
     // Extraer profile_name de la URL
-    const match = urlPath.match(/\/negocio\/@?([^\/\?&]+)/);
+    const match = originalPath.match(/\/negocio\/@?([^\/\?&]+)/);
     
     if (!match) {
       console.log('No profile_name match found');
@@ -51,28 +56,12 @@ module.exports = async (req, res) => {
 
     const profileName = match[1].replace(/^@/, '');
     console.log('Profile Name:', profileName);
+    console.log('Is Bot:', isBot(userAgent));
 
-    // Si NO es un bot, hacer fetch del index.html y servirlo
+    // Si NO es un bot (no debería llegar aquí por el middleware, pero por seguridad)
     if (!isBot(userAgent)) {
-      console.log('Not a bot, fetching SPA index.html');
-      try {
-        const protocol = req.headers['x-forwarded-proto'] || 'https';
-        const host = req.headers['host'];
-        const indexUrl = `${protocol}://${host}/index.html`;
-        
-        console.log('Fetching:', indexUrl);
-        const response = await fetch(indexUrl);
-        const html = await response.text();
-        
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        return res.status(200).send(html);
-      } catch (err) {
-        console.error('Error fetching index.html:', err);
-        // Fallback: redirigir a la raíz
-        return res.redirect(302, '/');
-      }
-    }
+      console.log('Warning: Non-bot reached API function, redirecting');
+      return res.redirect(302, originalPath || '/');
     }
 
     // ES UN BOT: Generar HTML con meta tags

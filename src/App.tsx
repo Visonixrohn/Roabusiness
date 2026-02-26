@@ -78,10 +78,7 @@ function App() {
                   path="/negocio/@:profileName"
                   element={<BusinessProfilePage />}
                 />
-                <Route
-                  path="/negocio/:id"
-                  element={<BusinessProfilePage />}
-                />
+                <Route path="/negocio/:id" element={<BusinessProfilePage />} />
                 <Route
                   path="/negocio/:id/configuracion"
                   element={<BusinessSettingsPage />}

@@ -38,9 +38,9 @@ export const useBusinesses = () => {
           .from("businesses")
           .select(`*, followers(count)`)
           .returns<Business & { followers: { count: number }[] }[]>();
-        
-        console.log('🔍 Supabase response sample:', data?.[0]);
-        
+
+        console.log("🔍 Supabase response sample:", data?.[0]);
+
         if (error) throw error;
         // Mapear followers
         const followers: Record<string, number> = {};
@@ -60,11 +60,11 @@ export const useBusinesses = () => {
 
           // Debug: verificar si viene profile_name
           if (!b.profile_name) {
-            console.warn('⚠️ Negocio sin profile_name:', {
+            console.warn("⚠️ Negocio sin profile_name:", {
               id: b.id,
               name: b.name,
               tiene_profile_name: !!b.profile_name,
-              campos_disponibles: Object.keys(b)
+              campos_disponibles: Object.keys(b),
             });
           }
 

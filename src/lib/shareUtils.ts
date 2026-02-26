@@ -8,7 +8,8 @@ import { toast } from "sonner";
  * Detecta si un string es un UUID
  */
 function isUUID(str: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return uuidRegex.test(str);
 }
 
@@ -19,13 +20,15 @@ function isUUID(str: string): boolean {
  */
 export function getBusinessUrl(profileName: string): string {
   const baseUrl = window.location.origin;
-  
+
   // Si es un UUID, usar el formato legacy con ID
   if (isUUID(profileName)) {
-    console.warn('⚠️ Usando ID en lugar de profile_name. Considera actualizar este negocio.');
+    console.warn(
+      "⚠️ Usando ID en lugar de profile_name. Considera actualizar este negocio.",
+    );
     return `${baseUrl}/negocio/${profileName}`;
   }
-  
+
   // Asegurar que el profileName tenga el formato correcto (sin @)
   const cleanProfileName = profileName.startsWith("@")
     ? profileName.slice(1)
