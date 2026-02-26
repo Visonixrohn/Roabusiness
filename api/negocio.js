@@ -3,10 +3,17 @@
 
 const { createClient } = require('@supabase/supabase-js');
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.VITE_SUPABASE_ANON_KEY
-);
+// Verificar variables de entorno
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('ERROR: Missing Supabase environment variables');
+  console.error('VITE_SUPABASE_URL:', supabaseUrl ? 'SET' : 'MISSING');
+  console.error('VITE_SUPABASE_ANON_KEY:', supabaseKey ? 'SET' : 'MISSING');
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const isBot = (userAgent) => {
   return /facebookexternalhit|WhatsApp|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Discordbot|Pinterest|Skype|bot|crawler|spider|crawling/i.test(userAgent);
@@ -24,18 +31,24 @@ const escapeHtml = (text) => {
 };
 
 module.exports = async (req, res) => {
-  const userAgent = req.headers['user-agent'] || '';
-  const urlPath = req.url || '';
-  
-  console.log('API Negocio called:', { userAgent, urlPath, isBot: isBot(userAgent) });
-  
-  // Extraer profile_name de la URL
-  const match = urlPath.match(/\/negocio\/@?([^\/\?]+)/);
-  
-  if (!match) {
-    // Si NO es un bot Y no hay match, servir un HTML con script de redirección
-    if (!isBot(userAgent)) {
-      return res.status(200).send(`
+  try {
+    const userAgent = req.headers['user-agent'] || '';
+    const urlPath = req.url || '';
+    
+    console.log('=== API Negocio Called ===');
+    console.log('URL:', urlPath);
+    console.log('User-Agent:', userAgent);
+    console.log('Is Bot:', isBot(userAgent));
+    console.log('Supabase configured:', !!supabaseUrl && !!supabaseKey);
+    
+    // Extraer profile_name de la URL
+    const match = urlPath.match(/\/negocio\/@?([^\/\?]+)/);
+    
+    if (!match) {
+      console.log('No profile_name match found');
+      // Si NO es un bot Y no hay match, servir un HTML con script de redirección
+      if (!isBot(userAgent)) {
+        return res.status(200).send(`
 <!DOCTYPE html>
 <html>
 <head>
@@ -47,16 +60,18 @@ module.exports = async (req, res) => {
 </head>
 <body>Cargando...</body>
 </html>
-      `);
+        `);
+      }
+      return res.status(400).send('Invalid URL');
     }
-    return res.status(400).send('Invalid URL');
-  }
 
-  const profileName = match[1];
+    const profileName = match[1];
+    console.log('Profile Name:', profileName);
 
-  // Si NO es un bot, servir HTML mínimo con redirección a la SPA
-  if (!isBot(userAgent)) {
-    return res.status(200).send(`
+    // Si NO es un bot, servir HTML mínimo con redirección a la SPA
+    if (!isBot(userAgent)) {
+      console.log('Not a bot, redirecting to SPA');
+      return res.status(200).send(`
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -72,19 +87,30 @@ module.exports = async (req, res) => {
   <p>Redirigiendo...</p>
 </body>
 </html>
-    `);
-  }
+      `);
+    }
 
-  // ES UN BOT: Generar HTML con meta tags
-  try {
+    // ES UN BOT: Generar HTML con meta tags
+    console.log('Bot detected, fetching business from Supabase');
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Supabase not configured');
+      return res.status(500).send('Configuration error: Supabase not configured');
+    }
+
     const { data: business, error } = await supabase
       .from('businesses')
       .select('*')
       .eq('profile_name', profileName)
       .single();
 
-    if (error || !business) {
-      console.error('Business not found:', profileName, error);
+    if (error) {
+      console.error('Supabase error:', error);
+      return res.status(500).send(`Database error: ${error.message}`);
+    }
+
+    if (!business) {
+      console.log('Business not found:', profileName);
       return res.status(404).send(`
 <!DOCTYPE html>
 <html lang="es">
@@ -99,12 +125,16 @@ module.exports = async (req, res) => {
       `);
     }
 
-    console.log('Business found:', business.name, 'Logo:', business.logo);
+    console.log('Business found:', business.name);
+    console.log('Logo:', business.logo);
+    console.log('Cover Image:', business.cover_image || business.coverimage);
 
     const title = escapeHtml(`${business.name} - RoaBusiness`);
     const description = escapeHtml(business.description?.substring(0, 200) || `Visita ${business.name} en Roatán`);
-    const image = business.logo || business.coverimage || business.cover_image || 'https://www.roabusiness.com/images/roatan-beach.png';
+    const image = business.logo || business.cover_image || business.coverimage || 'https://www.roabusiness.com/images/roatan-beach.png';
     const category = escapeHtml(business.category || 'Negocio');
+
+    console.log('Generating HTML with image:', image);
 
     const html = `<!DOCTYPE html>
 <html lang="es">
@@ -151,7 +181,9 @@ module.exports = async (req, res) => {
     return res.status(200).send(html);
     
   } catch (error) {
-    console.error('Error fetching business:', error);
+    console.error('=== UNHANDLED ERROR ===');
+    console.error('Error:', error);
+    console.error('Stack:', error.stack);
     return res.status(500).send(`Internal server error: ${error.message}`);
   }
 };
