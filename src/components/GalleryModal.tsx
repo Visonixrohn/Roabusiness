@@ -53,7 +53,7 @@ const GalleryModal = ({ business, isOpen, onClose }: GalleryModalProps) => {
           url: window.location.href,
         });
       } catch (error) {
-        console.log("Error sharing:", error);
+        // Error al compartir
       }
     } else {
       // Fallback para navegadores que no soportan Web Share API

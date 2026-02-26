@@ -199,11 +199,6 @@ const QuickActionsBar = ({
 
       <Button
         onClick={() => {
-          console.log("🔍 Debug compartir:", {
-            profile_name: business.profile_name,
-            id: business.id,
-            usando: business.profile_name || business.id,
-          });
           shareBusinessLink(
             business.profile_name || business.id,
             business.name,
@@ -706,26 +701,11 @@ const BusinessProfilePage = () => {
         return;
       }
 
-      console.log("📊 Negocio cargado desde Supabase:", {
-        id: data.id,
-        name: data.name,
-        profile_name: data.profile_name,
-        tiene_profile_name: !!data.profile_name,
-        todos_los_campos: Object.keys(data),
-      });
-
       // Asegurar que profile_name existe en el objeto
       const businessData = {
         ...data,
         profile_name: data.profile_name,
       } as Business;
-
-      console.log("📊 Business object final:", {
-        id: businessData.id,
-        name: businessData.name,
-        profile_name: businessData.profile_name,
-        tiene_profile_name: !!businessData.profile_name,
-      });
 
       setBusiness(businessData);
       setBusinessId(data.id);

@@ -94,9 +94,6 @@ export function useRatings(businessId: string) {
     try {
       // Verificar si ya existe calificación en localStorage
       const hasRated = hasRatedBusiness(businessId);
-      console.log(
-        `[Rating] Business: ${businessId}, DeviceId: ${deviceId}, HasRated: ${hasRated}, NewRating: ${rating}`,
-      );
 
       // Upsert calificación (actualiza si existe, inserta si no)
       const { error: upsertError } = await supabase
@@ -114,7 +111,6 @@ export function useRatings(businessId: string) {
         );
 
       if (upsertError) {
-        console.error("[Rating Error]", upsertError);
         setError(upsertError.message);
         setLoading(false);
         return false;
@@ -122,13 +118,11 @@ export function useRatings(businessId: string) {
 
       // Registrar en localStorage como capa adicional de control
       registerRating(businessId, rating, deviceId);
-      console.log("[Rating] Calificación registrada en localStorage");
 
       // Refrescar calificaciones
       await fetchRatings();
       return true;
     } catch (err: any) {
-      console.error("Error al calificar:", err);
       setError(err.message || "Error al guardar calificación");
       setLoading(false);
       return false;
@@ -156,12 +150,10 @@ export function useRatings(businessId: string) {
 
       // Eliminar también del registro local
       unregisterRating(businessId);
-      console.log("[Rating] Calificación eliminada de localStorage");
 
       await fetchRatings();
       return true;
     } catch (err: any) {
-      console.error("Error al eliminar calificación:", err);
       setError(err.message || "Error al eliminar calificación");
       setLoading(false);
       return false;

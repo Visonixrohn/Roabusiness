@@ -66,7 +66,6 @@ export function getDeviceId(): string {
 
       // Guardar en localStorage
       localStorage.setItem(DEVICE_ID_KEY, deviceId);
-      console.log("Nuevo device_id generado:", deviceId);
     }
 
     return deviceId;

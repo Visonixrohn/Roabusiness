@@ -241,7 +241,6 @@ const EditBusinessPage = () => {
       });
 
       setBusinesses(sortedData);
-      console.log("Negocios cargados:", sortedData.length);
     } catch (error: any) {
       console.error("Error al cargar negocios:", error);
       toast.error("Error al cargar los negocios: " + error.message);

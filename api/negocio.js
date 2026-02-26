@@ -37,40 +37,27 @@ module.exports = async (req, res) => {
     const userAgent = req.headers["user-agent"] || "";
     const urlPath = req.url || "";
 
-    console.log("=== API Negocio Called ===");
-    console.log("Full URL:", urlPath);
-    console.log("User-Agent:", userAgent);
-    console.log("Supabase configured:", !!supabaseUrl && !!supabaseKey);
-
     // Extraer originalPath del query param (viene del middleware)
     const url = new URL(urlPath, `https://${req.headers.host || "localhost"}`);
     const originalPath = url.searchParams.get("originalPath") || urlPath;
-
-    console.log("Original Path:", originalPath);
 
     // Extraer profile_name de la URL
     const match = originalPath.match(/\/negocio\/@?([^\/\?&]+)/);
 
     if (!match) {
-      console.log("No profile_name match found");
       return res.status(400).send("Invalid URL");
     }
 
     const profileName = match[1].replace(/^@/, "");
-    console.log("Profile Name:", profileName);
-    console.log("Is Bot:", isBot(userAgent));
 
     // Si NO es un bot (no debería llegar aquí por el middleware, pero por seguridad)
     if (!isBot(userAgent)) {
-      console.log("Warning: Non-bot reached API function, redirecting");
       return res.redirect(302, originalPath || "/");
     }
 
     // ES UN BOT: Generar HTML con meta tags
-    console.log("Bot detected, fetching business from Supabase");
 
     if (!supabaseUrl || !supabaseKey) {
-      console.error("Supabase not configured");
       return res
         .status(500)
         .send("Configuration error: Supabase not configured");
@@ -83,12 +70,10 @@ module.exports = async (req, res) => {
       .single();
 
     if (error) {
-      console.error("Supabase error:", error);
       return res.status(500).send(`Database error: ${error.message}`);
     }
 
     if (!business) {
-      console.log("Business not found:", profileName);
       return res.status(404).send(`
 <!DOCTYPE html>
 <html lang="es">
@@ -103,10 +88,6 @@ module.exports = async (req, res) => {
       `);
     }
 
-    console.log("Business found:", business.name);
-    console.log("Logo:", business.logo);
-    console.log("Cover Image:", business.cover_image || business.coverimage);
-
     const title = escapeHtml(`${business.name} - RoaBusiness`);
     const description = escapeHtml(
       business.description?.substring(0, 200) ||
@@ -118,8 +99,6 @@ module.exports = async (req, res) => {
       business.coverimage ||
       "https://www.roabusiness.com/images/roatan-beach.png";
     const category = escapeHtml(business.category || "Negocio");
-
-    console.log("Generating HTML with image:", image);
 
     const html = `<!DOCTYPE html>
 <html lang="es">
