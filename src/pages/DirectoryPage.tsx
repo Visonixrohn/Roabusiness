@@ -425,7 +425,11 @@ const DirectoryPage = () => {
                           </p>
                         </div>
                         <Button asChild className="mt-2 md:mt-0">
-                          <a href={`/negocio/${business.id}`}>Ver Perfil</a>
+                          <a
+                            href={`/negocio/@${business.profile_name || business.id}`}
+                          >
+                            Ver Perfil
+                          </a>
                         </Button>
                       </div>
                     ))}

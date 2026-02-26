@@ -9,6 +9,7 @@ interface PostCardProps {
   post: {
     id: string;
     business_id: string;
+    business_profile_name?: string;
     title: string;
     content: string;
     image?: string;
@@ -25,11 +26,16 @@ const PostCard = ({ post }: PostCardProps) => {
   // Auth removed: actions available without login
   const [showComments, setShowComments] = useState(false);
 
+  // Usar profile_name si está disponible, sino usar business_id
+  const businessLink = post.business_profile_name
+    ? `/negocio/@${post.business_profile_name}`
+    : `/negocio/${post.business_id}`;
+
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden max-w-xs w-full mx-auto p-2">
       {/* Encabezado del post con info del negocio */}
       <div className="p-2 flex items-center space-x-2">
-        <Link to={`/negocio/${post.business_id}`}>
+        <Link to={businessLink}>
           <img
             src={post.business_logo}
             alt={post.business_name}
@@ -38,7 +44,7 @@ const PostCard = ({ post }: PostCardProps) => {
         </Link>
         <div>
           <Link
-            to={`/negocio/${post.business_id}`}
+            to={businessLink}
             className="font-semibold text-gray-900 hover:text-blue-600 text-sm"
           >
             {post.business_name}

@@ -95,12 +95,7 @@ const BusinessRatingDisplay = ({ businessId }: { businessId: string }) => {
 
   return (
     <div className="flex items-center gap-1.5">
-      <StarRating
-        value={average || 0}
-        readOnly
-        size={16}
-        showValue={false}
-      />
+      <StarRating value={average || 0} readOnly size={16} showValue={false} />
       <span className="text-sm font-medium text-gray-700">
         {average ? average.toFixed(1) : "0.0"}
       </span>
@@ -111,6 +106,7 @@ const BusinessRatingDisplay = ({ businessId }: { businessId: string }) => {
 
 interface EditFormData {
   name: string;
+  profile_name: string;
   category: string;
   departamento: string;
   municipio: string;
@@ -146,6 +142,7 @@ const EditBusinessPage = () => {
   );
   const [editForm, setEditForm] = useState<EditFormData>({
     name: "",
+    profile_name: "",
     category: "",
     departamento: "",
     municipio: "",
@@ -266,6 +263,7 @@ const EditBusinessPage = () => {
     setSelectedBusiness(business);
     setEditForm({
       name: business.name || "",
+      profile_name: (business as any).profile_name || "",
       category: business.category || "",
       departamento: business.departamento || business.island || "",
       municipio: business.municipio || business.location || "",
@@ -329,9 +327,26 @@ const EditBusinessPage = () => {
 
     setIsSubmitting(true);
     try {
+      // Validar que profile_name no esté duplicado (si cambió)
+      if (editForm.profile_name && editForm.profile_name !== (selectedBusiness as any).profile_name) {
+        const { data: existingBusiness } = await supabase
+          .from("businesses")
+          .select("id")
+          .eq("profile_name", editForm.profile_name)
+          .neq("id", selectedBusiness.id)
+          .single();
+        
+        if (existingBusiness) {
+          toast.error(`El nombre de perfil @${editForm.profile_name} ya está en uso. Por favor elige otro.`);
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       // Payload en camelCase
       const payloadCamel = {
         name: editForm.name,
+        profile_name: editForm.profile_name || null,
         category: editForm.category,
         departamento: editForm.departamento,
         municipio: editForm.municipio,
@@ -368,6 +383,7 @@ const EditBusinessPage = () => {
       // Payload en snake_case como fallback
       const payloadSnake = {
         name: editForm.name,
+        profile_name: editForm.profile_name || null,
         category: editForm.category,
         departamento: editForm.departamento,
         municipio: editForm.municipio,
@@ -442,6 +458,7 @@ const EditBusinessPage = () => {
   const handleOpenRegisterModal = () => {
     setEditForm({
       name: "",
+      profile_name: "",
       category: "",
       departamento: "Islas de la Bahía",
       municipio: "Roatán",
@@ -477,9 +494,25 @@ const EditBusinessPage = () => {
 
     setIsSubmitting(true);
     try {
+      // Validar que profile_name no esté duplicado
+      if (editForm.profile_name) {
+        const { data: existingBusiness } = await supabase
+          .from("businesses")
+          .select("id")
+          .eq("profile_name", editForm.profile_name)
+          .single();
+        
+        if (existingBusiness) {
+          toast.error(`El nombre de perfil @${editForm.profile_name} ya está en uso. Por favor elige otro.`);
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       // Payload en camelCase (intento primero)
       const payloadCamel = {
         name: editForm.name,
+        profile_name: editForm.profile_name || null,
         category: editForm.category,
         departamento: editForm.departamento,
         municipio: editForm.municipio,
@@ -1054,6 +1087,33 @@ const EditBusinessPage = () => {
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nombre de Perfil (@nombre)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                      @
+                    </span>
+                    <input
+                      type="text"
+                      value={editForm.profile_name}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]/g, "");
+                        setEditForm({ ...editForm, profile_name: value });
+                      }}
+                      className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="tunombre"
+                      maxLength={50}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Enlace único: @{editForm.profile_name || "tunombre"}
+                  </p>
                 </div>
 
                 <div>

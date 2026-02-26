@@ -37,7 +37,10 @@ export function useRatings(businessId: string) {
       }
 
       if (ratingsData && ratingsData.length > 0) {
-        const sum = ratingsData.reduce((acc, curr) => acc + (curr.rating || 0), 0);
+        const sum = ratingsData.reduce(
+          (acc, curr) => acc + (curr.rating || 0),
+          0,
+        );
         setAverage(Math.round((sum / ratingsData.length) * 10) / 10);
         setTotalRatings(ratingsData.length);
       } else {
@@ -54,7 +57,10 @@ export function useRatings(businessId: string) {
         .maybeSingle();
 
       if (deviceError && deviceError.code !== "PGRST116") {
-        console.error("Error al obtener calificación del dispositivo:", deviceError);
+        console.error(
+          "Error al obtener calificación del dispositivo:",
+          deviceError,
+        );
       }
 
       setDeviceRating(deviceData?.rating ?? null);
@@ -93,7 +99,7 @@ export function useRatings(businessId: string) {
           },
           {
             onConflict: "business_id,device_id",
-          }
+          },
         );
 
       if (upsertError) {

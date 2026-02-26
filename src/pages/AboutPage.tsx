@@ -1,5 +1,16 @@
-
-import { MapPin, Users, Waves, Fish, TreePine, Camera, LocateFixed, Search, Store, Info } from "lucide-react"; // Añadí LocateFixed, Search, Store, Info para iconos
+import {
+  MapPin,
+  Users,
+  Waves,
+  Fish,
+  TreePine,
+  Camera,
+  LocateFixed,
+  Search,
+  Store,
+  Info,
+  Share2,
+} from "lucide-react"; // Añadí LocateFixed, Search, Store, Info, Share2 para iconos
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect, useRef } from "react";
 import { useBusinesses } from "@/hooks/useBusinesses";
@@ -8,10 +19,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button"; // Añadí Shadcn Button para los controles
 import { StarRating } from "@/components/StarRating";
 import { useRatings } from "@/hooks/useRatings";
+import { shareBusinessLink } from "@/lib/shareUtils";
 
 const AboutPage = () => {
- 
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-50">
       {/* Header y Footer irían aquí si los usas en el layout principal */}
@@ -20,13 +30,16 @@ const AboutPage = () => {
       <div className="container mx-auto px-6 py-12 space-y-20">
         {/* Negocios cerca de ti */}
         <section className="py-12 md:py-20 animate-fadeInUp delay-200">
-          <div className="text-center mb-16 relative"> {/* Más margen inferior y posición relativa para el adorno */}
+          <div className="text-center mb-16 relative">
+            {" "}
+            {/* Más margen inferior y posición relativa para el adorno */}
             <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight mb-4 tracking-tight">
               Explora Negocios <span className="text-purple-600">Cercanos</span>
             </h2>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-              Activa tu ubicación para descubrir los mejores negocios a tu alrededor.
-              Filtra por distancia y encuentra lo que necesitas al instante.
+              Activa tu ubicación para descubrir los mejores negocios a tu
+              alrededor. Filtra por distancia y encuentra lo que necesitas al
+              instante.
             </p>
             {/* Adorno sutil */}
             <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-24 h-1.5 bg-purple-500 rounded-full opacity-70" />
@@ -35,7 +48,6 @@ const AboutPage = () => {
           <NearbyBusinesses />
         </section>
       </div>
-
     </div>
   );
 };
@@ -52,12 +64,7 @@ const BusinessRatingCompact = ({ businessId }: { businessId: string }) => {
 
   return (
     <div className="flex items-center gap-1.5">
-      <StarRating
-        value={average || 0}
-        readOnly
-        size={14}
-        showValue={false}
-      />
+      <StarRating value={average || 0} readOnly size={14} showValue={false} />
       <span className="text-xs font-semibold text-gray-700">
         {average ? average.toFixed(1) : "0.0"}
       </span>
@@ -109,23 +116,23 @@ function NearbyBusinesses() {
   };
 
   const computeNearby = () => {
-    if (!userCoords ||!mostFollowedBusinesses) {
+    if (!userCoords || !mostFollowedBusinesses) {
       setNearby([]);
       return;
     }
     const list = (mostFollowedBusinesses || [])
-     .map((b: any) => {
-        const lat = b.coordinates?.lat?? b.latitude;
-        const lng = b.coordinates?.lng?? b.longitude;
+      .map((b: any) => {
+        const lat = b.coordinates?.lat ?? b.latitude;
+        const lng = b.coordinates?.lng ?? b.longitude;
         if (lat == null || lng == null) {
           return null;
         }
         const d = distanceKm(userCoords.lat, userCoords.lng, lat, lng);
-        return {...b, distance: d };
+        return { ...b, distance: d };
       })
-     .filter(Boolean)
-     .filter((b: any) => b.distance <= radiusKm)
-     .sort((a: any, b: any) => a.distance - b.distance);
+      .filter(Boolean)
+      .filter((b: any) => b.distance <= radiusKm)
+      .sort((a: any, b: any) => a.distance - b.distance);
     setNearby(list as any[]);
   };
 
@@ -164,8 +171,8 @@ function NearbyBusinesses() {
     ) {
       try {
         (navigator as any).permissions
-         .query({ name: "geolocation" })
-         .then((permStatus: any) => {
+          .query({ name: "geolocation" })
+          .then((permStatus: any) => {
             // Si está granted o prompt, pedimos la ubicación (prompt mostrará al usuario)
             if (
               permStatus.state === "granted" ||
@@ -174,7 +181,7 @@ function NearbyBusinesses() {
               requestLocation();
             }
           })
-         .catch(() => {
+          .catch(() => {
             // En caso de error con Permissions API, todavía intentamos solicitar ubicación
             requestLocation();
           });
@@ -208,7 +215,7 @@ function NearbyBusinesses() {
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging ||!carouselRef.current) return;
+    if (!isDragging || !carouselRef.current) return;
     e.preventDefault();
     const x = e.pageX - carouselRef.current.offsetLeft;
     const walk = (x - startX) * 1.5; // Ajuste para sensibilidad
@@ -216,7 +223,7 @@ function NearbyBusinesses() {
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging ||!carouselRef.current) return;
+    if (!isDragging || !carouselRef.current) return;
     const x = e.touches[0].pageX - carouselRef.current.offsetLeft;
     const walk = (x - startX) * 1.5; // Ajuste para sensibilidad
     carouselRef.current.scrollLeft = scrollLeft - walk;
@@ -259,7 +266,7 @@ function NearbyBusinesses() {
 
   const prevSlide = () => {
     if (nearby.length === 0) return;
-    const prevIndex = currentIndex === 0? nearby.length - 1 : currentIndex - 1;
+    const prevIndex = currentIndex === 0 ? nearby.length - 1 : currentIndex - 1;
     scrollToIndex(prevIndex);
   };
 
@@ -285,8 +292,12 @@ function NearbyBusinesses() {
   }, [nearby.length, isPaused, currentIndex]);
 
   return (
-    <div className="max-w-7xl mx-auto"> {/* Aumenté el max-w */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10 p-4 bg-white rounded-xl shadow-md"> {/* Controles en un panel */}
+    <div className="max-w-7xl mx-auto">
+      {" "}
+      {/* Aumenté el max-w */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10 p-4 bg-white rounded-xl shadow-md">
+        {" "}
+        {/* Controles en un panel */}
         {/* Controles de radio de búsqueda */}
         <div className="flex items-center gap-3">
           <span className="text-sm font-semibold text-gray-700 flex items-center gap-1">
@@ -294,31 +305,30 @@ function NearbyBusinesses() {
             Distancia:
           </span>
           <Button
-            variant={radiusKm === 2? "default" : "outline"}
+            variant={radiusKm === 2 ? "default" : "outline"}
             onClick={() => setRadiusKm(2)}
-            className={`${radiusKm === 2? "bg-blue-600 hover:bg-blue-700 text-white" : "text-gray-700 border-gray-300 hover:bg-gray-50"} rounded-full px-4 py-2 h-auto text-sm`}
+            className={`${radiusKm === 2 ? "bg-blue-600 hover:bg-blue-700 text-white" : "text-gray-700 border-gray-300 hover:bg-gray-50"} rounded-full px-4 py-2 h-auto text-sm`}
           >
             2 km
           </Button>
           <Button
-            variant={radiusKm === 5? "default" : "outline"}
+            variant={radiusKm === 5 ? "default" : "outline"}
             onClick={() => setRadiusKm(5)}
-            className={`${radiusKm === 5? "bg-blue-600 hover:bg-blue-700 text-white" : "text-gray-700 border-gray-300 hover:bg-gray-50"} rounded-full px-4 py-2 h-auto text-sm`}
+            className={`${radiusKm === 5 ? "bg-blue-600 hover:bg-blue-700 text-white" : "text-gray-700 border-gray-300 hover:bg-gray-50"} rounded-full px-4 py-2 h-auto text-sm`}
           >
             5 km
           </Button>
           <Button
-            variant={radiusKm === 10? "default" : "outline"}
+            variant={radiusKm === 10 ? "default" : "outline"}
             onClick={() => setRadiusKm(10)}
-            className={`${radiusKm === 10? "bg-blue-600 hover:bg-blue-700 text-white" : "text-gray-700 border-gray-300 hover:bg-gray-50"} rounded-full px-4 py-2 h-auto text-sm`}
+            className={`${radiusKm === 10 ? "bg-blue-600 hover:bg-blue-700 text-white" : "text-gray-700 border-gray-300 hover:bg-gray-50"} rounded-full px-4 py-2 h-auto text-sm`}
           >
             10 km
           </Button>
         </div>
-
         {/* Botón de ubicación */}
         <div>
-          {!userCoords? (
+          {!userCoords ? (
             <Button
               onClick={requestLocation}
               className="px-6 py-2 h-auto bg-green-500 hover:bg-green-600 text-white rounded-full font-medium flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
@@ -335,7 +345,6 @@ function NearbyBusinesses() {
           )}
         </div>
       </div>
-
       <div>
         {/* Indicadores de estado */}
         {loading && (
@@ -348,18 +357,18 @@ function NearbyBusinesses() {
           <div className="flex flex-col items-center justify-center h-48 bg-white rounded-xl shadow-md text-gray-500">
             <Info className="h-10 w-10 text-blue-400 mb-3" />
             <p className="text-lg font-medium">
-              {userCoords? (
-                `No se encontraron negocios dentro de ${radiusKm} km. Intenta expandir el radio.`
-              ) : (
-                "Activa tu ubicación para ver negocios cercanos y la magia sucederá."
-              )}
+              {userCoords
+                ? `No se encontraron negocios dentro de ${radiusKm} km. Intenta expandir el radio.`
+                : "Activa tu ubicación para ver negocios cercanos y la magia sucederá."}
             </p>
           </div>
         )}
 
         {/* Carrusel */}
         {nearby.length > 0 && (
-          <div className="relative group"> {/* Añadí group para botones que aparecen al hover */}
+          <div className="relative group">
+            {" "}
+            {/* Añadí group para botones que aparecen al hover */}
             {/* Botones de navegación del carrusel */}
             <Button
               onClick={prevSlide}
@@ -379,7 +388,6 @@ function NearbyBusinesses() {
             >
               <ChevronRight className="w-6 h-6 text-gray-700" />
             </Button>
-
             {/* Carrusel arrastrable */}
             <div
               ref={carouselRef}
@@ -387,7 +395,8 @@ function NearbyBusinesses() {
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleDragEnd}
-              onMouseLeave={() => { // Modificado para reanudar solo si no hay dragging activo
+              onMouseLeave={() => {
+                // Modificado para reanudar solo si no hay dragging activo
                 if (!isDragging) {
                   handleDragEnd();
                   setIsPaused(false);
@@ -402,113 +411,150 @@ function NearbyBusinesses() {
                 msOverflowStyle: "none",
               }}
             >
-              <div className="flex gap-6 py-4"> {/* Gap y padding para las tarjetas */}
+              <div className="flex gap-6 py-4">
+                {" "}
+                {/* Gap y padding para las tarjetas */}
                 {nearby.map((b: any, idx: number) => (
                   <div
                     key={b.id + "-" + idx}
                     className="w-[320px] flex-shrink-0 business-card" // Ancho fijo para las tarjetas
                   >
-                    <div className="relative rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-white to-gray-50 border border-gray-100 hover:shadow-2xl hover:border-blue-200 transform hover:-translate-y-1 transition-all duration-500 group h-[450px]"> {/* Altura fija y efectos */}
+                    <div className="relative rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-white to-gray-50 border border-gray-100 hover:shadow-2xl hover:border-blue-200 transform hover:-translate-y-1 transition-all duration-500 group h-[450px]">
+                      {" "}
+                      {/* Altura fija y efectos */}
                       {/* Imagen con overlay gradiente */}
-                      <div className="relative h-56 overflow-hidden"> {/* Altura de la imagen */}
+                      <div className="relative h-56 overflow-hidden">
+                        {" "}
+                        {/* Altura de la imagen */}
                         <img
-                          src={b.coverImage || "https://via.placeholder.com/400x250?text=Negocio"} // Placeholder si no hay imagen
+                          src={
+                            b.coverImage ||
+                            "https://via.placeholder.com/400x250?text=Negocio"
+                          } // Placeholder si no hay imagen
                           alt={b.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                           loading="lazy"
                           draggable={false}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
                         {/* Distancia y estado */}
                         <div className="absolute top-4 left-4 flex gap-2">
-                           {/* Distancia */}
-                           <Badge className="bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1 text-xs font-bold text-gray-800">
-                             <MapPin className="w-3.5 h-3.5 text-blue-600" />
-                             {b.distance.toFixed(1)} km
-                           </Badge>
-                           {/* Botón de estado (Ej: Abierto/Cerrado) */}
-                           {/* <Badge className="bg-green-500/90 text-white px-2 py-1.5 rounded-full text-xs font-bold shadow-md">Abierto</Badge> */}
+                          {/* Distancia */}
+                          <Badge className="bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1 text-xs font-bold text-gray-800">
+                            <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                            {b.distance.toFixed(1)} km
+                          </Badge>
+                          {/* Botón de estado (Ej: Abierto/Cerrado) */}
+                          {/* <Badge className="bg-green-500/90 text-white px-2 py-1.5 rounded-full text-xs font-bold shadow-md">Abierto</Badge> */}
                         </div>
-
                         {/* Nombre superpuesto en la imagen */}
                         <div className="absolute bottom-0 left-0 right-0 p-4">
-                          <h4 className="font-bold text-xl text-white drop-shadow-md line-clamp-1"> {/* Texto más grande */}
+                          <h4 className="font-bold text-xl text-white drop-shadow-md line-clamp-1">
+                            {" "}
+                            {/* Texto más grande */}
                             {b.name}
                           </h4>
                         </div>
-
                         {/* Logo flotante */}
                         <div className="absolute -bottom-6 left-4">
                           <div className="w-16 h-16 rounded-2xl border-4 border-white shadow-xl overflow-hidden bg-white">
                             <img
-                              src={b.logo || b.coverImage || "https://via.placeholder.com/150"}
+                              src={
+                                b.logo ||
+                                b.coverImage ||
+                                "https://via.placeholder.com/150"
+                              }
                               alt={`${b.name} logo`}
                               className="w-full h-full object-cover"
                             />
                           </div>
                         </div>
                       </div>
-
                       {/* Contenido de la tarjeta */}
-                      <div className="p-4 pt-8 flex flex-col justify-between h-[calc(100%-224px)]"> {/* Altura ajustada con pt-8 para el logo */}
+                      <div className="p-4 pt-8 flex flex-col justify-between h-[calc(100%-224px)]">
+                        {" "}
+                        {/* Altura ajustada con pt-8 para el logo */}
                         {/* Descripción */}
-                        <div className="mb-3 flex-grow"> {/* flex-grow para que ocupe espacio disponible */}
+                        <div className="mb-3 flex-grow">
+                          {" "}
+                          {/* flex-grow para que ocupe espacio disponible */}
                           <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed">
                             {b.description ||
                               "Un negocio increíble con productos y servicios de calidad. ¡Descúbrelo ahora!"}
                           </p>
                         </div>
-
                         {/* Calificaciones */}
                         <div className="mb-3 pb-3 border-b border-gray-100">
                           <BusinessRatingCompact businessId={b.id} />
                         </div>
-
                         {/* Categoría e isla */}
-                        <div className="flex flex-wrap gap-2 mb-4"> {/* flex-wrap para varias badges */}
-                          <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs font-medium px-2 py-1 rounded-full">
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {" "}
+                          {/* flex-wrap para varias badges */}
+                          <Badge
+                            variant="secondary"
+                            className="bg-purple-100 text-purple-700 text-xs font-medium px-2 py-1 rounded-full"
+                          >
                             {b.category || "General"}
                           </Badge>
-                          <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs font-medium px-2 py-1 rounded-full">
+                          <Badge
+                            variant="secondary"
+                            className="bg-blue-100 text-blue-700 text-xs font-medium px-2 py-1 rounded-full"
+                          >
                             {b.departamento || b.island || "Honduras"}
                           </Badge>
                           {/* Podrías añadir más badges si hay más info, ej: "Envío a domicilio" */}
                         </div>
-
-                        {/* Botón de contacto */}
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedBiz(b);
-                            setShowContactModal(true);
-                          }}
-                          className="w-full bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white px-4 py-3 rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
-                        >
-                          <span>Contactar Ahora</span>
-                          <ChevronRight className="w-4 h-4" />
-                        </Button>
+                        {/* Botones de acción */}
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedBiz(b);
+                              setShowContactModal(true);
+                            }}
+                            className="flex-1 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white px-4 py-3 rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
+                          >
+                            <span>Contactar</span>
+                            <ChevronRight className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              shareBusinessLink(b.id, b.name, b.description);
+                            }}
+                            variant="outline"
+                            className="px-4 py-3 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-xl font-semibold shadow-lg transition-all duration-300"
+                            aria-label="Compartir negocio"
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-
             {/* Indicadores de posición */}
-            <div className="flex justify-center gap-2 mt-8"> {/* Más margen superior */}
-              {nearby.length > 0 && Array.from({ length: Math.min(nearby.length, 10) }).map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => scrollToIndex(idx)}
-                  className={`transition-all duration-300 ${
-                    idx === currentIndex % nearby.length
-                     ? "w-8 h-2 bg-blue-600 rounded-full" // Indicador activo más largo y redondeado
-                      : "w-2.5 h-2.5 bg-gray-300 hover:bg-gray-400 rounded-full" // Indicador inactivo circular
-                  }`}
-                  aria-label={`Ir a diapositiva ${idx + 1}`}
-                />
-              ))}
+            <div className="flex justify-center gap-2 mt-8">
+              {" "}
+              {/* Más margen superior */}
+              {nearby.length > 0 &&
+                Array.from({ length: Math.min(nearby.length, 10) }).map(
+                  (_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => scrollToIndex(idx)}
+                      className={`transition-all duration-300 ${
+                        idx === currentIndex % nearby.length
+                          ? "w-8 h-2 bg-blue-600 rounded-full" // Indicador activo más largo y redondeado
+                          : "w-2.5 h-2.5 bg-gray-300 hover:bg-gray-400 rounded-full" // Indicador inactivo circular
+                      }`}
+                      aria-label={`Ir a diapositiva ${idx + 1}`}
+                    />
+                  ),
+                )}
               {nearby.length > 10 && (
                 <span className="text-sm text-gray-500 ml-2">
                   +{nearby.length - 10}
@@ -518,7 +564,6 @@ function NearbyBusinesses() {
           </div>
         )}
       </div>
-
       {selectedBiz && (
         <ContactModal
           business={selectedBiz}
@@ -530,7 +575,6 @@ function NearbyBusinesses() {
           contacts={selectedBiz?.contact}
         />
       )}
-
       <style>{`
        .scrollbar-hide::-webkit-scrollbar { display: none; }
         /* Animación para el botón de ubicación */

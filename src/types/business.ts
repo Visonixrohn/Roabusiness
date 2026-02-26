@@ -13,6 +13,7 @@ export interface BusinessContact {
 export interface Business {
   id: string;
   name: string;
+  profile_name?: string;
   description: string;
   category: string;
   departamento: string;

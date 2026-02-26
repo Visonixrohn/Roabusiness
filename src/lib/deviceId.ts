@@ -50,7 +50,7 @@ function generateDeviceFingerprint(): string {
 /**
  * Obtiene o genera el identificador único del dispositivo
  * Se almacena en localStorage para persistencia entre sesiones
- * 
+ *
  * @returns {string} Identificador único del dispositivo
  */
 export function getDeviceId(): string {
@@ -81,7 +81,7 @@ export function getDeviceId(): string {
 /**
  * Regenera el identificador del dispositivo
  * Útil para testing o si el usuario quiere resetear su ID
- * 
+ *
  * @returns {string} Nuevo identificador del dispositivo
  */
 export function regenerateDeviceId(): string {
@@ -96,7 +96,7 @@ export function regenerateDeviceId(): string {
 
 /**
  * Verifica si el dispositivo tiene un ID almacenado
- * 
+ *
  * @returns {boolean} true si existe un device_id almacenado
  */
 export function hasStoredDeviceId(): boolean {

@@ -36,8 +36,11 @@ export const useBusinesses = () => {
         // Obtener negocios desde Supabase
         const { data, error } = await supabase
           .from("businesses")
-          .select(`*, followers(count)`) // Asume relación followers
+          .select(`*, followers(count)`)
           .returns<Business & { followers: { count: number }[] }[]>();
+        
+        console.log('🔍 Supabase response sample:', data?.[0]);
+        
         if (error) throw error;
         // Mapear followers
         const followers: Record<string, number> = {};
@@ -55,8 +58,19 @@ export const useBusinesses = () => {
               ? b.longitude
               : b.coordinates?.lng || null;
 
+          // Debug: verificar si viene profile_name
+          if (!b.profile_name) {
+            console.warn('⚠️ Negocio sin profile_name:', {
+              id: b.id,
+              name: b.name,
+              tiene_profile_name: !!b.profile_name,
+              campos_disponibles: Object.keys(b)
+            });
+          }
+
           return {
             ...b,
+            profile_name: b.profile_name, // Asegurar que se incluya
             priceRange,
             coverImage,
             latitude: latitude ?? undefined,

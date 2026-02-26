@@ -74,7 +74,14 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/directorio" element={<DirectoryPage />} />
-                <Route path="/negocio/:id" element={<BusinessProfilePage />} />
+                <Route
+                  path="/negocio/@:profileName"
+                  element={<BusinessProfilePage />}
+                />
+                <Route
+                  path="/negocio/:id"
+                  element={<BusinessProfilePage />}
+                />
                 <Route
                   path="/negocio/:id/configuracion"
                   element={<BusinessSettingsPage />}
@@ -101,7 +108,7 @@ function App() {
                   element={<UserRegistrationPage />}
                 />
                 <Route path="/dashboard" element={<BusinessDashboard />} />
-               
+
                 <Route path="/contacto" element={<ContactPage />} />
                 <Route path="/privacidad" element={<PrivacyPolicyPage />} />
                 <Route path="/terminos" element={<TermsOfUsePage />} />

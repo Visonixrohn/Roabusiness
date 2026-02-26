@@ -12,6 +12,7 @@ import {
   Twitter,
   Users,
   TrendingUp,
+  Share2,
 } from "lucide-react";
 import TikTokIcon from "@/components/icons/TikTokIcon";
 import { Business } from "@/types/business";
@@ -23,6 +24,7 @@ import { StarRating } from "@/components/StarRating";
 import { cn } from "@/lib/utils";
 import { useContacts } from "@/hooks/useContacts";
 import { useRatings } from "@/hooks/useRatings";
+import { shareBusinessLink } from "@/lib/shareUtils";
 
 interface BusinessCardProps {
   business: Business;
@@ -235,6 +237,21 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
             >
               <Phone className="h-4 w-4 mr-2" />
               Contactar
+            </Button>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                shareBusinessLink(
+                  business.profile_name || business.id,
+                  business.name,
+                  business.description,
+                );
+              }}
+              variant="outline"
+              className="px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-xl h-10 font-medium transition-all"
+              aria-label="Compartir enlace del negocio"
+            >
+              <Share2 className="h-4 w-4" />
             </Button>
             {(contacts?.website || fallbackContacts?.website) && (
               <Button

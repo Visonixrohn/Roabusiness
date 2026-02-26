@@ -49,7 +49,7 @@ export default function MobileTopBar() {
         <Link
           to={
             user?.type === "business"
-              ? `/negocio/${user?.businessData?.id || user?.id}`
+              ? `/negocio/@${user?.businessData?.profile_name || user?.businessData?.id || user?.id}`
               : "/user/profile"
           }
           className="flex items-center"
@@ -131,7 +131,7 @@ export default function MobileTopBar() {
                     onMouseDown={() => {
                       setSearch("");
                       setShowSearch(false);
-                      navigate(`/negocio/${b.id}`);
+                      navigate(`/negocio/@${b.profile_name || b.id}`);
                     }}
                   >
                     <img

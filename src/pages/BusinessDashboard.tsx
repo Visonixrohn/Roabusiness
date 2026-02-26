@@ -50,7 +50,7 @@ const BusinessDashboard = () => {
 
   const [posts, setPosts] = useState<any[]>([]);
   const [isPublic, setIsPublic] = useState(
-    user?.businessData?.is_public ?? true
+    user?.businessData?.is_public ?? true,
   );
   const [savingPublic, setSavingPublic] = useState(false);
 
@@ -58,7 +58,7 @@ const BusinessDashboard = () => {
   const totalLikes = posts.reduce((sum, p) => sum + (p.likes_count || 0), 0);
   const totalComments = posts.reduce(
     (sum, p) => sum + (p.comments_count || 0),
-    0
+    0,
   );
   const avgLikes = posts.length > 0 ? Math.round(totalLikes / posts.length) : 0;
 
@@ -67,7 +67,7 @@ const BusinessDashboard = () => {
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [activeTab, setActiveTab] = useState("analytics");
   const [commentTexts, setCommentTexts] = useState<{ [key: string]: string }>(
-    {}
+    {},
   );
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -186,7 +186,7 @@ const BusinessDashboard = () => {
       toast.success(
         !isPublic
           ? "Tu perfil ahora es público y visible en el directorio."
-          : "Tu perfil ahora está oculto del directorio."
+          : "Tu perfil ahora está oculto del directorio.",
       );
     } else {
       toast.error("Error al actualizar visibilidad");
@@ -208,7 +208,7 @@ const BusinessDashboard = () => {
         const res = await fetch(`http://localhost:3001/api/businesses`);
         const data = await res.json();
         const updated = data.find(
-          (b: any) => String(b.id) === String(user.businessData.id)
+          (b: any) => String(b.id) === String(user.businessData.id),
         );
         if (updated) {
           user.businessData.name = updated.name;
@@ -270,7 +270,11 @@ const BusinessDashboard = () => {
           <div className="flex space-x-2">
             <Button
               variant="outline"
-              onClick={() => navigate(`/negocio/${user.businessData?.id}`)}
+              onClick={() =>
+                navigate(
+                  `/negocio/@${user.businessData?.profile_name || user.businessData?.id}`,
+                )
+              }
             >
               <Eye className="h-4 w-4 mr-2" />
             </Button>
@@ -473,7 +477,7 @@ const BusinessDashboard = () => {
                                   <Calendar className="h-3 w-3" />
                                   <span>
                                     {new Date(
-                                      post.created_at
+                                      post.created_at,
                                     ).toLocaleDateString("es-ES", {
                                       day: "numeric",
                                       month: "long",
@@ -814,26 +818,31 @@ const BusinessDashboard = () => {
 
         {/* Footer / branding */}
         <div className="mt-12 text-center border-t border-gray-100 pt-6 text-sm">
-         <div className="text-center mt-12">
-  {/* Logo */}
-  <a href="https://visonixro.com" target="_blank" rel="noopener noreferrer" className="inline-block mb-2">
-    <img
-      src="https://i.imgur.com/6Ua5WQl.png"
-      alt="VISONIXRO Logo"
-      className="h-10 w-10 mx-auto object-contain"
-    />
-  </a>
+          <div className="text-center mt-12">
+            {/* Logo */}
+            <a
+              href="https://visonixro.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mb-2"
+            >
+              <img
+                src="https://i.imgur.com/6Ua5WQl.png"
+                alt="VISONIXRO Logo"
+                className="h-10 w-10 mx-auto object-contain"
+              />
+            </a>
 
-  {/* Texto con gradiente */}
-  <a
-    href="https://visonixro.com"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-bold text-lg hover:underline transition-all duration-200"
-  >
-    VISONIXRO
-  </a>
-</div>
+            {/* Texto con gradiente */}
+            <a
+              href="https://visonixro.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-bold text-lg hover:underline transition-all duration-200"
+            >
+              VISONIXRO
+            </a>
+          </div>
 
           <p className="text-xs text-gray-500 mt-1">
             Desarrollo y soluciones digitales

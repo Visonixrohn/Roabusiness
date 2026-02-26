@@ -106,7 +106,7 @@ const UserProfilePage = () => {
                   />
                   <div className="flex-1">
                     <Link
-                      to={`/negocio/${biz.id}`}
+                      to={`/negocio/@${biz.profile_name || biz.id}`}
                       className="font-semibold text-blue-400 hover:underline"
                     >
                       {biz.name}

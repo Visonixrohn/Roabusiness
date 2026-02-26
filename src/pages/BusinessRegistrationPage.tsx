@@ -37,6 +37,7 @@ import {
 interface FormData {
   // Información básica
   name: string;
+  profile_name: string;
   category: string;
   departamento: string;
   municipio: string;
@@ -78,6 +79,7 @@ const BusinessRegistrationPage = () => {
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
+    profile_name: "",
     category: "",
     departamento: "",
     municipio: "",
@@ -217,11 +219,30 @@ const BusinessRegistrationPage = () => {
       toast.error("Por favor completa todos los campos requeridos");
       return;
     }
+
     setIsSubmitting(true);
     try {
+      // Validar que profile_name no esté duplicado
+      if (formData.profile_name) {
+        const { data: existingBusiness } = await supabase
+          .from("businesses")
+          .select("id")
+          .eq("profile_name", formData.profile_name)
+          .single();
+
+        if (existingBusiness) {
+          toast.error(
+            `El nombre de perfil @${formData.profile_name} ya está en uso. Por favor elige otro.`,
+          );
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       // Preparar payload en camelCase
       const payloadCamel = {
         name: formData.name,
+        profile_name: formData.profile_name || null,
         category: formData.category,
         departamento: formData.departamento,
         municipio: formData.municipio,
@@ -258,6 +279,7 @@ const BusinessRegistrationPage = () => {
       // Preparar payload en snake_case como fallback
       const payloadSnake = {
         name: formData.name,
+        profile_name: formData.profile_name || null,
         category: formData.category,
         departamento: formData.departamento,
         municipio: formData.municipio,
@@ -453,6 +475,35 @@ const BusinessRegistrationPage = () => {
                       placeholder="Ej: Hotel Paradise Bay"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nombre de Perfil * (@nombre)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">
+                      @
+                    </span>
+                    <input
+                      type="text"
+                      value={formData.profile_name}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]/g, "");
+                        handleInputChange("profile_name", value);
+                      }}
+                      className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
+                      placeholder="lacocinadejorge"
+                      maxLength={50}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Solo letras minúsculas y números. Este será tu enlace único:
+                    roabusiness.com/negocio/@
+                    {formData.profile_name || "tunombre"}
+                  </p>
                 </div>
 
                 <div>

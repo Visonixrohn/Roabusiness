@@ -57,7 +57,7 @@ export const StarRating: React.FC<StarRatingProps> = ({
               className={cn(
                 "transition-all duration-150",
                 isInteractive && "cursor-pointer hover:scale-110",
-                readOnly && "cursor-default"
+                readOnly && "cursor-default",
               )}
               style={{
                 background: "none",
@@ -73,16 +73,10 @@ export const StarRating: React.FC<StarRatingProps> = ({
                     ? "text-yellow-400 fill-yellow-400"
                     : isHalfStar
                       ? "text-yellow-400 fill-yellow-200"
-                      : "text-gray-300"
+                      : "text-gray-300",
                 )}
                 strokeWidth={1.5}
-                fill={
-                  isFullStar
-                    ? "#facc15"
-                    : isHalfStar
-                      ? "#fef08a"
-                      : "none"
-                }
+                fill={isFullStar ? "#facc15" : isHalfStar ? "#fef08a" : "none"}
               />
             </button>
           );
@@ -96,7 +90,8 @@ export const StarRating: React.FC<StarRatingProps> = ({
           </span>
           {totalRatings !== undefined && (
             <span className="text-xs text-gray-500">
-              ({totalRatings} {totalRatings === 1 ? "valoración" : "valoraciones"})
+              ({totalRatings}{" "}
+              {totalRatings === 1 ? "valoración" : "valoraciones"})
             </span>
           )}
         </div>

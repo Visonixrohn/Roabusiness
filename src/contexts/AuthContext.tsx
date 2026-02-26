@@ -8,6 +8,7 @@ export interface User {
   businessData?: {
     id: string;
     name: string;
+    profile_name?: string;
     category: string;
     island: string;
     location: string;

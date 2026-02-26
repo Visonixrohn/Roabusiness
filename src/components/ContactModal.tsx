@@ -13,6 +13,7 @@ import {
   Instagram,
   Twitter,
   Star,
+  Share2,
 } from "lucide-react";
 import { Business } from "@/types/business";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
 import { supabase } from "@/lib/supabaseClient";
 import { StarRating } from "@/components/StarRating";
 import { useRatings } from "@/hooks/useRatings";
+import { shareBusinessLink } from "@/lib/shareUtils";
 
 // --- Custom Hooks y Utilidades ---
 
@@ -392,7 +394,7 @@ interface QuickActionsProps {
 }
 
 const QuickActions = ({ business, contacts }: QuickActionsProps) => (
-  <div className="border-t pt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+  <div className="border-t pt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
     <Button
       variant="outline"
       size="sm"
@@ -426,6 +428,17 @@ const QuickActions = ({ business, contacts }: QuickActionsProps) => (
       aria-label="Guardar contacto (VCF)" // <-- Etiqueta cambiada para ser explícita
     >
       <Save className="h-4 w-4" /> Guardar {/* <-- Texto del botón cambiado */}
+    </Button>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() =>
+        shareBusinessLink(business.id, business.name, business.description)
+      }
+      className="flex items-center justify-center gap-2 text-sm"
+      aria-label="Compartir enlace del negocio"
+    >
+      <Share2 className="h-4 w-4" /> Compartir
     </Button>
     {contacts?.website && (
       <Button
@@ -561,7 +574,8 @@ interface RatingsSectionProps {
 }
 
 const RatingsSection = ({ businessId }: RatingsSectionProps) => {
-  const { average, totalRatings, deviceRating, rate, loading } = useRatings(businessId);
+  const { average, totalRatings, deviceRating, rate, loading } =
+    useRatings(businessId);
   const [isRating, setIsRating] = useState(false);
 
   const handleRate = async (rating: number) => {
@@ -571,7 +585,7 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
       toast.success(
         deviceRating
           ? "¡Calificación actualizada!"
-          : "¡Gracias por tu calificación!"
+          : "¡Gracias por tu calificación!",
       );
     } else {
       toast.error("No se pudo guardar la calificación");
@@ -583,9 +597,7 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
     <div className="rounded-xl bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 p-5">
       <div className="flex items-center gap-2 mb-3">
         <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-        <h3 className="font-semibold text-gray-900">
-          Califica este negocio
-        </h3>
+        <h3 className="font-semibold text-gray-900">Califica este negocio</h3>
       </div>
 
       {/* Mostrar promedio */}

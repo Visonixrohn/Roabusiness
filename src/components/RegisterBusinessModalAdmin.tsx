@@ -9,6 +9,7 @@ import { departamentos } from "@/data/hondurasLocations";
 
 interface EditFormData {
   name: string;
+  profile_name: string;
   category: string;
   departamento: string;
   municipio: string;
