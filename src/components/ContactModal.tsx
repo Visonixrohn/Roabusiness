@@ -738,47 +738,21 @@ const ContactModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-xl max-h-[95vh] overflow-y-auto p-6 rounded-xl flex flex-col gap-6 shadow-lg">
-        {business.coverImage && (
-          // Banner visible en pantallas md+
-          <div className="-mx-6 -mt-6 mb-2 overflow-hidden rounded-t-xl hidden md:block relative">
-            <img
-              src={business.coverImage}
-              alt={`${business.name} portada`}
-              className="w-full h-36 object-cover"
-            />
-            {/* Botón Ver perfil - Desktop con imagen */}
-            <div className="absolute bottom-3 right-3">
-              <Button
-                onClick={() => {
-                  const profileUrl = business.profile_name
-                    ? `/negocio/${business.profile_name}`
-                    : `/negocio/${business.id}`;
-                  window.location.href = profileUrl;
-                }}
-                className="bg-white/90 hover:bg-white text-gray-900 shadow-lg backdrop-blur-sm px-3 py-1.5 h-auto text-xs sm:text-sm font-medium rounded-lg transition-all"
-              >
-                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
-                Ver perfil
-              </Button>
-            </div>
-          </div>
-        )}
-
-        <DialogHeader className="relative flex flex-row items-center gap-3 border-b pb-4">
-          {/* Background móvil: imagen absoluta detrás del título/descr (solo visible < md) */}
+        <DialogHeader className="relative flex flex-row items-center gap-3 border-b pb-4 -mx-6 -mt-6 px-6 pt-6 mb-2">
+          {/* Background: imagen absoluta detrás del título/descr (visible en todas las pantallas) */}
           {business.coverImage && (
-            <div className="absolute inset-0 md:hidden pointer-events-none">
+            <div className="absolute inset-0 pointer-events-none rounded-t-xl overflow-hidden">
               <img
                 src={business.coverImage}
                 alt={`${business.name} portada`}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-black/45" />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/45 to-black/60" />
             </div>
           )}
           
-          {/* Botón Ver perfil - Móvil */}
-          <div className="absolute top-2 right-2 z-20 md:hidden">
+          {/* Botón Ver perfil - Siempre visible */}
+          <div className="absolute top-3 right-3 z-20">
             <Button
               onClick={() => {
                 const profileUrl = business.profile_name
@@ -786,43 +760,24 @@ const ContactModal = ({
                   : `/negocio/${business.id}`;
                 window.location.href = profileUrl;
               }}
-              className="bg-white/90 hover:bg-white text-gray-900 shadow-lg backdrop-blur-sm px-2.5 py-1.5 h-auto text-xs font-medium rounded-lg transition-all"
+              className="bg-white/90 hover:bg-white text-gray-900 shadow-lg backdrop-blur-sm px-2.5 sm:px-3 py-1.5 h-auto text-xs sm:text-sm font-medium rounded-lg transition-all"
             >
-              <User className="h-3.5 w-3.5 mr-1" />
+              <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-1.5" />
               Ver perfil
             </Button>
           </div>
-          
-          {/* Botón Ver perfil - Desktop sin imagen */}
-          {!business.coverImage && (
-            <div className="absolute top-2 right-2 z-20 hidden md:block">
-              <Button
-                onClick={() => {
-                  const profileUrl = business.profile_name
-                    ? `/negocio/${business.profile_name}`
-                    : `/negocio/${business.id}`;
-                  window.location.href = profileUrl;
-                }}
-                variant="outline"
-                className="px-3 py-1.5 h-auto text-xs sm:text-sm font-medium rounded-lg transition-all"
-              >
-                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
-                Ver perfil
-              </Button>
-            </div>
-          )}
 
           <div className="relative z-10 flex items-center gap-3">
             <img
               src={business.logo}
               alt={business.name}
-              className="w-12 h-12 rounded-full object-cover border-2 border-gray-100 shadow-sm"
+              className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg"
             />
             <div>
-              <DialogTitle className="text-2xl font-bold text-white md:text-gray-900 leading-tight">
+              <DialogTitle className={`text-2xl font-bold leading-tight ${business.coverImage ? 'text-white' : 'text-gray-900'}`}>
                 Contactar a {business.name}
               </DialogTitle>
-              <DialogDescription className="text-sm text-white/90 md:text-gray-600 mt-1">
+              <DialogDescription className={`text-sm mt-1 ${business.coverImage ? 'text-white/95' : 'text-gray-600'}`}>
                 {business.description ||
                   "Encuentra toda la información de contacto y ubicación."}
               </DialogDescription>
