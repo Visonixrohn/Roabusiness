@@ -508,7 +508,7 @@ const BusinessProfilePage = () => {
     businessId: id,
     userId: user?.id,
   });
-  const { average, userRating, rate } = useRatings(id!, user?.id || "");
+  const { average, deviceRating, rate } = useRatings(id!);
   const { amenities } = useAmenities(id!);
   const { images } = useGallery(id!);
   const { contacts } = useContacts(id!);

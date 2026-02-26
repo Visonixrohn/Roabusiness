@@ -19,8 +19,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ContactModal from "@/components/ContactModal";
 import GalleryModal from "@/components/GalleryModal";
+import { StarRating } from "@/components/StarRating";
 import { cn } from "@/lib/utils";
 import { useContacts } from "@/hooks/useContacts";
+import { useRatings } from "@/hooks/useRatings";
 
 interface BusinessCardProps {
   business: Business;
@@ -38,6 +40,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
   const [showGalleryModal, setShowGalleryModal] = useState(false);
 
   const { contacts, loading: loadingContacts } = useContacts(business.id);
+  const { average, totalRatings } = useRatings(business.id);
 
   // Fallback para contactos: si no hay en la tabla contacts, usar los del objeto business.contact
   const fallbackContacts = business.contact || null;
@@ -168,10 +171,22 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
           </div>
 
           {/* Descripción */}
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+          <p className="text-gray-600 text-sm mb-3 line-clamp-2 leading-relaxed">
             {business.description ||
               "Descubre este increíble negocio en Honduras"}
           </p>
+
+          {/* Calificaciones */}
+          <div className="mb-4 pb-3 border-b border-gray-100">
+            <StarRating
+              value={average || 0}
+              readOnly
+              size={18}
+              showValue
+              totalRatings={totalRatings}
+              className="justify-start"
+            />
+          </div>
 
           {/* Amenidades */}
           {business.amenities && business.amenities.length > 0 && (

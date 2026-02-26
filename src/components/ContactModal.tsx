@@ -12,6 +12,7 @@ import {
   Facebook,
   Instagram,
   Twitter,
+  Star,
 } from "lucide-react";
 import { Business } from "@/types/business";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,8 @@ import TikTokIcon from "@/components/icons/TikTokIcon"; // Asegúrate de que est
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
 import { supabase } from "@/lib/supabaseClient";
+import { StarRating } from "@/components/StarRating";
+import { useRatings } from "@/hooks/useRatings";
 
 // --- Custom Hooks y Utilidades ---
 
@@ -551,6 +554,89 @@ const SocialMediaLinks = ({ business }: SocialMediaLinksProps) => {
   );
 };
 
+// --- Componente de calificación ---
+
+interface RatingsSectionProps {
+  businessId: string;
+}
+
+const RatingsSection = ({ businessId }: RatingsSectionProps) => {
+  const { average, totalRatings, deviceRating, rate, loading } = useRatings(businessId);
+  const [isRating, setIsRating] = useState(false);
+
+  const handleRate = async (rating: number) => {
+    setIsRating(true);
+    const success = await rate(rating);
+    if (success) {
+      toast.success(
+        deviceRating
+          ? "¡Calificación actualizada!"
+          : "¡Gracias por tu calificación!"
+      );
+    } else {
+      toast.error("No se pudo guardar la calificación");
+    }
+    setIsRating(false);
+  };
+
+  return (
+    <div className="rounded-xl bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 p-5">
+      <div className="flex items-center gap-2 mb-3">
+        <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+        <h3 className="font-semibold text-gray-900">
+          Califica este negocio
+        </h3>
+      </div>
+
+      {/* Mostrar promedio */}
+      <div className="mb-4 pb-4 border-b border-yellow-200">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm text-gray-600">Calificación promedio</span>
+          {average !== null && average > 0 && (
+            <span className="text-2xl font-bold text-gray-900">
+              {average.toFixed(1)}
+            </span>
+          )}
+        </div>
+        <StarRating
+          value={average || 0}
+          readOnly
+          size={24}
+          showValue={false}
+          className="justify-start"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          {totalRatings > 0
+            ? `Basado en ${totalRatings} ${totalRatings === 1 ? "valoración" : "valoraciones"}`
+            : "Sé el primero en calificar"}
+        </p>
+      </div>
+
+      {/* Calificar */}
+      <div>
+        <p className="text-sm text-gray-700 mb-2">
+          {deviceRating
+            ? `Tu calificación: ${deviceRating} ⭐`
+            : "¿Qué te pareció este negocio?"}
+        </p>
+        <StarRating
+          value={deviceRating || 0}
+          onChange={handleRate}
+          size={32}
+          showValue={false}
+          interactive={!isRating && !loading}
+          className="justify-start"
+        />
+        {deviceRating && (
+          <p className="text-xs text-gray-500 mt-2">
+            Toca una estrella para cambiar tu calificación
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // --- Componente ContactModal principal ---
 
 interface ContactModalProps {
@@ -679,6 +765,9 @@ const ContactModal = ({
 
           {/* Sección de Acciones Rápidas */}
           <QuickActions business={business} contacts={contacts} />
+
+          {/* Sección de Calificaciones */}
+          <RatingsSection businessId={business.id} />
         </div>
         {/* Sección de Mapa */}
         <MapDisplay

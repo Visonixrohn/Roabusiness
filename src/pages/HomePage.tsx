@@ -11,7 +11,7 @@ import IslandsSection from "@/components/Islansection";
 import HeroSection from "@/components/Hero";
 import AboutPage from "./AboutPage";
 const HomePage = () => {
-  // Usar negocios destacados por contador de contactos
+  // Usar negocios destacados ordenados por calificación
   const { destacados, loading: loadingDestacados } = useNegociosDestacados(6);
   const { mostFollowedBusinesses, loading, followersMap } = useBusinesses();
   // Nuevo: obtener todos los negocios públicos
@@ -78,7 +78,7 @@ const HomePage = () => {
               Negocios Destacados
             </h2>
             <p className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto leading-relaxed">
-              Los negocios más contactados por nuestros usuarios
+              Los negocios mejor calificados por nuestros usuarios
             </p>
             <div className="mt-6 flex justify-center space-x-3">
               <span className="inline-block w-20 h-1 bg-teal-500 rounded-full animate-pulse"></span>

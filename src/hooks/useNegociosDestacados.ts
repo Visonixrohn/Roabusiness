@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Business } from "@/types/business";
 
-interface NegocioDestacado {
-  business_id: string;
+interface NegocioDestacado extends Business {
   contador_contactos: number;
   ultimo_contacto: string | null;
+  average_rating: number;
+  total_ratings: number;
 }
 
 export const useNegociosDestacados = (limit: number = 6) => {
-  const [destacados, setDestacados] = useState<Business[]>([]);
+  const [destacados, setDestacados] = useState<NegocioDestacado[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,11 +19,13 @@ export const useNegociosDestacados = (limit: number = 6) => {
       try {
         setLoading(true);
 
-        // Obtener negocios más contactados desde la vista
+        // Obtener negocios mejor calificados desde la vista
+        // Nota: La vista ya ordena por average_rating DESC, pero agregamos order aquí también por claridad
         const { data, error } = await supabase
           .from("vista_negocios_destacados")
           .select("*")
-          .order("contador_contactos", { ascending: false })
+          .order("average_rating", { ascending: false })
+          .order("total_ratings", { ascending: false })
           .limit(limit);
 
         if (error) throw error;

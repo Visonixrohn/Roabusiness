@@ -18,12 +18,15 @@ import {
   Satellite,
   Navigation,
   RotateCcw,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import ImageUpload from "@/components/ImageUpload";
 import RegisterBusinessModalAdmin from "@/components/RegisterBusinessModalAdmin";
+import { StarRating } from "@/components/StarRating";
+import { useRatings } from "@/hooks/useRatings";
 import { toast } from "sonner";
 import businessCategories from "@/data/businessCategories";
 import { GoogleMap, Marker } from "@react-google-maps/api";
@@ -76,6 +79,35 @@ interface Business {
   tiktok?: string;
   tripadvisor?: string;
 }
+
+// Componente interno para mostrar calificaciones de un negocio
+const BusinessRatingDisplay = ({ businessId }: { businessId: string }) => {
+  const { average, totalRatings, loading } = useRatings(businessId);
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-1 text-sm text-gray-400">
+        <Star className="h-4 w-4" />
+        <span>Cargando...</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <StarRating
+        value={average || 0}
+        readOnly
+        size={16}
+        showValue={false}
+      />
+      <span className="text-sm font-medium text-gray-700">
+        {average ? average.toFixed(1) : "0.0"}
+      </span>
+      <span className="text-xs text-gray-500">({totalRatings})</span>
+    </div>
+  );
+};
 
 interface EditFormData {
   name: string;
@@ -894,6 +926,11 @@ const EditBusinessPage = () => {
                     <p className="text-gray-600 text-sm mb-3 line-clamp-2">
                       {business.description}
                     </p>
+
+                    {/* Calificaciones */}
+                    <div className="mb-3">
+                      <BusinessRatingDisplay businessId={business.id} />
+                    </div>
 
                     <div className="flex flex-wrap gap-2 text-sm text-gray-500">
                       <span className="flex items-center">

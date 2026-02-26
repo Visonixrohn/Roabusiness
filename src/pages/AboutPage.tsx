@@ -6,6 +6,8 @@ import { useBusinesses } from "@/hooks/useBusinesses";
 import ContactModal from "@/components/ContactModal";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button"; // Añadí Shadcn Button para los controles
+import { StarRating } from "@/components/StarRating";
+import { useRatings } from "@/hooks/useRatings";
 
 const AboutPage = () => {
  
@@ -39,6 +41,30 @@ const AboutPage = () => {
 };
 
 export default AboutPage;
+
+/* Component: BusinessRatingCompact - Muestra calificación en tarjetas pequeñas */
+const BusinessRatingCompact = ({ businessId }: { businessId: string }) => {
+  const { average, totalRatings, loading } = useRatings(businessId);
+
+  if (loading) {
+    return <div className="h-5 w-24 bg-gray-200 animate-pulse rounded" />;
+  }
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <StarRating
+        value={average || 0}
+        readOnly
+        size={14}
+        showValue={false}
+      />
+      <span className="text-xs font-semibold text-gray-700">
+        {average ? average.toFixed(1) : "0.0"}
+      </span>
+      <span className="text-xs text-gray-500">({totalRatings})</span>
+    </div>
+  );
+};
 
 /* Component: NearbyBusinesses (defined below) */
 function NearbyBusinesses() {
@@ -411,16 +437,32 @@ function NearbyBusinesses() {
                             {b.name}
                           </h4>
                         </div>
+
+                        {/* Logo flotante */}
+                        <div className="absolute -bottom-6 left-4">
+                          <div className="w-16 h-16 rounded-2xl border-4 border-white shadow-xl overflow-hidden bg-white">
+                            <img
+                              src={b.logo || b.coverImage || "https://via.placeholder.com/150"}
+                              alt={`${b.name} logo`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        </div>
                       </div>
 
                       {/* Contenido de la tarjeta */}
-                      <div className="p-4 flex flex-col justify-between h-[calc(100%-224px)]"> {/* Altura ajustada */}
+                      <div className="p-4 pt-8 flex flex-col justify-between h-[calc(100%-224px)]"> {/* Altura ajustada con pt-8 para el logo */}
                         {/* Descripción */}
                         <div className="mb-3 flex-grow"> {/* flex-grow para que ocupe espacio disponible */}
                           <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed">
                             {b.description ||
                               "Un negocio increíble con productos y servicios de calidad. ¡Descúbrelo ahora!"}
                           </p>
+                        </div>
+
+                        {/* Calificaciones */}
+                        <div className="mb-3 pb-3 border-b border-gray-100">
+                          <BusinessRatingCompact businessId={b.id} />
                         </div>
 
                         {/* Categoría e isla */}
@@ -441,7 +483,7 @@ function NearbyBusinesses() {
                             setSelectedBiz(b);
                             setShowContactModal(true);
                           }}
-                          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-3 rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
+                          className="w-full bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white px-4 py-3 rounded-xl font-semibold text-base shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
                         >
                           <span>Contactar Ahora</span>
                           <ChevronRight className="w-4 h-4" />

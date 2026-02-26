@@ -98,7 +98,7 @@ const BusinessRegistrationPage = () => {
     amenities: [],
     coverImage: "",
     logo: "",
-    subscriptionMonths: 1,
+    subscriptionMonths: 12,
   });
 
   const islandCenters: Record<string, { lat: number; lng: number }> = {
@@ -849,23 +849,31 @@ const BusinessRegistrationPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
                   Tiempo de duración (meses) *
                 </label>
-                <input
-                  type="number"
-                  min={1}
-                  value={formData.subscriptionMonths}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      subscriptionMonths: Number(e.target.value || 1),
-                    }))
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="Ej: 6"
-                />
-                <p className="text-xs text-gray-500 mt-1">
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                  {[6, 12, 18, 24, 30, 36].map((months) => (
+                    <button
+                      key={months}
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          subscriptionMonths: months,
+                        }))
+                      }
+                      className={`px-4 py-3 border-2 rounded-lg font-semibold transition-all ${
+                        formData.subscriptionMonths === months
+                          ? "border-blue-600 bg-blue-50 text-blue-700 shadow-md scale-105"
+                          : "border-gray-300 text-gray-600 hover:border-blue-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      {months}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
                   Este valor se usa para controlar cuándo expira la suscripción
                   del negocio.
                 </p>

@@ -46,7 +46,7 @@ const BusinessDashboard = () => {
   // Hooks de datos reales
   const { viewsCount } = useViews({ businessId });
   const { followersCount } = useFollowers(businessId, userId);
-  const { average: avgRating } = useRatings(businessId, userId);
+  const { average: avgRating } = useRatings(businessId!);
 
   const [posts, setPosts] = useState<any[]>([]);
   const [isPublic, setIsPublic] = useState(
