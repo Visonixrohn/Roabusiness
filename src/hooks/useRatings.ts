@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { getDeviceId } from "@/lib/deviceId";
+import {
+  getDeviceId,
+  registerRating,
+  hasRatedBusiness,
+  unregisterRating,
+} from "@/lib/deviceId";
 
 /**
  * Hook para manejar calificaciones de negocios usando device_id
@@ -87,6 +92,12 @@ export function useRatings(businessId: string) {
     setError(null);
 
     try {
+      // Verificar si ya existe calificación en localStorage
+      const hasRated = hasRatedBusiness(businessId);
+      console.log(
+        `[Rating] Business: ${businessId}, DeviceId: ${deviceId}, HasRated: ${hasRated}, NewRating: ${rating}`,
+      );
+
       // Upsert calificación (actualiza si existe, inserta si no)
       const { error: upsertError } = await supabase
         .from("calificaciones")
@@ -103,10 +114,15 @@ export function useRatings(businessId: string) {
         );
 
       if (upsertError) {
+        console.error("[Rating Error]", upsertError);
         setError(upsertError.message);
         setLoading(false);
         return false;
       }
+
+      // Registrar en localStorage como capa adicional de control
+      registerRating(businessId, rating, deviceId);
+      console.log("[Rating] Calificación registrada en localStorage");
 
       // Refrescar calificaciones
       await fetchRatings();
@@ -137,6 +153,10 @@ export function useRatings(businessId: string) {
         setLoading(false);
         return false;
       }
+
+      // Eliminar también del registro local
+      unregisterRating(businessId);
+      console.log("[Rating] Calificación eliminada de localStorage");
 
       await fetchRatings();
       return true;

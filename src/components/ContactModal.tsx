@@ -593,6 +593,9 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
     setIsRating(false);
   };
 
+  // Verificar si el usuario ya calificó
+  const hasAlreadyRated = deviceRating !== null && deviceRating > 0;
+
   return (
     <div className="rounded-xl bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 p-5">
       <div className="flex items-center gap-2 mb-3">
@@ -626,11 +629,22 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
 
       {/* Calificar */}
       <div>
-        <p className="text-sm text-gray-700 mb-2">
-          {deviceRating
-            ? `Tu calificación: ${deviceRating} ⭐`
-            : "¿Qué te pareció este negocio?"}
-        </p>
+        {hasAlreadyRated ? (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+            <p className="text-sm text-green-800 font-medium flex items-center gap-2">
+              <Star className="h-4 w-4 fill-green-600 text-green-600" />
+              Ya calificaste este negocio con {deviceRating} estrella
+              {deviceRating === 1 ? "" : "s"}
+            </p>
+            <p className="text-xs text-green-700 mt-1">
+              Puedes cambiar tu calificación tocando las estrellas abajo
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-700 mb-2">
+            ¿Qué te pareció este negocio?
+          </p>
+        )}
         <StarRating
           value={deviceRating || 0}
           onChange={handleRate}
@@ -639,9 +653,9 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
           interactive={!isRating && !loading}
           className="justify-start"
         />
-        {deviceRating && (
+        {!hasAlreadyRated && (
           <p className="text-xs text-gray-500 mt-2">
-            Toca una estrella para cambiar tu calificación
+            Toca una estrella para calificar
           </p>
         )}
       </div>

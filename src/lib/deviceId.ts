@@ -121,3 +121,95 @@ export function getDeviceIdDebugInfo(): {
     fingerprint: generateDeviceFingerprint(),
   };
 }
+
+/**
+ * Gestión de registro local de calificaciones
+ * Mantiene un registro en localStorage de qué negocios ha calificado este dispositivo
+ */
+
+const RATINGS_REGISTRY_KEY = "roabusiness_ratings_registry";
+
+interface RatingRegistry {
+  [businessId: string]: {
+    rating: number;
+    timestamp: number;
+    deviceId: string;
+  };
+}
+
+/**
+ * Obtiene el registro de calificaciones del dispositivo
+ */
+function getRatingsRegistry(): RatingRegistry {
+  try {
+    const stored = localStorage.getItem(RATINGS_REGISTRY_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch (error) {
+    console.error("Error al leer registro de calificaciones:", error);
+    return {};
+  }
+}
+
+/**
+ * Guarda el registro de calificaciones
+ */
+function saveRatingsRegistry(registry: RatingRegistry): void {
+  try {
+    localStorage.setItem(RATINGS_REGISTRY_KEY, JSON.stringify(registry));
+  } catch (error) {
+    console.error("Error al guardar registro de calificaciones:", error);
+  }
+}
+
+/**
+ * Registra una calificación en localStorage
+ */
+export function registerRating(
+  businessId: string,
+  rating: number,
+  deviceId?: string,
+): void {
+  const registry = getRatingsRegistry();
+  registry[businessId] = {
+    rating,
+    timestamp: Date.now(),
+    deviceId: deviceId || getDeviceId(),
+  };
+  saveRatingsRegistry(registry);
+}
+
+/**
+ * Verifica si el dispositivo ya calificó un negocio
+ */
+export function hasRatedBusiness(businessId: string): boolean {
+  const registry = getRatingsRegistry();
+  return businessId in registry;
+}
+
+/**
+ * Obtiene la calificación previa del dispositivo para un negocio
+ */
+export function getDeviceRating(businessId: string): number | null {
+  const registry = getRatingsRegistry();
+  return registry[businessId]?.rating ?? null;
+}
+
+/**
+ * Elimina una calificación del registro local
+ */
+export function unregisterRating(businessId: string): void {
+  const registry = getRatingsRegistry();
+  delete registry[businessId];
+  saveRatingsRegistry(registry);
+}
+
+/**
+ * Limpia el registro de calificaciones (útil para testing)
+ */
+export function clearRatingsRegistry(): void {
+  try {
+    localStorage.removeItem(RATINGS_REGISTRY_KEY);
+  } catch (error) {
+    console.error("Error al limpiar registro:", error);
+  }
+}
