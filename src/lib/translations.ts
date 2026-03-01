@@ -14,9 +14,13 @@ export const translations = {
     // Hero
     'hero.title': 'Descubre las Islas de la Bahía',
     'hero.subtitle': 'El paraíso caribeño de Honduras te espera. Explora los mejores negocios, restaurantes, hoteles y actividades en Roatán, Utila y Guanaja.',
-    'hero.businessCount': 'negocios registrados',
+    'hero.businessCount': 'negocios disponibles',
     'hero.explore': 'Explorar Negocios',
     'hero.registerBusiness': 'Registrar Negocio',
+    
+    // Búsqueda
+    'search.placeholder': 'Buscar negocios, hoteles, restaurantes...',
+    'search.noResults': 'No se encontraron resultados',
     
     // BusinessProfilePage
     'business.about': 'Acerca de',
@@ -143,9 +147,13 @@ export const translations = {
     // Hero
     'hero.title': 'Discover the Bay Islands',
     'hero.subtitle': 'The Caribbean paradise of Honduras awaits you. Explore the best businesses, restaurants, hotels and activities in Roatán, Utila and Guanaja.',
-    'hero.businessCount': 'registered businesses',
+    'hero.businessCount': 'available businesses',
     'hero.explore': 'Explore Businesses',
     'hero.registerBusiness': 'Register Business',
+    
+    // Search
+    'search.placeholder': 'Search businesses, hotels, restaurants...',
+    'search.noResults': 'No results found',
     
     // BusinessProfilePage
     'business.about': 'About',
