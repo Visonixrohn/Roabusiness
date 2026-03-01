@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { LoadScript } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
@@ -73,6 +73,8 @@ function App() {
               {/* Top bar móvil eliminado */}
               <Routes>
                 <Route path="/" element={<HomePage />} />
+                {/* Redirección de URL antigua de Google */}
+                <Route path="/sobre-las-islas" element={<Navigate to="/" replace />} />
                 <Route path="/directorio" element={<DirectoryPage />} />
                 <Route
                   path="/negocio/@:profileName"

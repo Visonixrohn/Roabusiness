@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-// Auth removed: no login required
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import {
   Search,
   Menu,
@@ -21,6 +22,7 @@ import { useBusinesses } from "@/hooks/useBusinesses";
 import { isAdminSessionActive } from "@/lib/adminAuth";
 
 const Header = () => {
+  const { t } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -32,10 +34,10 @@ const Header = () => {
   const isAdminLoggedIn = isAdminSessionActive();
 
   const navigation = [
-    { name: "Inicio", href: "/", icon: Home },
+    { name: t('nav.home'), href: "/", icon: Home },
     { name: "Directorio", href: "/directorio", icon: Users },
     ...(isAdminLoggedIn
-      ? [{ name: "Panel", href: "/editar-negocio", icon: Settings }]
+      ? [{ name: t('nav.dashboard'), href: "/editar-negocio", icon: Settings }]
       : []),
   ];
 
@@ -163,6 +165,9 @@ const Header = () => {
                 </Link>
               );
             })}
+
+            {/* Language Switcher - Desktop */}
+            <LanguageSwitcher />
 
             {/* Authentication removed: no login/profile buttons shown */}
           </nav>

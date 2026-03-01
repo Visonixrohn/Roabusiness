@@ -5,9 +5,11 @@ import { Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBusinesses } from "@/hooks/useBusinesses";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const HeroSection = () => {
-  const fullTitle = "Descubre las Islas de la Bahía";
+  const { t } = useLanguage();
+  const fullTitle = t('hero.title');
 
   const [imgLoaded, setImgLoaded] = useState(false);
   const [rippleActive, setRippleActive] = useState(false);
@@ -170,9 +172,7 @@ const HeroSection = () => {
                 : "opacity-0 translate-y-6"
             }`}
           >
-            El paraíso caribeño de Honduras te espera. Explora los mejores
-            negocios, restaurantes, hoteles y actividades en Roatán, Utila y
-            Guanaja.
+            {t('hero.subtitle')}
           </p>
 
           <div
@@ -190,7 +190,7 @@ const HeroSection = () => {
             {displayedCount}
           </div>
           <p className="text-white text-[9px] xs:text-[10px] sm:text-xs md:text-base leading-tight">
-            Negocios Destacados
+            {t('hero.businessCount')}
           </p>
         </div>
       </section>

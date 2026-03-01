@@ -1,0 +1,322 @@
+// Sistema de traducciones para la aplicación
+
+export const translations = {
+  es: {
+    // Navegación y Header
+    'nav.home': 'Inicio',
+    'nav.about': 'Acerca de',
+    'nav.contact': 'Contacto',
+    'nav.login': 'Iniciar Sesión',
+    'nav.register': 'Registrar Negocio',
+    'nav.dashboard': 'Panel',
+    'nav.logout': 'Cerrar Sesión',
+    
+    // Hero
+    'hero.title': 'Descubre las Islas de la Bahía',
+    'hero.subtitle': 'El paraíso caribeño de Honduras te espera. Explora los mejores negocios, restaurantes, hoteles y actividades en Roatán, Utila y Guanaja.',
+    'hero.businessCount': 'negocios registrados',
+    'hero.explore': 'Explorar Negocios',
+    'hero.registerBusiness': 'Registrar Negocio',
+    
+    // BusinessProfilePage
+    'business.about': 'Acerca de',
+    'business.noDescription': 'Sin descripción disponible',
+    'business.contactInfo': 'Información de Contacto',
+    'business.notAvailable': 'No disponible',
+    'business.socialMedia': 'Redes Sociales',
+    'business.amenities': 'Servicios y Amenidades',
+    'business.schedule': 'Horario',
+    'business.closed': 'Cerrado',
+    'business.location': 'Ubicación',
+    'business.gallery': 'Ver galería',
+    'business.share': 'Compartir',
+    'business.call': 'Llamar',
+    'business.noPhone': 'No hay número de teléfono disponible',
+    'business.noWhatsApp': 'No hay número de WhatsApp disponible',
+    
+    // Días de la semana
+    'day.monday': 'Lunes',
+    'day.tuesday': 'Martes',
+    'day.wednesday': 'Miércoles',
+    'day.thursday': 'Jueves',
+    'day.friday': 'Viernes',
+    'day.saturday': 'Sábado',
+    'day.sunday': 'Domingo',
+    
+    // Amenidades comunes
+    'amenity.wifi': 'Wi-Fi',
+    'amenity.parking': 'Estacionamiento',
+    'amenity.airConditioning': 'Aire Acondicionado',
+    'amenity.petFriendly': 'Admite Mascotas',
+    'amenity.pool': 'Piscina',
+    'amenity.restaurant': 'Restaurante',
+    'amenity.bar': 'Bar',
+    'amenity.gym': 'Gimnasio',
+    'amenity.spa': 'Spa',
+    'amenity.beachAccess': 'Acceso a Playa',
+    'amenity.freeBreakfast': 'Desayuno Gratis',
+    'amenity.roomService': 'Servicio a la Habitación',
+    'amenity.laundry': 'Lavandería',
+    'amenity.wheelchair': 'Accesible en Silla de Ruedas',
+    'amenity.creditCards': 'Acepta Tarjetas de Crédito',
+    'amenity.delivery': 'Servicio a Domicilio',
+    'amenity.takeout': 'Para Llevar',
+    'amenity.outdoorSeating': 'Área Exterior',
+    'amenity.liveMusic': 'Música en Vivo',
+    'amenity.terrace': 'Terraza',
+    'amenity.garden': 'Jardín',
+    'amenity.bbq': 'Barbacoa',
+    'amenity.kitchen': 'Cocina',
+    'amenity.tv': 'Televisión',
+    'amenity.safe': 'Caja Fuerte',
+    'amenity.privateBeach': 'Playa Privada',
+    'amenity.divingCenter': 'Centro de Buceo',
+    'amenity.snorkelingEquipment': 'Equipo de Snorkel',
+    'amenity.kayaks': 'Kayaks',
+    'amenity.bicycles': 'Bicicletas',
+    'amenity.tourDesk': 'Desk de Tours',
+    'amenity.concierge': 'Conserje',
+    'amenity.shuttle': 'Transporte al Aeropuerto',
+    'amenity.security24h': 'Seguridad 24h',
+    'amenity.generator': 'Generador Eléctrico',
+    'amenity.conferenceRoom': 'Sala de Conferencias',
+    'amenity.businessCenter': 'Centro de Negocios',
+    
+    // Categorías
+    'category.hotels': 'Hoteles',
+    'category.restaurants': 'Restaurantes',
+    'category.tours': 'Tours',
+    'category.bars': 'Bares',
+    'category.shops': 'Tiendas',
+    'category.services': 'Servicios',
+    
+    // Filtros
+    'filter.all': 'Todos',
+    'filter.category': 'Categoría',
+    'filter.location': 'Ubicación',
+    'filter.priceRange': 'Rango de Precio',
+    'filter.rating': 'Calificación',
+    'filter.clear': 'Limpiar Filtros',
+    'filter.apply': 'Aplicar',
+    
+    // Rango de precios
+    'price.cheap': 'Económico',
+    'price.moderate': 'Moderado',
+    'price.expensive': 'Caro',
+    'price.luxury': 'Lujo',
+    
+    // Botones comunes
+    'button.save': 'Guardar',
+    'button.cancel': 'Cancelar',
+    'button.edit': 'Editar',
+    'button.delete': 'Eliminar',
+    'button.confirm': 'Confirmar',
+    'button.close': 'Cerrar',
+    'button.back': 'Volver',
+    'button.next': 'Siguiente',
+    'button.previous': 'Anterior',
+    'button.submit': 'Enviar',
+    'button.search': 'Buscar',
+    
+    // Mensajes
+    'message.loading': 'Cargando...',
+    'message.error': 'Error',
+    'message.success': 'Éxito',
+    'message.noResults': 'No se encontraron resultados',
+    'message.tryAgain': 'Intentar de nuevo',
+    
+    // Footer
+    'footer.allRightsReserved': 'Todos los derechos reservados',
+    'footer.privacyPolicy': 'Política de Privacidad',
+    'footer.termsOfService': 'Términos de Servicio',
+  },
+  en: {
+    // Navigation and Header
+    'nav.home': 'Home',
+    'nav.about': 'About',
+    'nav.contact': 'Contact',
+    'nav.login': 'Log In',
+    'nav.register': 'Register Business',
+    'nav.dashboard': 'Dashboard',
+    'nav.logout': 'Log Out',
+    
+    // Hero
+    'hero.title': 'Discover the Bay Islands',
+    'hero.subtitle': 'The Caribbean paradise of Honduras awaits you. Explore the best businesses, restaurants, hotels and activities in Roatán, Utila and Guanaja.',
+    'hero.businessCount': 'registered businesses',
+    'hero.explore': 'Explore Businesses',
+    'hero.registerBusiness': 'Register Business',
+    
+    // BusinessProfilePage
+    'business.about': 'About',
+    'business.noDescription': 'No description available',
+    'business.contactInfo': 'Contact Information',
+    'business.notAvailable': 'Not available',
+    'business.socialMedia': 'Social Media',
+    'business.amenities': 'Services & Amenities',
+    'business.schedule': 'Schedule',
+    'business.closed': 'Closed',
+    'business.location': 'Location',
+    'business.gallery': 'View gallery',
+    'business.share': 'Share',
+    'business.call': 'Call',
+    'business.noPhone': 'No phone number available',
+    'business.noWhatsApp': 'No WhatsApp number available',
+    
+    // Days of the week
+    'day.monday': 'Monday',
+    'day.tuesday': 'Tuesday',
+    'day.wednesday': 'Wednesday',
+    'day.thursday': 'Thursday',
+    'day.friday': 'Friday',
+    'day.saturday': 'Saturday',
+    'day.sunday': 'Sunday',
+    
+    // Common amenities
+    'amenity.wifi': 'Wi-Fi',
+    'amenity.parking': 'Parking',
+    'amenity.airConditioning': 'Air Conditioning',
+    'amenity.petFriendly': 'Pet Friendly',
+    'amenity.pool': 'Pool',
+    'amenity.restaurant': 'Restaurant',
+    'amenity.bar': 'Bar',
+    'amenity.gym': 'Gym',
+    'amenity.spa': 'Spa',
+    'amenity.beachAccess': 'Beach Access',
+    'amenity.freeBreakfast': 'Free Breakfast',
+    'amenity.roomService': 'Room Service',
+    'amenity.laundry': 'Laundry',
+    'amenity.wheelchair': 'Wheelchair Accessible',
+    'amenity.creditCards': 'Credit Cards Accepted',
+    'amenity.delivery': 'Delivery',
+    'amenity.takeout': 'Takeout',
+    'amenity.outdoorSeating': 'Outdoor Seating',
+    'amenity.liveMusic': 'Live Music',
+    'amenity.terrace': 'Terrace',
+    'amenity.garden': 'Garden',
+    'amenity.bbq': 'BBQ',
+    'amenity.kitchen': 'Kitchen',
+    'amenity.tv': 'TV',
+    'amenity.safe': 'Safe Box',
+    'amenity.privateBeach': 'Private Beach',
+    'amenity.divingCenter': 'Diving Center',
+    'amenity.snorkelingEquipment': 'Snorkeling Equipment',
+    'amenity.kayaks': 'Kayaks',
+    'amenity.bicycles': 'Bicycles',
+    'amenity.tourDesk': 'Tour Desk',
+    'amenity.concierge': 'Concierge',
+    'amenity.shuttle': 'Airport Shuttle',
+    'amenity.security24h': '24h Security',
+    'amenity.generator': 'Electric Generator',
+    'amenity.conferenceRoom': 'Conference Room',
+    'amenity.businessCenter': 'Business Center',
+    
+    // Categories
+    'category.hotels': 'Hotels',
+    'category.restaurants': 'Restaurants',
+    'category.tours': 'Tours',
+    'category.bars': 'Bars',
+    'category.shops': 'Shops',
+    'category.services': 'Services',
+    
+    // Filters
+    'filter.all': 'All',
+    'filter.category': 'Category',
+    'filter.location': 'Location',
+    'filter.priceRange': 'Price Range',
+    'filter.rating': 'Rating',
+    'filter.clear': 'Clear Filters',
+    'filter.apply': 'Apply',
+    
+    // Price range
+    'price.cheap': 'Budget',
+    'price.moderate': 'Moderate',
+    'price.expensive': 'Expensive',
+    'price.luxury': 'Luxury',
+    
+    // Common buttons
+    'button.save': 'Save',
+    'button.cancel': 'Cancel',
+    'button.edit': 'Edit',
+    'button.delete': 'Delete',
+    'button.confirm': 'Confirm',
+    'button.close': 'Close',
+    'button.back': 'Back',
+    'button.next': 'Next',
+    'button.previous': 'Previous',
+    'button.submit': 'Submit',
+    'button.search': 'Search',
+    
+    // Messages
+    'message.loading': 'Loading...',
+    'message.error': 'Error',
+    'message.success': 'Success',
+    'message.noResults': 'No results found',
+    'message.tryAgain': 'Try again',
+    
+    // Footer
+    'footer.allRightsReserved': 'All rights reserved',
+    'footer.privacyPolicy': 'Privacy Policy',
+    'footer.termsOfService': 'Terms of Service',
+  },
+};
+
+// Mapa de amenidades en español a inglés
+export const amenityTranslations: Record<string, { en: string; es: string }> = {
+  // Common amenities in Spanish
+  'Wi-Fi': { en: 'Wi-Fi', es: 'Wi-Fi' },
+  'WiFi': { en: 'Wi-Fi', es: 'Wi-Fi' },
+  'Estacionamiento': { en: 'Parking', es: 'Estacionamiento' },
+  'Aire Acondicionado': { en: 'Air Conditioning', es: 'Aire Acondicionado' },
+  'Admite Mascotas': { en: 'Pet Friendly', es: 'Admite Mascotas' },
+  'Piscina': { en: 'Pool', es: 'Piscina' },
+  'Restaurante': { en: 'Restaurant', es: 'Restaurante' },
+  'Bar': { en: 'Bar', es: 'Bar' },
+  'Gimnasio': { en: 'Gym', es: 'Gimnasio' },
+  'Spa': { en: 'Spa', es: 'Spa' },
+  'Acceso a Playa': { en: 'Beach Access', es: 'Acceso a Playa' },
+  'Desayuno Gratis': { en: 'Free Breakfast', es: 'Desayuno Gratis' },
+  'Servicio a la Habitación': { en: 'Room Service', es: 'Servicio a la Habitación' },
+  'Lavandería': { en: 'Laundry', es: 'Lavandería' },
+  'Accesible en Silla de Ruedas': { en: 'Wheelchair Accessible', es: 'Accesible en Silla de Ruedas' },
+  'Acepta Tarjetas de Crédito': { en: 'Credit Cards Accepted', es: 'Acepta Tarjetas de Crédito' },
+  'Servicio a Domicilio': { en: 'Delivery', es: 'Servicio a Domicilio' },
+  'Para Llevar': { en: 'Takeout', es: 'Para Llevar' },
+  'Área Exterior': { en: 'Outdoor Seating', es: 'Área Exterior' },
+  'Música en Vivo': { en: 'Live Music', es: 'Música en Vivo' },
+  'Terraza': { en: 'Terrace', es: 'Terraza' },
+  'Jardín': { en: 'Garden', es: 'Jardín' },
+  'Barbacoa': { en: 'BBQ', es: 'Barbacoa' },
+  'Cocina': { en: 'Kitchen', es: 'Cocina' },
+  'Televisión': { en: 'TV', es: 'Televisión' },
+  'Caja Fuerte': { en: 'Safe Box', es: 'Caja Fuerte' },
+  'Playa Privada': { en: 'Private Beach', es: 'Playa Privada' },
+  'Centro de Buceo': { en: 'Diving Center', es: 'Centro de Buceo' },
+  'Equipo de Snorkel': { en: 'Snorkeling Equipment', es: 'Equipo de Snorkel' },
+  'Kayaks': { en: 'Kayaks', es: 'Kayaks' },
+  'Bicicletas': { en: 'Bicycles', es: 'Bicicletas' },
+  'Desk de Tours': { en: 'Tour Desk', es: 'Desk de Tours' },
+  'Conserje': { en: 'Concierge', es: 'Conserje' },
+  'Transporte al Aeropuerto': { en: 'Airport Shuttle', es: 'Transporte al Aeropuerto' },
+  'Seguridad 24h': { en: '24h Security', es: 'Seguridad 24h' },
+  'Generador Eléctrico': { en: 'Electric Generator', es: 'Generador Eléctrico' },
+  'Sala de Conferencias': { en: 'Conference Room', es: 'Sala de Conferencias' },
+  'Centro de Negocios': { en: 'Business Center', es: 'Centro de Negocios' },
+  'Vista al Mar': { en: 'Ocean View', es: 'Vista al Mar' },
+  'Balcón': { en: 'Balcony', es: 'Balcón' },
+  'Ventilador': { en: 'Fan', es: 'Ventilador' },
+  'Agua Caliente': { en: 'Hot Water', es: 'Agua Caliente' },
+  'Internet': { en: 'Internet', es: 'Internet' },
+  'Zona de Juegos': { en: 'Playground', es: 'Zona de Juegos' },
+  'Servicio de Limpieza': { en: 'Housekeeping', es: 'Servicio de Limpieza' },
+};
+
+// Función helper para traducir amenidades
+export const translateAmenity = (amenity: string, targetLang: 'es' | 'en'): string => {
+  const translation = amenityTranslations[amenity];
+  if (translation) {
+    return translation[targetLang];
+  }
+  // Si no hay traducción, devolver el original
+  return amenity;
+};

@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { MapPin } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const Footer = () => {
+  const { t } = useLanguage();
   return (
     <footer className="bg-white text-gray-800 border-t border-gray-200">
       <div className="container mx-auto px-4 py-6 sm:py-8">
@@ -35,19 +38,22 @@ const Footer = () => {
 
         {/* Línea divisoria */}
         <div className="border-t border-pink-200 mt-6 pt-4 flex flex-col md:flex-row items-center justify-between text-xs text-gray-500 space-y-2 md:space-y-0">
-          <p>© 2026 RoaBusiness. Todos los derechos reservados.</p>
+          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+            <p>© 2026 RoaBusiness. {t('footer.allRightsReserved')}.</p>
+            <LanguageSwitcher />
+          </div>
           <div className="flex space-x-4">
             <Link
               to="/privacidad"
               className="hover:text-pink-600 transition-colors"
             >
-              Política de Privacidad
+              {t('footer.privacyPolicy')}
             </Link>
             <Link
               to="/terminos"
               className="hover:text-pink-600 transition-colors"
             >
-              Términos de Uso
+              {t('footer.termsOfService')}
             </Link>
           </div>
         </div>

@@ -4,9 +4,11 @@ import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useBusinesses } from "@/hooks/useBusinesses";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useViews } from "@/hooks/useViews";
 import { useRatings } from "@/hooks/useRatings";
 import { useContacts } from "@/hooks/useContacts";
+import { translateAmenity } from "@/lib/translations";
 import {
   ArrowLeft,
   Star,
@@ -64,6 +66,7 @@ interface HeroSectionProps {
 }
 
 const HeroSection = ({ business, onOpenGallery }: HeroSectionProps) => {
+  const { t } = useLanguage();
   const galleryCount = business.gallery?.length || 0;
 
   return (
@@ -92,7 +95,7 @@ const HeroSection = ({ business, onOpenGallery }: HeroSectionProps) => {
           className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-gray-800 hover:bg-white"
         >
           <ImageIcon className="h-4 w-4 mr-2" />
-          Ver galería ({galleryCount})
+          {t('business.gallery')} ({galleryCount})
         </Button>
       )}
     </div>
@@ -160,6 +163,7 @@ interface QuickActionsBarProps {
 }
 
 const QuickActionsBar = ({ business, contacts }: QuickActionsBarProps) => {
+  const { t } = useLanguage();
   const contactData = contacts || business.contact || {};
 
   const handleWhatsApp = () => {
@@ -169,7 +173,7 @@ const QuickActionsBar = ({ business, contacts }: QuickActionsBarProps) => {
     if (phone) {
       window.open(`https://wa.me/${phone}`);
     } else {
-      toast.error("No hay número de WhatsApp disponible");
+      toast.error(t('business.noWhatsApp'));
     }
   };
 
@@ -180,7 +184,7 @@ const QuickActionsBar = ({ business, contacts }: QuickActionsBarProps) => {
     if (phone) {
       window.location.href = `tel:${phone}`;
     } else {
-      toast.error("No hay número de teléfono disponible");
+      toast.error(t('business.noPhone'));
     }
   };
 
@@ -191,7 +195,7 @@ const QuickActionsBar = ({ business, contacts }: QuickActionsBarProps) => {
         className="flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700"
       >
         <Phone className="h-4 w-4" />
-        Llamar
+        {t('business.call')}
       </Button>
 
       <Button
@@ -206,7 +210,7 @@ const QuickActionsBar = ({ business, contacts }: QuickActionsBarProps) => {
         className="flex items-center justify-center gap-2"
       >
         <Share2 className="h-4 w-4" />
-        Compartir
+        {t('business.share')}
       </Button>
 
       <Button
@@ -231,6 +235,7 @@ const ContactInfoSection = ({
   business,
   contacts,
 }: ContactInfoSectionProps) => {
+  const { t } = useLanguage();
   // Usar contacts de la tabla o fallback a business.contact
   const contactData = contacts || business.contact || {};
 
@@ -241,7 +246,7 @@ const ContactInfoSection = ({
     >
       <h3 className="font-semibold text-lg text-gray-900 mb-4 flex items-center gap-2">
         <Mail className="h-5 w-5 text-teal-500" />
-        Información de Contacto
+        {t('business.contactInfo')}
       </h3>
 
       <div className="bg-gray-50 rounded-lg p-4 space-y-3 text-gray-700 shadow-inner">
@@ -272,7 +277,7 @@ const ContactInfoSection = ({
                   ) : null;
                 })
             ) : (
-              <span className="text-gray-500 italic">No disponible</span>
+              <span className="text-gray-500 italic">{t('business.notAvailable')}</span>
             )}
           </div>
         </div>
@@ -287,7 +292,7 @@ const ContactInfoSection = ({
               {contactData.email}
             </a>
           ) : (
-            <span className="text-gray-500 italic text-sm">No disponible</span>
+            <span className="text-gray-500 italic text-sm">{t('business.notAvailable')}</span>
           )}
         </div>
 
@@ -316,11 +321,12 @@ interface BusinessDescriptionProps {
 }
 
 const BusinessDescription = ({ business }: BusinessDescriptionProps) => {
+  const { t } = useLanguage();
   return (
     <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-6 shadow-sm">
-      <h3 className="font-semibold text-lg text-gray-900 mb-3">Acerca de</h3>
+      <h3 className="font-semibold text-lg text-gray-900 mb-3">{t('business.about')}</h3>
       <p className="text-gray-700 leading-relaxed">
-        {business.description || "Sin descripción disponible"}
+        {business.description || t('business.noDescription')}
       </p>
     </div>
   );
@@ -332,6 +338,7 @@ interface SocialMediaLinksProps {
 }
 
 const SocialMediaLinks = ({ business }: SocialMediaLinksProps) => {
+  const { t } = useLanguage();
   const hasSocials =
     business.facebook ||
     business.instagram ||
@@ -345,7 +352,7 @@ const SocialMediaLinks = ({ business }: SocialMediaLinksProps) => {
     <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-6 shadow-sm">
       <h3 className="font-semibold text-lg text-gray-900 mb-4 flex items-center gap-2">
         <Globe className="h-5 w-5 text-teal-500" />
-        Redes Sociales
+        {t('business.socialMedia')}
       </h3>
 
       <div className="grid grid-cols-2 gap-3">
@@ -407,10 +414,11 @@ interface MapSectionProps {
 }
 
 const MapSection = ({ business }: MapSectionProps) => {
+  const { t, language } = useLanguage();
   const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_CONFIG.apiKey,
-    language: "es",
+    language: language,
     region: "HN",
   });
 
@@ -448,7 +456,7 @@ const MapSection = ({ business }: MapSectionProps) => {
     <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-6 shadow-sm">
       <h3 className="font-semibold text-lg text-gray-900 mb-4 flex items-center gap-2">
         <MapPin className="h-5 w-5 text-red-500" />
-        Ubicación
+        {t('business.location')}
       </h3>
 
       <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
@@ -611,17 +619,18 @@ interface AmenitiesSectionProps {
 }
 
 const AmenitiesSection = ({ business }: AmenitiesSectionProps) => {
+  const { t, language } = useLanguage();
   if (!business.amenities || business.amenities.length === 0) return null;
 
   return (
     <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-6 shadow-sm">
       <h3 className="font-semibold text-lg text-gray-900 mb-4">
-        Servicios y Amenidades
+        {t('business.amenities')}
       </h3>
       <div className="flex flex-wrap gap-2">
         {business.amenities.map((amenity, index) => (
           <Badge key={index} variant="secondary" className="text-sm">
-            {amenity}
+            {translateAmenity(amenity, language)}
           </Badge>
         ))}
       </div>
