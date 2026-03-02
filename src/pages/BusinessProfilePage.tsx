@@ -31,12 +31,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import GalleryModal from "@/components/GalleryModal";
+import QRModal from "@/components/QRModal";
 import { toast } from "sonner";
 import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
 import TikTokIcon from "@/components/icons/TikTokIcon";
 import { StarRating } from "@/components/StarRating";
-import { shareBusinessLink } from "@/lib/shareUtils";
+import { copyBusinessLink, getBusinessUrl } from "@/lib/shareUtils";
 
 // ========== UTILIDADES ==========
 
@@ -95,7 +96,7 @@ const HeroSection = ({ business, onOpenGallery }: HeroSectionProps) => {
           className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm text-gray-800 hover:bg-white"
         >
           <ImageIcon className="h-4 w-4 mr-2" />
-          {t('business.gallery')} ({galleryCount})
+          {t("business.gallery")} ({galleryCount})
         </Button>
       )}
     </div>
@@ -160,9 +161,10 @@ const BusinessInfoHeader = ({
 interface QuickActionsBarProps {
   business: Business;
   contacts?: any;
+  onOpenQRModal: () => void;
 }
 
-const QuickActionsBar = ({ business, contacts }: QuickActionsBarProps) => {
+const QuickActionsBar = ({ business, contacts, onOpenQRModal }: QuickActionsBarProps) => {
   const { t } = useLanguage();
   const contactData = contacts || business.contact || {};
 
@@ -173,7 +175,7 @@ const QuickActionsBar = ({ business, contacts }: QuickActionsBarProps) => {
     if (phone) {
       window.open(`https://wa.me/${phone}`);
     } else {
-      toast.error(t('business.noWhatsApp'));
+      toast.error(t("business.noWhatsApp"));
     }
   };
 
@@ -184,7 +186,7 @@ const QuickActionsBar = ({ business, contacts }: QuickActionsBarProps) => {
     if (phone) {
       window.location.href = `tel:${phone}`;
     } else {
-      toast.error(t('business.noPhone'));
+      toast.error(t("business.noPhone"));
     }
   };
 
@@ -195,22 +197,24 @@ const QuickActionsBar = ({ business, contacts }: QuickActionsBarProps) => {
         className="flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700"
       >
         <Phone className="h-4 w-4" />
-        {t('business.call')}
+        {t("business.call")}
       </Button>
 
       <Button
         onClick={() => {
-          shareBusinessLink(
+          // Copiar automáticamente el enlace
+          copyBusinessLink(
             business.profile_name || business.id,
             business.name,
-            business.description,
           );
+          // Abrir modal QR
+          onOpenQRModal();
         }}
         variant="outline"
         className="flex items-center justify-center gap-2"
       >
         <Share2 className="h-4 w-4" />
-        {t('business.share')}
+        {t("business.share")}
       </Button>
 
       <Button
@@ -246,7 +250,7 @@ const ContactInfoSection = ({
     >
       <h3 className="font-semibold text-lg text-gray-900 mb-4 flex items-center gap-2">
         <Mail className="h-5 w-5 text-teal-500" />
-        {t('business.contactInfo')}
+        {t("business.contactInfo")}
       </h3>
 
       <div className="bg-gray-50 rounded-lg p-4 space-y-3 text-gray-700 shadow-inner">
@@ -277,7 +281,9 @@ const ContactInfoSection = ({
                   ) : null;
                 })
             ) : (
-              <span className="text-gray-500 italic">{t('business.notAvailable')}</span>
+              <span className="text-gray-500 italic">
+                {t("business.notAvailable")}
+              </span>
             )}
           </div>
         </div>
@@ -292,7 +298,9 @@ const ContactInfoSection = ({
               {contactData.email}
             </a>
           ) : (
-            <span className="text-gray-500 italic text-sm">{t('business.notAvailable')}</span>
+            <span className="text-gray-500 italic text-sm">
+              {t("business.notAvailable")}
+            </span>
           )}
         </div>
 
@@ -314,7 +322,6 @@ const ContactInfoSection = ({
   );
 };
 
-
 // Componente: Descripción del negocio
 interface BusinessDescriptionProps {
   business: Business;
@@ -324,9 +331,11 @@ const BusinessDescription = ({ business }: BusinessDescriptionProps) => {
   const { t } = useLanguage();
   return (
     <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-6 shadow-sm">
-      <h3 className="font-semibold text-lg text-gray-900 mb-3">{t('business.about')}</h3>
+      <h3 className="font-semibold text-lg text-gray-900 mb-3">
+        {t("business.about")}
+      </h3>
       <p className="text-gray-700 leading-relaxed">
-        {business.description || t('business.noDescription')}
+        {business.description || t("business.noDescription")}
       </p>
     </div>
   );
@@ -352,7 +361,7 @@ const SocialMediaLinks = ({ business }: SocialMediaLinksProps) => {
     <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-6 shadow-sm">
       <h3 className="font-semibold text-lg text-gray-900 mb-4 flex items-center gap-2">
         <Globe className="h-5 w-5 text-teal-500" />
-        {t('business.socialMedia')}
+        {t("business.socialMedia")}
       </h3>
 
       <div className="grid grid-cols-2 gap-3">
@@ -456,7 +465,7 @@ const MapSection = ({ business }: MapSectionProps) => {
     <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-6 shadow-sm">
       <h3 className="font-semibold text-lg text-gray-900 mb-4 flex items-center gap-2">
         <MapPin className="h-5 w-5 text-red-500" />
-        {t('business.location')}
+        {t("business.location")}
       </h3>
 
       <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
@@ -625,7 +634,7 @@ const AmenitiesSection = ({ business }: AmenitiesSectionProps) => {
   return (
     <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200 p-6 shadow-sm">
       <h3 className="font-semibold text-lg text-gray-900 mb-4">
-        {t('business.amenities')}
+        {t("business.amenities")}
       </h3>
       <div className="flex flex-wrap gap-2">
         {business.amenities.map((amenity, index) => (
@@ -652,6 +661,7 @@ const BusinessProfilePage = () => {
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [loadingBusiness, setLoadingBusiness] = useState(true);
   const [showGalleryModal, setShowGalleryModal] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   // Custom hooks
   const { addView } = useViews({
@@ -868,7 +878,11 @@ const BusinessProfilePage = () => {
               totalRatings={totalRatings}
             />
 
-            <QuickActionsBar business={business} contacts={contacts} />
+            <QuickActionsBar 
+              business={business} 
+              contacts={contacts} 
+              onOpenQRModal={() => setShowQRModal(true)}
+            />
           </div>
         </div>
 
@@ -905,6 +919,13 @@ const BusinessProfilePage = () => {
         business={business}
         isOpen={showGalleryModal}
         onClose={() => setShowGalleryModal(false)}
+      />
+      <QRModal
+        isOpen={showQRModal}
+        onClose={() => setShowQRModal(false)}
+        businessName={business.name}
+        businessLogo={business.logo}
+        url={getBusinessUrl(business.profile_name || business.id)}
       />
     </div>
   );

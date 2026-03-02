@@ -9,7 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const HeroSection = () => {
   const { t } = useLanguage();
-  const fullTitle = t('hero.title');
+  const fullTitle = t("hero.title");
 
   const [imgLoaded, setImgLoaded] = useState(false);
   const [rippleActive, setRippleActive] = useState(false);
@@ -172,7 +172,7 @@ const HeroSection = () => {
                 : "opacity-0 translate-y-6"
             }`}
           >
-            {t('hero.subtitle')}
+            {t("hero.subtitle")}
           </p>
 
           <div
@@ -190,7 +190,7 @@ const HeroSection = () => {
             {displayedCount}
           </div>
           <p className="text-white text-[9px] xs:text-[10px] sm:text-xs md:text-base leading-tight">
-            {t('hero.businessCount')}
+            {t("hero.businessCount")}
           </p>
         </div>
       </section>

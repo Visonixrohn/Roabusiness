@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { Toaster } from "sonner";
 import { LoadScript } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
@@ -22,9 +27,9 @@ import RecentPostsPage from "@/pages/RecentPostsPage";
 import GoogleCallbackPage from "@/pages/google-callback";
 import UserProfilePage from "@/pages/UserProfilePage";
 import UserSettingsPage from "@/pages/UserSettingsPage";
-import AdminPanel from "@/pages/AdminPanel";
 import AdminLoginPage from "@/pages/AdminLoginPage";
 import AdminRouteGuard from "@/components/AdminRouteGuard";
+import FinancialDashboard from "@/pages/FinancialDashboard";
 
 import "./App.css";
 import { useEffect } from "react";
@@ -74,7 +79,10 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 {/* Redirección de URL antigua de Google */}
-                <Route path="/sobre-las-islas" element={<Navigate to="/" replace />} />
+                <Route
+                  path="/sobre-las-islas"
+                  element={<Navigate to="/" replace />}
+                />
                 <Route path="/directorio" element={<DirectoryPage />} />
                 <Route
                   path="/negocio/@:profileName"
@@ -126,7 +134,14 @@ function App() {
                 />
                 <Route path="/user/profile" element={<UserProfilePage />} />
                 <Route path="/user/settings" element={<UserSettingsPage />} />
-                <Route path="/adminroa" element={<AdminPanel />} />
+                <Route
+                  path="/financial"
+                  element={
+                    <AdminRouteGuard>
+                      <FinancialDashboard />
+                    </AdminRouteGuard>
+                  }
+                />
               </Routes>
               <Toaster
                 position="top-right"

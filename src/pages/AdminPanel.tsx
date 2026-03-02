@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import {
   Users,
   Building2,
@@ -22,6 +23,7 @@ import {
   Filter,
   Download,
   RefreshCw,
+  DollarSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -69,6 +71,7 @@ type TabType = "users" | "businesses";
 type ModalType = "add" | "edit" | null;
 
 const AdminPanel = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>("users");
   const [users, setUsers] = useState<User[]>([]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -436,16 +439,25 @@ const AdminPanel = () => {
                 </p>
               </div>
             </div>
-            <Button
-              onClick={() => fetchData()}
-              variant="outline"
-              className="flex items-center gap-2 hover:bg-blue-50 transition-colors"
-            >
-              <RefreshCw
-                className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-              />
-              Actualizar
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => navigate("/financial")}
+                className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 transition-all"
+              >
+                <DollarSign className="h-4 w-4" />
+                Panel Financiero
+              </Button>
+              <Button
+                onClick={() => fetchData()}
+                variant="outline"
+                className="flex items-center gap-2 hover:bg-blue-50 transition-colors"
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+                />
+                Actualizar
+              </Button>
+            </div>
           </div>
         </div>
       </div>

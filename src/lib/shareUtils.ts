@@ -37,7 +37,7 @@ export function getBusinessUrl(profileName: string): string {
 }
 
 /**
- * Copia la URL del negocio al portapapeles
+ * Copia la URL del negocio al portapapeles con el texto "Calificame en Roabusiness.com"
  * @param profileName - Nombre de perfil del negocio
  * @param businessName - Nombre del negocio (opcional, para el mensaje)
  * @returns Promise<boolean> - true si se copió exitosamente
@@ -48,10 +48,11 @@ export async function copyBusinessLink(
 ): Promise<boolean> {
   try {
     const url = getBusinessUrl(profileName);
+    const textToCopy = `Calificame en Roabusiness.com\n${url}`;
 
     // Intentar usar la API moderna del portapapeles
     if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(textToCopy);
       toast.success(
         businessName
           ? `Enlace de "${businessName}" copiado al portapapeles`
@@ -62,7 +63,7 @@ export async function copyBusinessLink(
 
     // Fallback para navegadores antiguos o contextos no seguros
     const textArea = document.createElement("textarea");
-    textArea.value = url;
+    textArea.value = textToCopy;
     textArea.style.position = "fixed";
     textArea.style.left = "-999999px";
     textArea.style.top = "-999999px";
@@ -95,7 +96,7 @@ export async function copyBusinessLink(
  * Si no está disponible, copia el enlace al portapapeles
  * @param profileName - Nombre de perfil del negocio
  * @param businessName - Nombre del negocio
- * @param description - Descripción opcional
+ * @param description - Descripción opcional (ignorada, se usa texto fijo)
  */
 export async function shareBusinessLink(
   profileName: string,
@@ -109,7 +110,7 @@ export async function shareBusinessLink(
     try {
       await navigator.share({
         title: businessName,
-        text: description || `Mira ${businessName} en Roabusiness`,
+        text: "Calificame en Roabusiness.com",
         url: url,
       });
       toast.success("Enlace compartido exitosamente");

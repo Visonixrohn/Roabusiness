@@ -34,7 +34,8 @@ import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
 import { supabase } from "@/lib/supabaseClient";
 import { StarRating } from "@/components/StarRating";
 import { useRatings } from "@/hooks/useRatings";
-import { shareBusinessLink } from "@/lib/shareUtils";
+import QRModal from "@/components/QRModal";
+import { copyBusinessLink, getBusinessUrl } from "@/lib/shareUtils";
 
 // --- Custom Hooks y Utilidades ---
 
@@ -392,9 +393,10 @@ const ContactInfoSection = ({
 interface QuickActionsProps {
   business: Business;
   contacts?: ContactData;
+  onOpenQRModal: () => void;
 }
 
-const QuickActions = ({ business, contacts }: QuickActionsProps) => (
+const QuickActions = ({ business, contacts, onOpenQRModal }: QuickActionsProps) => (
   <div className="border-t pt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
     <Button
       variant="outline"
@@ -433,9 +435,15 @@ const QuickActions = ({ business, contacts }: QuickActionsProps) => (
     <Button
       variant="outline"
       size="sm"
-      onClick={() =>
-        shareBusinessLink(business.id, business.name, business.description)
-      }
+      onClick={() => {
+        // Copiar automáticamente el enlace
+        copyBusinessLink(
+          business.profile_name || business.id,
+          business.name,
+        );
+        // Abrir modal QR
+        onOpenQRModal();
+      }}
       className="flex items-center justify-center gap-2 text-sm"
       aria-label="Compartir enlace del negocio"
     >
@@ -683,6 +691,7 @@ const ContactModal = ({
     message: "",
   });
   const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
+  const [showQRModal, setShowQRModal] = useState(false);
 
   const mapPosition = useMapPosition(business, isOpen);
 
@@ -793,7 +802,11 @@ const ContactModal = ({
           <SocialMediaLinks business={business} />
 
           {/* Sección de Acciones Rápidas */}
-          <QuickActions business={business} contacts={contacts} />
+          <QuickActions 
+            business={business} 
+            contacts={contacts}
+            onOpenQRModal={() => setShowQRModal(true)}
+          />
 
           {/* Sección de Calificaciones */}
           <RatingsSection businessId={business.id} />
@@ -808,6 +821,15 @@ const ContactModal = ({
           />
         )}
       </DialogContent>
+      
+      {/* Modal QR */}
+      <QRModal
+        isOpen={showQRModal}
+        onClose={() => setShowQRModal(false)}
+        businessName={business.name}
+        businessLogo={business.logo}
+        url={getBusinessUrl(business.profile_name || business.id)}
+      />
     </Dialog>
   );
 };

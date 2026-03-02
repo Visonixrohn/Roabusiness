@@ -17,7 +17,20 @@ const AdminLoginPage = () => {
 
   const redirectPath = useMemo(() => {
     const params = new URLSearchParams(location.search);
-    return params.get("redirect") || "/editar-negocio";
+    const redirect = params.get("redirect");
+
+    console.log("[AdminLogin] URL params:", location.search);
+    console.log("[AdminLogin] Redirect param:", redirect);
+
+    // Decodificar y validar la ruta de redirección
+    if (redirect) {
+      const decoded = decodeURIComponent(redirect);
+      console.log("[AdminLogin] Decoded redirect path:", decoded);
+      return decoded;
+    }
+
+    console.log("[AdminLogin] No redirect, usando default: /editar-negocio");
+    return "/editar-negocio";
   }, [location.search]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,7 +57,16 @@ const AdminLoginPage = () => {
         return;
       }
 
+      console.log(
+        "[AdminLogin] Login exitoso, guardando sesión y redirigiendo a:",
+        redirectPath,
+      );
       setAdminSession();
+
+      // Verificar que se guardó correctamente
+      const sessionSaved = localStorage.getItem("roa_admin_session");
+      console.log("[AdminLogin] Sesión guardada:", sessionSaved);
+
       toast.success("Bienvenido, administrador");
       navigate(redirectPath, { replace: true });
     } catch (err: any) {

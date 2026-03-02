@@ -19,6 +19,7 @@ import {
   Navigation,
   RotateCcw,
   Star,
+  DollarSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +28,9 @@ import ImageUpload from "@/components/ImageUpload";
 import RegisterBusinessModalAdmin from "@/components/RegisterBusinessModalAdmin";
 import { StarRating } from "@/components/StarRating";
 import { useRatings } from "@/hooks/useRatings";
+import { useFinancial } from "@/hooks/useFinancial";
+import Receipt from "@/components/Receipt";
+import type { PaymentReceipt, SubscriptionPlan } from "@/types/financial";
 import { toast } from "sonner";
 import businessCategories from "@/data/businessCategories";
 import { GoogleMap, Marker } from "@react-google-maps/api";
@@ -38,11 +42,13 @@ import {
 import {
   getSubscriptionExpirationDate,
   isSubscriptionActive,
+  getBusinessStatus,
 } from "@/lib/subscription";
 
 interface Business {
   id: string;
   name: string;
+  profile_name?: string;
   category: string;
   departamento: string;
   municipio: string;
@@ -73,6 +79,7 @@ interface Business {
   created_at?: string; // Opcional porque puede no existir en la DB
   subscription_months?: number | null;
   subscription_started_at?: string | null;
+  pago?: "ejecutado" | "sin pagar";
   facebook?: string;
   instagram?: string;
   twitter?: string;
@@ -129,6 +136,8 @@ interface EditFormData {
   logo: string;
   is_public: boolean;
   subscriptionMonths: number;
+  pago: "ejecutado" | "sin pagar";
+  graceDays: number;
 }
 
 const EditBusinessPage = () => {
@@ -165,6 +174,8 @@ const EditBusinessPage = () => {
     logo: "",
     is_public: true,
     subscriptionMonths: 1,
+    pago: "sin pagar",
+    graceDays: 7,
   });
   const [newAmenity, setNewAmenity] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -191,11 +202,27 @@ const EditBusinessPage = () => {
   };
   const [mapCenter, setMapCenter] = useState(GOOGLE_MAPS_CONFIG.defaultCenter);
   const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [receiptData, setReceiptData] = useState<PaymentReceipt | null>(null);
+  const [showRenewModal, setShowRenewModal] = useState(false);
+  const [selectedBusinessForRenewal, setSelectedBusinessForRenewal] = useState<Business | null>(null);
+  const [selectedPlanForRenewal, setSelectedPlanForRenewal] = useState<string>("");
+  const [renewalPaymentMethod, setRenewalPaymentMethod] = useState<string>("efectivo");
+  const [renewalReceipt, setRenewalReceipt] = useState<PaymentReceipt | null>(null);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+
+  const { processBusinessPayment, renovarSuscripcion, fetchSubscriptionPlans } = useFinancial();
   const [municipios, setMunicipios] = useState<string[]>([]);
 
   useEffect(() => {
     fetchBusinesses();
+    loadSubscriptionPlans();
   }, []);
+
+  const loadSubscriptionPlans = async () => {
+    const plansData = await fetchSubscriptionPlans();
+    setPlans(plansData);
+  };
 
   const fetchBusinesses = async () => {
     setLoading(true);
@@ -293,6 +320,8 @@ const EditBusinessPage = () => {
         business.subscription_months && business.subscription_months > 0
           ? business.subscription_months
           : 1,
+      pago: business.pago || "sin pagar",
+      graceDays: 7,
     });
 
     // Cargar municipios del departamento seleccionado
@@ -382,6 +411,7 @@ const EditBusinessPage = () => {
         coverImage: editForm.coverImage,
         logo: editForm.logo,
         is_public: editForm.is_public,
+        pago: editForm.pago,
       };
 
       // Payload en snake_case como fallback
@@ -419,6 +449,7 @@ const EditBusinessPage = () => {
         cover_image: editForm.coverImage,
         logo: editForm.logo,
         is_public: editForm.is_public,
+        pago: editForm.pago,
       };
 
       // Intentar primero con camelCase
@@ -485,6 +516,8 @@ const EditBusinessPage = () => {
       logo: "",
       is_public: true,
       subscriptionMonths: 1,
+      pago: "sin pagar",
+      graceDays: 7,
     });
     setMapCenter(islandCenters["Roatán"]);
     setShowRegisterModal(true);
@@ -493,6 +526,12 @@ const EditBusinessPage = () => {
   const handleSubmitRegister = async () => {
     if (!editForm.name || !editForm.category || !editForm.departamento) {
       toast.error("Por favor, completa los campos obligatorios");
+      return;
+    }
+
+    // Validar plan de suscripción SOLO si el pago es "ejecutado"
+    if (editForm.pago === "ejecutado" && editForm.subscriptionMonths <= 0) {
+      toast.error("Por favor, selecciona un plan de suscripción válido");
       return;
     }
 
@@ -515,8 +554,11 @@ const EditBusinessPage = () => {
         }
       }
 
-      // Payload en camelCase (intento primero)
-      const payloadCamel = {
+      // Configuración según estado de pago
+      const isPaid = editForm.pago === "ejecutado";
+
+      // Construir payload base
+      const basePayload = {
         name: editForm.name,
         profile_name: editForm.profile_name || null,
         category: editForm.category,
@@ -526,7 +568,6 @@ const EditBusinessPage = () => {
         latitude: editForm.latitude,
         longitude: editForm.longitude,
         subscription_months: editForm.subscriptionMonths,
-        subscription_started_at: new Date().toISOString(),
         description: editForm.description,
         contact: {
           email: editForm.email,
@@ -549,73 +590,95 @@ const EditBusinessPage = () => {
         coverImage: editForm.coverImage,
         logo: editForm.logo,
         is_public: editForm.is_public,
+        pago: editForm.pago,
       };
 
-      // Payload en snake_case (fallback)
-      const payloadSnake = {
-        name: editForm.name,
-        category: editForm.category,
-        departamento: editForm.departamento,
-        municipio: editForm.municipio,
-        colonia: editForm.colonia || null,
-        latitude: editForm.latitude,
-        longitude: editForm.longitude,
-        subscription_months: editForm.subscriptionMonths,
-        subscription_started_at: new Date().toISOString(),
-        description: editForm.description,
-        contact: {
-          email: editForm.email,
-          phone: editForm.phones.filter((p) => p.trim()).join(", "),
-          website: editForm.website,
-          facebook: editForm.facebook,
-          instagram: editForm.instagram,
-          twitter: editForm.twitter,
-          tiktok: editForm.tiktok,
-          whatsapp: editForm.whatsapp,
-          tripadvisor: editForm.tripadvisor,
-        },
-        facebook: editForm.facebook || null,
-        instagram: editForm.instagram || null,
-        twitter: editForm.twitter || null,
-        tiktok: editForm.tiktok || null,
-        tripadvisor: editForm.tripadvisor || null,
-        price_range: editForm.priceRange,
-        amenities: editForm.amenities,
-        cover_image: editForm.coverImage,
-        logo: editForm.logo,
-        is_public: editForm.is_public,
-      };
+      // Si es PAGO EJECUTADO: registrar con suscripción activa
+      if (isPaid) {
+        const payloadPaid = {
+          ...basePayload,
+          subscription_started_at: new Date().toISOString(),
+          grace_period_expires: null,
+        };
 
-      // Intentar primero con camelCase
-      try {
-        const { error } = await supabase
+        // Insertar negocio
+        const { data: newBusiness, error: insertError } = await supabase
           .from("businesses")
-          .insert([payloadCamel]);
-        if (error) throw error;
-      } catch (err: any) {
-        // Si falla por columnas, intentar con snake_case
-        const msg = String(err?.message || err);
-        if (
-          msg.includes("cover_image") ||
-          msg.includes("coverImage") ||
-          msg.includes("price_range") ||
-          msg.includes("priceRange") ||
-          msg.includes("could not find") ||
-          msg.includes("column")
-        ) {
-          const { error } = await supabase
-            .from("businesses")
-            .insert([payloadSnake]);
-          if (error) throw error;
-        } else {
-          throw err;
-        }
-      }
+          .insert([payloadPaid])
+          .select()
+          .single();
 
-      toast.success("Negocio registrado exitosamente");
-      setShowRegisterModal(false);
-      fetchBusinesses();
+        if (insertError) throw insertError;
+
+        // Obtener precio del plan
+        const { data: plan } = await supabase
+          .from("subscription_plans")
+          .select("price_lempiras")
+          .eq("months", editForm.subscriptionMonths)
+          .single();
+
+        if (!plan) {
+          toast.warning("Negocio registrado pero no se encontró el plan");
+          setShowRegisterModal(false);
+          fetchBusinesses();
+          return;
+        }
+
+        // Procesar pago y generar recibo
+        const receipt = await processBusinessPayment({
+          business_id: newBusiness.id,
+          plan_months: editForm.subscriptionMonths,
+          amount_paid: plan.price_lempiras,
+          payment_method: "efectivo",
+          created_by: "admin",
+        });
+
+        if (receipt) {
+          // Agregar datos de contacto al recibo
+          const fullReceipt = {
+            ...receipt,
+            businessContact: {
+              email: editForm.email,
+              phone: editForm.phones.filter((p) => p.trim())[0],
+            },
+          };
+          setReceiptData(fullReceipt as any);
+          setShowReceiptModal(true);
+        }
+
+        toast.success("Negocio registrado y pago procesado exitosamente");
+        setShowRegisterModal(false);
+        fetchBusinesses();
+      } else {
+        // Si es SIN PAGAR: registrar con período de gracia
+        const gracePeriodExpires = new Date();
+        gracePeriodExpires.setDate(
+          gracePeriodExpires.getDate() + editForm.graceDays,
+        );
+
+        const payloadUnpaid = {
+          ...basePayload,
+          subscription_months: 0, // Establecer a 0 para negocios sin pagar
+          subscription_started_at: null,
+          grace_period_expires: gracePeriodExpires.toISOString(),
+        };
+
+        const { error: insertError } = await supabase
+          .from("businesses")
+          .insert([payloadUnpaid]);
+
+        if (insertError) throw insertError;
+
+        toast.success(
+          `Negocio registrado con ${editForm.graceDays} días de período de gracia. ` +
+            `Se ocultará automáticamente el ${gracePeriodExpires.toLocaleDateString("es-HN")} si no se registra el pago.`,
+          { duration: 6000 },
+        );
+        setShowRegisterModal(false);
+        fetchBusinesses();
+      }
     } catch (error: any) {
+      console.error("Error al registrar negocio:", error);
       toast.error("Error al registrar el negocio: " + error.message);
     } finally {
       setIsSubmitting(false);
@@ -659,24 +722,51 @@ const EditBusinessPage = () => {
   };
 
   const handleRenewSubscription = async (business: Business) => {
-    try {
-      const { error } = await supabase
-        .from("businesses")
-        .update({
-          subscription_started_at: new Date().toISOString(),
-          subscription_months:
-            business.subscription_months && business.subscription_months > 0
-              ? business.subscription_months
-              : 1,
-        })
-        .eq("id", business.id);
+    // Abrir modal de renovación prellenando el negocio seleccionado
+    setSelectedBusinessForRenewal(business);
+    
+    // Intentar encontrar el plan correspondiente
+    const plan = plans.find(
+      (p) => p.months === business.subscription_months,
+    );
+    
+    if (plan) {
+      setSelectedPlanForRenewal(plan.id.toString());
+    } else {
+      setSelectedPlanForRenewal("");
+    }
+    
+    setRenewalPaymentMethod("efectivo");
+    setShowRenewModal(true);
+  };
 
-      if (error) throw error;
+  const handleProcessRenewal = async () => {
+    if (!selectedBusinessForRenewal || !selectedPlanForRenewal) {
+      toast.error("Por favor selecciona un negocio y un plan");
+      return;
+    }
+    
+    const plan = plans.find(p => p.id === parseInt(selectedPlanForRenewal));
+    if (!plan) {
+      toast.error("Plan no encontrado");
+      return;
+    }
 
-      toast.success("Suscripción renovada correctamente");
+    const receipt = await renovarSuscripcion({
+      business_id: selectedBusinessForRenewal.id,
+      new_months: plan.months,
+      amount_paid: plan.price_lempiras,
+      payment_method: renewalPaymentMethod,
+      admin_user: "admin",
+    });
+
+    if (receipt) {
+      setRenewalReceipt(receipt);
+      setShowRenewModal(false);
+      setSelectedBusinessForRenewal(null);
+      setSelectedPlanForRenewal("");
+      setRenewalPaymentMethod("efectivo");
       fetchBusinesses();
-    } catch (error: any) {
-      toast.error("Error al renovar suscripción: " + error.message);
     }
   };
 
@@ -729,13 +819,22 @@ const EditBusinessPage = () => {
                 Administra todos los negocios registrados en la plataforma
               </p>
             </div>
-            <Button
-              onClick={handleOpenRegisterModal}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo Negocio
-            </Button>
+            <div className="flex flex-wrap gap-3">
+              <Button
+                onClick={() => navigate("/financial")}
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 flex items-center gap-2"
+              >
+                <DollarSign className="h-4 w-4" />
+                Panel Financiero
+              </Button>
+              <Button
+                onClick={handleOpenRegisterModal}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Nuevo Negocio
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -948,15 +1047,24 @@ const EditBusinessPage = () => {
                             {business.is_public ? "Público" : "Oculto"}
                           </Badge>
                           <Badge
-                            variant={
-                              isSubscriptionActive(business)
-                                ? "default"
-                                : "destructive"
-                            }
+                            variant={(() => {
+                              const status = getBusinessStatus(business);
+                              if (status.status === "grace_period")
+                                return "secondary";
+                              if (status.status === "active") return "default";
+                              return "destructive";
+                            })()}
                           >
-                            {isSubscriptionActive(business)
-                              ? "Suscripción activa"
-                              : "Suscripción vencida"}
+                            {(() => {
+                              const status = getBusinessStatus(business);
+                              if (status.status === "grace_period") {
+                                return `Período de gracia (${status.daysRemaining} días)`;
+                              }
+                              if (status.status === "active") {
+                                return "Suscripción activa";
+                              }
+                              return "Suscripción vencida";
+                            })()}
                           </Badge>
                         </div>
                       </div>
@@ -988,11 +1096,15 @@ const EditBusinessPage = () => {
                       )}
                       <span>
                         Vence:{" "}
-                        {getSubscriptionExpirationDate(business)
-                          ? getSubscriptionExpirationDate(
-                              business,
-                            )?.toLocaleDateString("es-HN")
-                          : "Sin fecha"}
+                        {(() => {
+                          const status = getBusinessStatus(business);
+                          if (status.expiryDate) {
+                            return status.expiryDate.toLocaleDateString(
+                              "es-HN",
+                            );
+                          }
+                          return "Sin fecha";
+                        })()}
                       </span>
                     </div>
                   </div>
@@ -1479,29 +1591,6 @@ const EditBusinessPage = () => {
               {/* Rango de precios */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tiempo de duración (meses)
-                </label>
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-4">
-                  {[6, 12, 18, 24, 30, 36].map((months) => (
-                    <button
-                      key={months}
-                      type="button"
-                      onClick={() =>
-                        setEditForm({ ...editForm, subscriptionMonths: months })
-                      }
-                      className={`p-3 rounded-lg border text-center transition-colors ${
-                        editForm.subscriptionMonths === months
-                          ? "border-green-500 bg-green-50 text-green-700 font-semibold"
-                          : "border-gray-300 hover:border-gray-400"
-                      }`}
-                    >
-                      <div className="font-medium">{months}</div>
-                      <div className="text-xs text-gray-500 mt-1">meses</div>
-                    </button>
-                  ))}
-                </div>
-
-                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Rango de Precios
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -1666,6 +1755,182 @@ const EditBusinessPage = () => {
         isSubmitting={isSubmitting}
         handleSubmitRegister={handleSubmitRegister}
       />
+
+      {/* Modal de Recibo */}
+      {showReceiptModal && receiptData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto relative">
+            <button
+              onClick={() => setShowReceiptModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            <Receipt
+              transactionId={receiptData.transaction_id}
+              businessName={receiptData.business_name}
+              profileName={receiptData.profile_name}
+              planMonths={receiptData.plan_months}
+              amountPaid={receiptData.amount_paid}
+              paymentMethod={receiptData.payment_method}
+              paymentDate={receiptData.payment_date}
+              expiresAt={receiptData.expires_at}
+              wasGracePeriod={receiptData.was_grace_period}
+              businessContact={(receiptData as any).businessContact}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Renovar Suscripción */}
+      {showRenewModal && selectedBusinessForRenewal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">Renovar Suscripción</h3>
+              <button onClick={() => setShowRenewModal(false)}>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p className="text-sm text-blue-800">
+                  <strong>Nota:</strong> Si el negocio tiene suscripción activa,
+                  los nuevos meses se sumarán a los días restantes.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Negocio
+                </label>
+                <div className="w-full px-3 py-2 border rounded-lg bg-gray-50">
+                  {selectedBusinessForRenewal.name}
+                  {selectedBusinessForRenewal.profile_name
+                    ? ` (@${selectedBusinessForRenewal.profile_name})`
+                    : ""}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Plan de Suscripción *
+                </label>
+                <select
+                  value={selectedPlanForRenewal}
+                  onChange={(e) => setSelectedPlanForRenewal(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg"
+                >
+                  <option value="">Selecciona un plan</option>
+                  {plans.map((plan) => (
+                    <option key={plan.id} value={plan.id}>
+                      {plan.months} meses - L{" "}
+                      {plan.price_lempiras.toLocaleString("es-HN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                      {plan.description && ` (${plan.description})`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Método de Pago *
+                </label>
+                <select
+                  value={renewalPaymentMethod}
+                  onChange={(e) => setRenewalPaymentMethod(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg"
+                >
+                  <option value="efectivo">Efectivo</option>
+                  <option value="transferencia">Transferencia</option>
+                  <option value="tarjeta">Tarjeta</option>
+                  <option value="deposito">Depósito</option>
+                  <option value="cheque">Cheque</option>
+                </select>
+              </div>
+
+              {selectedPlanForRenewal && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <p className="text-sm text-green-800">
+                    <strong>Resumen:</strong>
+                    <br />
+                    Negocio: {selectedBusinessForRenewal.name}
+                    <br />
+                    Plan:{" "}
+                    {
+                      plans.find(
+                        (p) => p.id === parseInt(selectedPlanForRenewal),
+                      )?.months
+                    }{" "}
+                    meses
+                    <br />
+                    Monto: L{" "}
+                    {(
+                      plans.find(
+                        (p) => p.id === parseInt(selectedPlanForRenewal),
+                      )?.price_lempiras || 0
+                    ).toLocaleString("es-HN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowRenewModal(false);
+                    setSelectedBusinessForRenewal(null);
+                    setSelectedPlanForRenewal("");
+                    setRenewalPaymentMethod("efectivo");
+                  }}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleProcessRenewal}
+                  className="flex-1"
+                  disabled={!selectedPlanForRenewal}
+                >
+                  Procesar Renovación
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Recibo de Renovación */}
+      {renewalReceipt && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-auto">
+            <button
+              onClick={() => setRenewalReceipt(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
+            >
+              <X className="h-6 w-6" />
+            </button>
+            <Receipt
+              transactionId={renewalReceipt.transaction_id}
+              businessName={renewalReceipt.business_name}
+              profileName={renewalReceipt.profile_name}
+              planMonths={renewalReceipt.plan_months}
+              amountPaid={renewalReceipt.amount_paid}
+              paymentMethod={renewalReceipt.payment_method}
+              paymentDate={renewalReceipt.payment_date}
+              expiresAt={renewalReceipt.expires_at}
+              wasGracePeriod={renewalReceipt.was_grace_period}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

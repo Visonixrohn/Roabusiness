@@ -26,20 +26,16 @@ const Footer = () => {
             </div>
             <p className="text-gray-600 text-sm max-w-lg leading-relaxed">
               Descubre los mejores negocios, restaurantes, hoteles y actividades
-              en las hermosas Islas de la Bahía y Honduras. Tu puerta de entrada al paraíso
-              caribeño de Honduras.
+              en las hermosas Islas de la Bahía y Honduras. Tu puerta de entrada
+              al paraíso caribeño de Honduras.
             </p>
           </div>
-
-         
-
-          
         </div>
 
         {/* Línea divisoria */}
         <div className="border-t border-pink-200 mt-6 pt-4 flex flex-col md:flex-row items-center justify-between text-xs text-gray-500 space-y-2 md:space-y-0">
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
-            <p>© 2026 RoaBusiness. {t('footer.allRightsReserved')}.</p>
+            <p>© 2026 RoaBusiness. {t("footer.allRightsReserved")}.</p>
             <LanguageSwitcher />
           </div>
           <div className="flex space-x-4">
@@ -47,13 +43,13 @@ const Footer = () => {
               to="/privacidad"
               className="hover:text-pink-600 transition-colors"
             >
-              {t('footer.privacyPolicy')}
+              {t("footer.privacyPolicy")}
             </Link>
             <Link
               to="/terminos"
               className="hover:text-pink-600 transition-colors"
             >
-              {t('footer.termsOfService')}
+              {t("footer.termsOfService")}
             </Link>
           </div>
         </div>

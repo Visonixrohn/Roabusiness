@@ -32,6 +32,8 @@ interface EditFormData {
   logo: string;
   is_public: boolean;
   subscriptionMonths: number;
+  pago: "ejecutado" | "sin pagar";
+  graceDays: number;
 }
 
 interface Props {
@@ -439,30 +441,86 @@ const RegisterBusinessModalAdmin: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Duración y Rango de precios */}
+          {/* Estado de Pago y Duración */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tiempo de duración (meses)
+              Estado de Pago
             </label>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-4">
-              {SUBSCRIPTION_MONTHS.map((months) => (
-                <button
-                  key={months}
-                  type="button"
-                  onClick={() =>
-                    setEditForm({ ...editForm, subscriptionMonths: months })
-                  }
-                  className={`p-3 rounded-lg border text-center transition-colors ${
-                    editForm.subscriptionMonths === months
-                      ? "border-green-500 bg-green-50 text-green-700 font-semibold"
-                      : "border-gray-300 hover:border-gray-400"
-                  }`}
-                >
-                  <div className="font-medium">{months}</div>
-                  <div className="text-xs text-gray-500 mt-1">meses</div>
-                </button>
-              ))}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <button
+                type="button"
+                onClick={() => setEditForm({ ...editForm, pago: "ejecutado" })}
+                className={`p-3 rounded-lg border text-center transition-colors ${
+                  editForm.pago === "ejecutado"
+                    ? "border-green-500 bg-green-50 text-green-700 font-semibold"
+                    : "border-gray-300 hover:border-gray-400"
+                }`}
+              >
+                ✓ Ejecutado
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditForm({ ...editForm, pago: "sin pagar", subscriptionMonths: 0 })}
+                className={`p-3 rounded-lg border text-center transition-colors ${
+                  editForm.pago === "sin pagar"
+                    ? "border-red-500 bg-red-50 text-red-700 font-semibold"
+                    : "border-gray-300 hover:border-gray-400"
+                }`}
+              >
+                ⚠ Sin Pagar
+              </button>
             </div>
+
+            {/* Campo de días de gracia cuando es "sin pagar" */}
+            {editForm.pago === "sin pagar" && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Días de Gracia *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="30"
+                  value={editForm.graceDays}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, graceDays: parseInt(e.target.value) || 7 })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Ej: 7"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Número de días que el negocio estará visible sin pagar (por defecto 7 días)
+                </p>
+              </div>
+            )}
+
+            {/* Mostrar duración solo si es "ejecutado" */}
+            {editForm.pago === "ejecutado" && (
+              <>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tiempo de duración (meses)
+                </label>
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-4">
+                  {SUBSCRIPTION_MONTHS.map((months) => (
+                    <button
+                      key={months}
+                      type="button"
+                      onClick={() =>
+                        setEditForm({ ...editForm, subscriptionMonths: months })
+                      }
+                      className={`p-3 rounded-lg border text-center transition-colors ${
+                        editForm.subscriptionMonths === months
+                          ? "border-green-500 bg-green-50 text-green-700 font-semibold"
+                          : "border-gray-300 hover:border-gray-400"
+                      }`}
+                    >
+                      <div className="font-medium">{months}</div>
+                      <div className="text-xs text-gray-500 mt-1">meses</div>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
 
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Rango de Precios

@@ -21,14 +21,14 @@ export const LanguageSwitcher = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem
-          onClick={() => setLanguage('es')}
-          className={language === 'es' ? 'bg-blue-50' : ''}
+          onClick={() => setLanguage("es")}
+          className={language === "es" ? "bg-blue-50" : ""}
         >
           🇪🇸 Español
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => setLanguage('en')}
-          className={language === 'en' ? 'bg-blue-50' : ''}
+          onClick={() => setLanguage("en")}
+          className={language === "en" ? "bg-blue-50" : ""}
         >
           🇬🇧 English
         </DropdownMenuItem>

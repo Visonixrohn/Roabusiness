@@ -41,6 +41,8 @@ export interface Business {
   created_at?: string;
   subscription_months?: number | null;
   subscription_started_at?: string | null;
+  grace_period_expires?: string | null;
+  pago?: "ejecutado" | "sin pagar";
   schedule?: { day: string; open: string; close: string }[];
   facebook?: string;
   instagram?: string;

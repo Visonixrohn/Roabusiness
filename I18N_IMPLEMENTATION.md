@@ -7,12 +7,14 @@ Se ha implementado un sistema completo de internacionalización que detecta auto
 ## Características Implementadas
 
 ### 1. Detección Automática del Idioma
+
 - El sistema detecta automáticamente si el navegador del usuario está en inglés o español
 - Si el navegador está en inglés (`en`, `en-US`, etc.), la aplicación se mostrará en inglés
 - Si el navegador está en español o cualquier otro idioma, la aplicación se mostrará en español (idioma por defecto)
 - La preferencia se guarda en `localStorage` para persistencia
 
 ### 2. Selector Manual de Idioma
+
 - Se agregó un componente `LanguageSwitcher` en el Header y Footer
 - Los usuarios pueden cambiar manualmente entre Español 🇪🇸 e Inglés 🇬🇧
 - El cambio es instantáneo y se guarda automáticamente
@@ -20,6 +22,7 @@ Se ha implementado un sistema completo de internacionalización que detecta auto
 ### 3. Elementos Traducidos
 
 #### ✅ Traducidos Automáticamente:
+
 - **Navegación**: Inicio, Directorio, Panel, etc.
 - **Botones**: Llamar, Compartir, WhatsApp, Ver galería, etc.
 - **Secciones**: Acerca de, Información de Contacto, Redes Sociales, Ubicación, etc.
@@ -29,12 +32,15 @@ Se ha implementado un sistema completo de internacionalización que detecta auto
 - **Hero**: Título principal y subtítulo
 
 #### ❌ NO Traducidos (Como se solicitó):
+
 - **Nombres de negocios**: Se mantienen en su idioma original
 - **Descripciones de negocios**: Se mantienen como están en la base de datos
 - **Información de contacto de negocios**: Direcciones, teléfonos, emails, etc.
 
 ### 4. Traducción de Amenidades
+
 Las amenidades almacenadas en español se traducen automáticamente cuando el usuario visualiza en inglés:
+
 - "Estacionamiento" → "Parking"
 - "Aire Acondicionado" → "Air Conditioning"
 - "Piscina" → "Pool"
@@ -43,19 +49,24 @@ Las amenidades almacenadas en español se traducen automáticamente cuando el us
 ## Archivos Creados
 
 ### 1. `/src/contexts/LanguageContext.tsx`
+
 Contexto global que maneja:
+
 - Detección automática del idioma del navegador
 - Cambio de idioma
 - Persistencia en localStorage
 - Actualización del atributo `lang` del HTML
 
 ### 2. `/src/lib/translations.ts`
+
 Contiene:
+
 - Todas las traducciones en español e inglés
 - Mapa de traducción de amenidades
 - Función helper `translateAmenity()`
 
 ### 3. `/src/components/LanguageSwitcher.tsx`
+
 Componente de selector de idioma con dropdown
 
 ## Archivos Actualizados
@@ -69,6 +80,7 @@ Componente de selector de idioma con dropdown
 ## Cómo Funciona
 
 ### Para Usuarios
+
 1. **Automático**: Al entrar a la página, el idioma se detecta del navegador
 2. **Manual**: Pueden cambiar usando el selector 🌐 en Header o Footer
 3. **Persistente**: Su preferencia se guarda para futuras visitas
@@ -76,44 +88,48 @@ Componente de selector de idioma con dropdown
 ### Para Desarrolladores
 
 #### Usar traducciones en componentes:
+
 ```tsx
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function MyComponent() {
   const { t, language } = useLanguage();
-  
+
   return (
     <div>
-      <h1>{t('business.about')}</h1>
-      <p>{t('business.contactInfo')}</p>
+      <h1>{t("business.about")}</h1>
+      <p>{t("business.contactInfo")}</p>
     </div>
   );
 }
 ```
 
 #### Traducir amenidades:
+
 ```tsx
-import { translateAmenity } from '@/lib/translations';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { translateAmenity } from "@/lib/translations";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function AmenitiesList({ amenities }) {
   const { language } = useLanguage();
-  
-  return amenities.map(amenity => (
+
+  return amenities.map((amenity) => (
     <span>{translateAmenity(amenity, language)}</span>
   ));
 }
 ```
 
 #### Agregar nuevas traducciones:
+
 Editar `/src/lib/translations.ts`:
+
 ```typescript
 export const translations = {
   es: {
-    'mi.nueva.key': 'Mi texto en español',
+    "mi.nueva.key": "Mi texto en español",
   },
   en: {
-    'mi.nueva.key': 'My text in English',
+    "mi.nueva.key": "My text in English",
   },
 };
 ```
@@ -121,7 +137,8 @@ export const translations = {
 ## Pruebas
 
 ### Probar detección automática:
-1. **Chrome/Edge**: 
+
+1. **Chrome/Edge**:
    - Configuración → Idiomas → Mover "English" al primer lugar
    - Recargar la página → Debería verse en inglés
 
@@ -134,6 +151,7 @@ export const translations = {
    - Recargar Safari → Debería verse en inglés
 
 ### Probar cambio manual:
+
 1. Click en el icono de globo 🌐 en el Header o Footer
 2. Seleccionar idioma
 3. La página cambia instantáneamente
@@ -154,6 +172,7 @@ export const translations = {
 ## Expansión Futura
 
 Para agregar más idiomas (ej: francés):
+
 1. Agregar tipo: `export type Language = 'es' | 'en' | 'fr';`
 2. Agregar traducciones en `translations.ts`
 3. Agregar opción en `LanguageSwitcher.tsx`

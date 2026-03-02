@@ -20,11 +20,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ContactModal from "@/components/ContactModal";
 import GalleryModal from "@/components/GalleryModal";
+import QRModal from "@/components/QRModal";
 import { StarRating } from "@/components/StarRating";
 import { cn } from "@/lib/utils";
 import { useContacts } from "@/hooks/useContacts";
 import { useRatings } from "@/hooks/useRatings";
-import { shareBusinessLink } from "@/lib/shareUtils";
+import { copyBusinessLink, getBusinessUrl } from "@/lib/shareUtils";
 
 interface BusinessCardProps {
   business: Business;
@@ -40,6 +41,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
   const [isLiked, setIsLiked] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [showGalleryModal, setShowGalleryModal] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   const { contacts, loading: loadingContacts } = useContacts(business.id);
   const { average, totalRatings } = useRatings(business.id);
@@ -241,11 +243,13 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
             <Button
               onClick={(e) => {
                 e.stopPropagation();
-                shareBusinessLink(
+                // Copiar automáticamente el enlace
+                copyBusinessLink(
                   business.profile_name || business.id,
                   business.name,
-                  business.description,
                 );
+                // Abrir modal QR
+                setShowQRModal(true);
               }}
               variant="outline"
               className="px-2.5 sm:px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-xl h-9 sm:h-10 font-medium transition-all min-w-[2.25rem] sm:min-w-[2.5rem] flex items-center justify-center"
@@ -285,6 +289,13 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
           business={business}
           isOpen={showGalleryModal}
           onClose={() => setShowGalleryModal(false)}
+        />
+        <QRModal
+          isOpen={showQRModal}
+          onClose={() => setShowQRModal(false)}
+          businessName={business.name}
+          businessLogo={business.logo}
+          url={getBusinessUrl(business.profile_name || business.id)}
         />
       </div>
     </>

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import {
   Search,
   Menu,
@@ -34,10 +33,10 @@ const Header = () => {
   const isAdminLoggedIn = isAdminSessionActive();
 
   const navigation = [
-    { name: t('nav.home'), href: "/", icon: Home },
+    { name: t("nav.home"), href: "/", icon: Home },
     { name: "Directorio", href: "/directorio", icon: Users },
     ...(isAdminLoggedIn
-      ? [{ name: t('nav.dashboard'), href: "/editar-negocio", icon: Settings }]
+      ? [{ name: t("nav.dashboard"), href: "/editar-negocio", icon: Settings }]
       : []),
   ];
 
@@ -82,9 +81,11 @@ const Header = () => {
         <div className="flex items-center justify-between h-12 sm:h-14">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-1.5">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-              <MapPin className="h-5 w-5 text-white" />
-            </div>
+            <img 
+              src="https://cdn-icons-png.flaticon.com/512/2288/2288494.png" 
+              alt="RoaBusiness Logo" 
+              className="w-8 h-8 object-contain"
+            />
             <div className="hidden sm:block">
               <span className="text-base font-bold text-blue-600">
                 RoaBusiness
@@ -166,8 +167,6 @@ const Header = () => {
               );
             })}
 
-            {/* Language Switcher - Desktop */}
-            <LanguageSwitcher />
 
             {/* Authentication removed: no login/profile buttons shown */}
           </nav>
