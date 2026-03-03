@@ -259,7 +259,6 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
             >
               <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
-            
           </div>
         </div>
       </div>

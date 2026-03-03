@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -239,11 +239,50 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Menú móvil */}
-      {/* Menú móvil */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200">
-          <nav className="px-4 py-3 space-y-1">
+      {/* Overlay y Modal lateral para menú móvil */}
+      {/* Overlay y modal lateral: se renderizan siempre pero usan clases condicionales para animación */}
+      <>
+        {/* Overlay oscuro */}
+        <div
+          onClick={() => setIsMenuOpen(false)}
+          className={cn(
+            "fixed inset-0 bg-black z-40 md:hidden transition-opacity",
+            isMenuOpen ? "bg-opacity-50 opacity-100 pointer-events-auto" : "bg-opacity-0 opacity-0 pointer-events-none",
+          )}
+          aria-hidden={!isMenuOpen}
+        />
+
+        {/* Modal lateral desde la derecha (usa translate-x para animar) */}
+        <div
+          className={cn(
+            "fixed inset-y-0 right-0 w-64 sm:w-72 bg-white shadow-2xl z-50 md:hidden transform transition-transform duration-300 ease-in-out",
+            isMenuOpen ? "translate-x-0" : "translate-x-full",
+          )}
+          aria-hidden={!isMenuOpen}
+        >
+          {/* Header del modal */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <div className="flex items-center space-x-2">
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/2288/2288494.png"
+                alt="RoaBusiness"
+                className="w-8 h-8"
+              />
+              <div>
+                <span className="text-sm font-bold text-blue-600">RoaBusiness</span>
+                <span className="text-xs text-gray-600 block leading-none">Menú</span>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <X className="h-5 w-5 text-gray-600" />
+            </button>
+          </div>
+
+          {/* Contenido del menú con scroll */}
+          <nav className="px-4 py-3 space-y-1 overflow-y-auto h-[calc(100vh-73px)]">
             {/* Navegación principal */}
             {navigation.map((item) => {
               const Icon = item.icon;
@@ -253,22 +292,20 @@ const Header = () => {
                   to={item.href}
                   onClick={() => setIsMenuOpen(false)}
                   className={cn(
-                    "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
+                    "flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                     isActive(item.href)
-                      ? "bg-blue-50 text-blue-600"
+                      ? "bg-blue-50 text-blue-600 shadow-sm"
                       : "text-gray-600 hover:text-blue-600 hover:bg-gray-50",
                   )}
                 >
-                  <Icon className="h-4 w-4 mr-3" />
+                  <Icon className="h-5 w-5 mr-3" />
                   {item.name}
                 </Link>
               );
             })}
-
-            {/* Authentication removed from mobile menu */}
           </nav>
         </div>
-      )}
+      </>
 
       {/* Auth UI removed */}
     </header>
@@ -276,3 +313,4 @@ const Header = () => {
 };
 
 export default Header;
+
