@@ -25,8 +25,8 @@ export const useNegociosDestacados = (limit: number = 6) => {
           .from("vista_negocios_destacados")
           .select("*")
           .eq("is_public", true)
-          .order("total_ratings", { ascending: false })    // Primero: cantidad de valoraciones
-          .order("average_rating", { ascending: false })   // Segundo: promedio de estrellas
+          .order("total_ratings", { ascending: false }) // Primero: cantidad de valoraciones
+          .order("average_rating", { ascending: false }) // Segundo: promedio de estrellas
           .limit(limit * 8); // margen amplio para filtrar suscripciones vencidas
 
         if (error) throw error;

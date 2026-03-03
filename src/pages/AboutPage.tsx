@@ -59,17 +59,33 @@ const BusinessRatingCompact = ({ businessId }: { businessId: string }) => {
   const { average, totalRatings, loading } = useRatings(businessId);
 
   if (loading) {
-    return <div className="h-4 sm:h-5 w-20 sm:w-24 bg-gray-200 animate-pulse rounded" />;
+    return (
+      <div className="h-4 sm:h-5 w-20 sm:w-24 bg-gray-200 animate-pulse rounded" />
+    );
   }
 
   return (
     <div className="flex items-center gap-1 sm:gap-1.5">
-      <StarRating value={average || 0} readOnly size={12} showValue={false} className="sm:hidden" />
-      <StarRating value={average || 0} readOnly size={14} showValue={false} className="hidden sm:block" />
+      <StarRating
+        value={average || 0}
+        readOnly
+        size={12}
+        showValue={false}
+        className="sm:hidden"
+      />
+      <StarRating
+        value={average || 0}
+        readOnly
+        size={14}
+        showValue={false}
+        className="hidden sm:block"
+      />
       <span className="text-[10px] sm:text-xs font-semibold text-gray-700">
         {average ? average.toFixed(1) : "0.0"}
       </span>
-      <span className="text-[10px] sm:text-xs text-gray-500">({totalRatings})</span>
+      <span className="text-[10px] sm:text-xs text-gray-500">
+        ({totalRatings})
+      </span>
     </div>
   );
 };
@@ -360,7 +376,9 @@ function NearbyBusinesses() {
         {loading && (
           <div className="flex flex-col items-center justify-center h-40 sm:h-48 bg-white rounded-xl shadow-md text-gray-500 animate-pulse px-4">
             <Store className="h-8 w-8 sm:h-10 sm:w-10 text-gray-400 mb-2 sm:mb-3" />
-            <p className="text-sm sm:text-base md:text-lg font-medium text-center">Buscando negocios cercanos...</p>
+            <p className="text-sm sm:text-base md:text-lg font-medium text-center">
+              Buscando negocios cercanos...
+            </p>
           </div>
         )}
         {!loading && (!userCoords || nearby.length === 0) && (

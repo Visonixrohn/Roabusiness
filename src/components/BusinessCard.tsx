@@ -97,7 +97,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/20 group-hover:from-black/40 transition-all duration-300" />
 
           {/* Badge de departamento/isla - arriba izquierda */}
-          <div className="absolute top-3 left-3">
+          <div className="absolute top-3 right-1">
             <Badge
               className={cn(
                 "text-xs font-semibold shadow-lg px-2.5 py-1 text-white border-0",
@@ -112,9 +112,9 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
             </Badge>
           </div>
 
-          {/* Galería indicator - abajo derecha */}
+          {/* Galería indicator - abajo derecha (ligeramente desplazado para dejar espacio a las estrellas) */}
           {business.gallery && business.gallery.length > 1 && (
-            <div className="absolute bottom-3 right-3">
+            <div className="absolute bottom-3 right-16">
               <Button
                 size="sm"
                 onClick={(e) => {
@@ -132,8 +132,27 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
             </div>
           )}
 
+          {/* Rating overlay - esquina inferior derecha sobre la imagen (fondo transparente) */}
+          <div className="absolute bottom-3 right-3 z-20">
+            <div className="px-2 py-1 flex flex-col items-center gap-0">
+              <div className="text-sm font-semibold text-white drop-shadow-lg">
+                {(average || 0).toFixed(1)}
+              </div>
+              <StarRating
+                value={average || 0}
+                readOnly
+                size={14}
+                showValue={false}
+                className="!leading-none text-white drop-shadow-lg"
+              />
+              <span className="text-xs text-white drop-shadow mt-1">
+                {totalRatings || 0} personas calificaron
+              </span>
+            </div>
+          </div>
+
           {/* Logo flotante */}
-          <div className="absolute -bottom-6 left-4">
+          <div className="absolute -bottom-1 left-4">
             <div className="w-16 h-16 rounded-2xl border-4 border-white shadow-xl overflow-hidden bg-white">
               <img
                 src={business.logo}
@@ -146,22 +165,47 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
 
         {/* Contenido */}
         <div className="p-4 pt-8">
-            {/* Calificaciones */}
-          <div className="mb-4 pb-3 border-b border-gray-100">
-            <StarRating
-              value={average || 0}
-              readOnly
-              size={18}
-              showValue
-              totalRatings={totalRatings}
-              className="justify-start"
-            />
-          </div>
           {/* Header con nombre y categoría */}
           <div className="mb-3">
-            <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-1 group-hover:text-teal-600 transition-colors">
-              {business.name}
-            </h3>
+            {/* Nombre y botón compartir en la misma línea */}
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <h3 className="font-bold text-lg text-gray-900 line-clamp-1 group-hover:text-teal-600 transition-colors flex-1">
+                {business.name}
+              </h3> {(contacts?.website || fallbackContacts?.website) && (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const website =
+                    contacts?.website || fallbackContacts?.website;
+                  const url = website?.startsWith("http")
+                    ? website
+                    : `https://${website}`;
+                  window.open(url, "_blank");
+                }}
+                variant="outline"
+                className="px-2.5 sm:px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-xl h-9 sm:h-10 font-medium transition-all min-w-[2.25rem] sm:min-w-[2.5rem] flex items-center justify-center"
+                aria-label="Ir al sitio web"
+              >
+                <Globe className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              </Button>
+            )}
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  copyBusinessLink(
+                    business.profile_name || business.id,
+                    business.name,
+                  );
+                  setShowQRModal(true);
+                }}
+                variant="outline"
+                size="sm"
+                className="px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-lg h-10 font-medium transition-all flex items-center justify-center flex-shrink-0"
+                aria-label="Compartir enlace del negocio"
+              >
+                <Share2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
             <div className="flex items-center justify-between gap-2">
               <Badge
                 variant="outline"
@@ -169,15 +213,10 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
               >
                 {business.category}
               </Badge>
-              {business.priceRange && (
-                <span className="text-xs text-gray-500 font-medium">
-                  {business.priceRange} ·{" "}
-                  {getPriceRangeText(business.priceRange)}
-                </span>
-              )}
+              {/* Indicador de rango de precio eliminado por petición */}
             </div>
           </div>
-   {/* Amenidades */}
+          {/* Amenidades */}
           {business.amenities && business.amenities.length > 0 && (
             <div className="mb-4">
               <div className="flex flex-wrap gap-1.5">
@@ -218,9 +257,6 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
               "Descubre este increíble negocio en Honduras"}
           </p>
 
-        
-
-       
           {/* Stats (seguidores si existe) */}
           {followers !== undefined && followers > 0 && (
             <div className="flex items-center gap-4 mb-4 pb-3 border-b border-gray-100">
@@ -244,41 +280,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
               <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2" />
               <span className="hidden sm:inline ml-1.5 sm:ml-0">Contactar</span>
             </Button>
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                // Copiar automáticamente el enlace
-                copyBusinessLink(
-                  business.profile_name || business.id,
-                  business.name,
-                );
-                // Abrir modal QR
-                setShowQRModal(true);
-              }}
-              variant="outline"
-              className="px-2.5 sm:px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-xl h-9 sm:h-10 font-medium transition-all min-w-[2.25rem] sm:min-w-[2.5rem] flex items-center justify-center"
-              aria-label="Compartir enlace del negocio"
-            >
-              <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            </Button>
-            {(contacts?.website || fallbackContacts?.website) && (
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const website =
-                    contacts?.website || fallbackContacts?.website;
-                  const url = website?.startsWith("http")
-                    ? website
-                    : `https://${website}`;
-                  window.open(url, "_blank");
-                }}
-                variant="outline"
-                className="px-2.5 sm:px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-xl h-9 sm:h-10 font-medium transition-all min-w-[2.25rem] sm:min-w-[2.5rem] flex items-center justify-center"
-                aria-label="Ir al sitio web"
-              >
-                <Globe className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </Button>
-            )}
+           
           </div>
         </div>
       </div>

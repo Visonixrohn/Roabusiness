@@ -21,13 +21,13 @@ const GalleryModal = ({ business, isOpen, onClose }: GalleryModalProps) => {
 
   const nextImage = () => {
     setCurrentImageIndex((prev) =>
-      prev === business.gallery.length - 1 ? 0 : prev + 1
+      prev === business.gallery.length - 1 ? 0 : prev + 1,
     );
   };
 
   const prevImage = () => {
     setCurrentImageIndex((prev) =>
-      prev === 0 ? business.gallery.length - 1 : prev - 1
+      prev === 0 ? business.gallery.length - 1 : prev - 1,
     );
   };
 
@@ -156,7 +156,7 @@ const GalleryModal = ({ business, isOpen, onClose }: GalleryModalProps) => {
                       "flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all",
                       index === currentImageIndex
                         ? "border-blue-500 opacity-100"
-                        : "border-white/30 opacity-60 hover:opacity-80"
+                        : "border-white/30 opacity-60 hover:opacity-80",
                     )}
                   >
                     <img
@@ -182,7 +182,7 @@ const GalleryModal = ({ business, isOpen, onClose }: GalleryModalProps) => {
                       "w-2 h-2 rounded-full transition-all",
                       index === currentImageIndex
                         ? "bg-white"
-                        : "bg-white/40 hover:bg-white/60"
+                        : "bg-white/40 hover:bg-white/60",
                     )}
                   />
                 ))}
