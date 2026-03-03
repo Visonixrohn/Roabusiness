@@ -34,16 +34,11 @@ const AboutPage = () => {
             {" "}
             {/* Más margen inferior y posición relativa para el adorno */}
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight mb-3 sm:mb-4 tracking-tight px-4">
-              Explora Negocios <span className="text-purple-600">Cercanos</span>
+               Negocios Cercanos
             </h2>
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto px-4">
-              Activa tu ubicación para descubrir los mejores negocios a tu
-              alrededor. Filtra por distancia y encuentra lo que necesitas al
-              instante.
-            </p>
+           
             {/* Adorno sutil */}
-            <div className="absolute -bottom-3 sm:-bottom-4 left-1/2 -translate-x-1/2 w-16 sm:w-20 md:w-24 h-1 sm:h-1.5 bg-purple-500 rounded-full opacity-70" />
-          </div>
+                </div>
 
           <NearbyBusinesses />
         </section>
