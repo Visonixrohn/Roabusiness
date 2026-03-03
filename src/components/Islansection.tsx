@@ -7,17 +7,10 @@ const IslandsSection = ({ isStandalone, installPromptRef }) => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   return (
-    <section className="py-20 bg-gradient-to-b from-white to-blue-50">
-      <div className="container mx-auto px-6 max-w-7xl">
+    <section className="py-5 bg-gradient-to-b from-blue-50 ">
+      <div className="container mx-auto px-3 max-w-7xl">
         {/* Título y subtítulo para el contexto de la sección */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
-            Lleva tu Negocio al Siguiente Nivel
-          </h2>
-          <p className="mt-4 text-xl text-gray-600">
-            Descarga nuestra app o registra tu emprendimiento en RoaBusiness.
-          </p>
-        </div>
+      
 
         {/* Botón de instalación y registro */}
         <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 mt-12 sm:mt-16 px-4">
