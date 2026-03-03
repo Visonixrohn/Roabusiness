@@ -16,7 +16,7 @@ const DEFAULT_BANNERS = [
   },
 ];
 
-const AUTOPLAY_MS = 6000;
+const AUTOPLAY_MS = 3000;
 const ANIM_MS = 450;
 
 const BannerCarousel = () => {
@@ -102,38 +102,13 @@ const BannerCarousel = () => {
         {/* Controles de navegación */}
         {activeBanners.length > 1 && (
           <>
-            <button
-              onClick={goPrev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-cyan-700 rounded-full w-8 h-8 flex items-center justify-center transition"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
+           
 
-            <button
-              onClick={goNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-cyan-700 rounded-full w-8 h-8 flex items-center justify-center transition"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
           </>
         )}
 
         {/* Indicadores */}
-        {activeBanners.length > 1 && (
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-            {activeBanners.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => goTo(i)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  i === index
-                    ? "w-8 bg-cyan-500"
-                    : "w-2 bg-white/80 hover:bg-white"
-                }`}
-              />
-            ))}
-          </div>
-        )}
+       
       </div>
 
       {/* Botón de enlace — esquina inferior derecha, fuera del overflow-hidden */}

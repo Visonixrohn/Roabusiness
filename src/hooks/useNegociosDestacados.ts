@@ -34,10 +34,11 @@ export const useNegociosDestacados = (limit: number = 6) => {
         // Filtrar por suscripción activa y ordenar:
         // 1. Mayor estrellas (average_rating DESC)
         // 2. Mayor número de valoraciones (total_ratings DESC)
-        const filtrados = (data || [] as NegocioDestacado[])
+        const filtrados = (data || ([] as NegocioDestacado[]))
           .filter((b) => isSubscriptionActive(b))
           .sort((a, b) => {
-            const ratingDiff = (b.average_rating || 0) - (a.average_rating || 0);
+            const ratingDiff =
+              (b.average_rating || 0) - (a.average_rating || 0);
             if (ratingDiff !== 0) return ratingDiff;
             return (b.total_ratings || 0) - (a.total_ratings || 0);
           })
