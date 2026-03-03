@@ -146,6 +146,17 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
 
         {/* Contenido */}
         <div className="p-4 pt-8">
+            {/* Calificaciones */}
+          <div className="mb-4 pb-3 border-b border-gray-100">
+            <StarRating
+              value={average || 0}
+              readOnly
+              size={18}
+              showValue
+              totalRatings={totalRatings}
+              className="justify-start"
+            />
+          </div>
           {/* Header con nombre y categoría */}
           <div className="mb-3">
             <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-1 group-hover:text-teal-600 transition-colors">
@@ -166,36 +177,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
               )}
             </div>
           </div>
-
-          {/* Ubicación */}
-          <div className="flex items-start gap-2 mb-3 text-sm text-gray-600">
-            <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
-            <span className="line-clamp-1">
-              {[business.municipio || business.location, business.colonia]
-                .filter(Boolean)
-                .join(", ")}
-            </span>
-          </div>
-
-          {/* Descripción */}
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2 leading-relaxed">
-            {business.description ||
-              "Descubre este increíble negocio en Honduras"}
-          </p>
-
-          {/* Calificaciones */}
-          <div className="mb-4 pb-3 border-b border-gray-100">
-            <StarRating
-              value={average || 0}
-              readOnly
-              size={18}
-              showValue
-              totalRatings={totalRatings}
-              className="justify-start"
-            />
-          </div>
-
-          {/* Amenidades */}
+   {/* Amenidades */}
           {business.amenities && business.amenities.length > 0 && (
             <div className="mb-4">
               <div className="flex flex-wrap gap-1.5">
@@ -220,6 +202,25 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
             </div>
           )}
 
+          {/* Ubicación */}
+          <div className="flex items-start gap-2 mb-3 text-sm text-gray-600">
+            <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
+            <span className="line-clamp-1">
+              {[business.municipio || business.location, business.colonia]
+                .filter(Boolean)
+                .join(", ")}
+            </span>
+          </div>
+
+          {/* Descripción */}
+          <p className="text-gray-600 text-sm mb-3 line-clamp-2 leading-relaxed">
+            {business.description ||
+              "Descubre este increíble negocio en Honduras"}
+          </p>
+
+        
+
+       
           {/* Stats (seguidores si existe) */}
           {followers !== undefined && followers > 0 && (
             <div className="flex items-center gap-4 mb-4 pb-3 border-b border-gray-100">
@@ -280,27 +281,27 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
             )}
           </div>
         </div>
-
-        {/* Modales */}
-        <ContactModal
-          business={business}
-          isOpen={showContactModal}
-          onClose={() => setShowContactModal(false)}
-          contacts={contacts || fallbackContacts}
-        />
-        <GalleryModal
-          business={business}
-          isOpen={showGalleryModal}
-          onClose={() => setShowGalleryModal(false)}
-        />
-        <QRModal
-          isOpen={showQRModal}
-          onClose={() => setShowQRModal(false)}
-          businessName={business.name}
-          businessLogo={business.logo}
-          url={getBusinessUrl(business.profile_name || business.id)}
-        />
       </div>
+
+      {/* Modales — fuera del div con transform para evitar que fixed quede contenido dentro */}
+      <ContactModal
+        business={business}
+        isOpen={showContactModal}
+        onClose={() => setShowContactModal(false)}
+        contacts={contacts || fallbackContacts}
+      />
+      <GalleryModal
+        business={business}
+        isOpen={showGalleryModal}
+        onClose={() => setShowGalleryModal(false)}
+      />
+      <QRModal
+        isOpen={showQRModal}
+        onClose={() => setShowQRModal(false)}
+        businessName={business.name}
+        businessLogo={business.logo}
+        url={getBusinessUrl(business.profile_name || business.id)}
+      />
     </>
   );
 };

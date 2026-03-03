@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Business } from "@/types/business";
+import { isSubscriptionActive } from "@/lib/subscription";
 
 interface NegocioDestacado extends Business {
   contador_contactos: number;
@@ -19,18 +20,30 @@ export const useNegociosDestacados = (limit: number = 6) => {
       try {
         setLoading(true);
 
-        // Obtener negocios mejor calificados desde la vista
-        // Nota: La vista ya ordena por average_rating DESC, pero agregamos order aquí también por claridad
+        // Traemos más registros para poder filtrar por suscripción activa en cliente
         const { data, error } = await supabase
           .from("vista_negocios_destacados")
           .select("*")
+          .eq("is_public", true)
           .order("average_rating", { ascending: false })
           .order("total_ratings", { ascending: false })
-          .limit(limit);
+          .limit(limit * 8); // margen amplio para filtrar suscripciones vencidas
 
         if (error) throw error;
 
-        setDestacados(data || []);
+        // Filtrar por suscripción activa y ordenar:
+        // 1. Mayor estrellas (average_rating DESC)
+        // 2. Mayor número de valoraciones (total_ratings DESC)
+        const filtrados = (data || [] as NegocioDestacado[])
+          .filter((b) => isSubscriptionActive(b))
+          .sort((a, b) => {
+            const ratingDiff = (b.average_rating || 0) - (a.average_rating || 0);
+            if (ratingDiff !== 0) return ratingDiff;
+            return (b.total_ratings || 0) - (a.total_ratings || 0);
+          })
+          .slice(0, limit);
+
+        setDestacados(filtrados);
         setError(null);
       } catch (err) {
         console.error("Error al cargar negocios destacados:", err);

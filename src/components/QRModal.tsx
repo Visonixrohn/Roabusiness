@@ -240,57 +240,76 @@ const QRModal: React.FC<QRModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-        >
-          <X className="h-6 w-6" />
-        </button>
+    <div
+      className="fixed inset-0 bg-black bg-opacity-60 flex items-start justify-center z-[9999] p-4 overflow-y-auto"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md mx-auto my-6 relative">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100">
+          <div>
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900">
+              Comparte con QR
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
+              Escanea para visitar el negocio
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors flex-shrink-0"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
 
-        <div className="text-center">
-          <h3 className="text-2xl font-bold text-gray-900 mb-1">
-            Comparte con QR
-          </h3>
-          <p className="text-sm text-gray-500 mb-6">
-            El enlace ha sido copiado automáticamente
-          </p>
-
-          {/* QR Code - cuadrado escaneable sobre fondo circular */}
+        {/* Contenido */}
+        <div className="px-5 py-5 text-center">
+          {/* QR Code */}
           <canvas ref={canvasRef} style={{ display: "none" }} />
 
           {qrDataUrl ? (
-            <div className="mb-6 flex flex-col items-center gap-3">
+            <div className="flex flex-col items-center gap-3 mb-5">
               <img
                 src={qrDataUrl}
                 alt="QR Code"
-                className="w-72 h-72 rounded-full shadow-xl"
+                className="w-52 h-52 sm:w-64 sm:h-64 rounded-full shadow-xl"
               />
-              <p className="text-base font-bold text-blue-700">
-                Calificame en Roabusiness.com
-              </p>
-              <p className="text-sm text-gray-500">{businessName}</p>
+              <div>
+                <p className="text-sm font-bold text-blue-700">
+                  Calificame en Roabusiness.com
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5 truncate max-w-[16rem]">
+                  {businessName}
+                </p>
+              </div>
             </div>
           ) : (
-            <div className="mb-6 flex items-center justify-center">
-              <div className="w-72 h-72 rounded-full border-4 border-blue-200 animate-pulse bg-blue-50 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-3 mb-5">
+              <div className="w-52 h-52 sm:w-64 sm:h-64 rounded-full border-4 border-blue-200 animate-pulse bg-blue-50 flex items-center justify-center">
                 <span className="text-blue-400 text-sm">Generando QR...</span>
               </div>
             </div>
           )}
 
+          {/* Botones */}
           <div className="flex gap-3">
-            <Button variant="outline" onClick={onClose} className="flex-1">
+            <Button
+              variant="outline"
+              onClick={onClose}
+              className="flex-1 h-10 rounded-xl"
+            >
               Cerrar
             </Button>
             <Button
               onClick={handleDownload}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              className="flex-1 h-10 rounded-xl bg-blue-600 hover:bg-blue-700"
               disabled={!qrDataUrl}
             >
               <Download className="h-4 w-4 mr-2" />
-              Descargar QR
+              Descargar
             </Button>
           </div>
         </div>
