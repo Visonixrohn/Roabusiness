@@ -29,7 +29,7 @@ const QRModal: React.FC<QRModalProps> = ({
   const generateQRCode = async () => {
     try {
       const QRCodeLib = await import("qrcode");
-      
+
       const canvas = canvasRef.current;
       if (!canvas) return;
 
@@ -57,11 +57,29 @@ const QRModal: React.FC<QRModalProps> = ({
       ctx.beginPath();
       ctx.moveTo(qrX + borderRadius, qrY);
       ctx.lineTo(qrX + qrSize - borderRadius, qrY);
-      ctx.arcTo(qrX + qrSize, qrY, qrX + qrSize, qrY + borderRadius, borderRadius);
+      ctx.arcTo(
+        qrX + qrSize,
+        qrY,
+        qrX + qrSize,
+        qrY + borderRadius,
+        borderRadius,
+      );
       ctx.lineTo(qrX + qrSize, qrY + qrSize - borderRadius);
-      ctx.arcTo(qrX + qrSize, qrY + qrSize, qrX + qrSize - borderRadius, qrY + qrSize, borderRadius);
+      ctx.arcTo(
+        qrX + qrSize,
+        qrY + qrSize,
+        qrX + qrSize - borderRadius,
+        qrY + qrSize,
+        borderRadius,
+      );
       ctx.lineTo(qrX + borderRadius, qrY + qrSize);
-      ctx.arcTo(qrX, qrY + qrSize, qrX, qrY + qrSize - borderRadius, borderRadius);
+      ctx.arcTo(
+        qrX,
+        qrY + qrSize,
+        qrX,
+        qrY + qrSize - borderRadius,
+        borderRadius,
+      );
       ctx.lineTo(qrX, qrY + borderRadius);
       ctx.arcTo(qrX, qrY, qrX + borderRadius, qrY, borderRadius);
       ctx.closePath();
@@ -85,11 +103,29 @@ const QRModal: React.FC<QRModalProps> = ({
       ctx.beginPath();
       ctx.moveTo(qrX + borderRadius, qrY);
       ctx.lineTo(qrX + qrSize - borderRadius, qrY);
-      ctx.arcTo(qrX + qrSize, qrY, qrX + qrSize, qrY + borderRadius, borderRadius);
+      ctx.arcTo(
+        qrX + qrSize,
+        qrY,
+        qrX + qrSize,
+        qrY + borderRadius,
+        borderRadius,
+      );
       ctx.lineTo(qrX + qrSize, qrY + qrSize - borderRadius);
-      ctx.arcTo(qrX + qrSize, qrY + qrSize, qrX + qrSize - borderRadius, qrY + qrSize, borderRadius);
+      ctx.arcTo(
+        qrX + qrSize,
+        qrY + qrSize,
+        qrX + qrSize - borderRadius,
+        qrY + qrSize,
+        borderRadius,
+      );
       ctx.lineTo(qrX + borderRadius, qrY + qrSize);
-      ctx.arcTo(qrX, qrY + qrSize, qrX, qrY + qrSize - borderRadius, borderRadius);
+      ctx.arcTo(
+        qrX,
+        qrY + qrSize,
+        qrX,
+        qrY + qrSize - borderRadius,
+        borderRadius,
+      );
       ctx.lineTo(qrX, qrY + borderRadius);
       ctx.arcTo(qrX, qrY, qrX + borderRadius, qrY, borderRadius);
       ctx.closePath();
@@ -120,7 +156,13 @@ const QRModal: React.FC<QRModalProps> = ({
           ctx.arc(centerX, centerY, logoSize / 2, 0, Math.PI * 2);
           ctx.closePath();
           ctx.clip();
-          ctx.drawImage(logoImg, centerX - logoSize / 2, centerY - logoSize / 2, logoSize, logoSize);
+          ctx.drawImage(
+            logoImg,
+            centerX - logoSize / 2,
+            centerY - logoSize / 2,
+            logoSize,
+            logoSize,
+          );
           ctx.restore();
         } else {
           // Iniciales
@@ -132,7 +174,11 @@ const QRModal: React.FC<QRModalProps> = ({
           ctx.font = `bold ${logoSize * 0.42}px sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillText(businessName.substring(0, 2).toUpperCase(), centerX, centerY);
+          ctx.fillText(
+            businessName.substring(0, 2).toUpperCase(),
+            centerX,
+            centerY,
+          );
         }
 
         // Área de texto blanca debajo del círculo
@@ -144,7 +190,11 @@ const QRModal: React.FC<QRModalProps> = ({
         ctx.font = "bold 26px sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText("Calificame en Roabusiness.com", canvasSize / 2, canvasSize + 40);
+        ctx.fillText(
+          "Calificame en Roabusiness.com",
+          canvasSize / 2,
+          canvasSize + 40,
+        );
 
         // Nombre del negocio
         ctx.fillStyle = "#64748B";
@@ -152,7 +202,10 @@ const QRModal: React.FC<QRModalProps> = ({
         // Truncar nombre si es muy largo
         const maxWidth = canvasSize - 40;
         let displayName = businessName;
-        while (ctx.measureText(displayName).width > maxWidth && displayName.length > 0) {
+        while (
+          ctx.measureText(displayName).width > maxWidth &&
+          displayName.length > 0
+        ) {
           displayName = displayName.slice(0, -1);
         }
         if (displayName !== businessName) displayName += "...";
@@ -206,7 +259,7 @@ const QRModal: React.FC<QRModalProps> = ({
 
           {/* QR Code - cuadrado escaneable sobre fondo circular */}
           <canvas ref={canvasRef} style={{ display: "none" }} />
-          
+
           {qrDataUrl ? (
             <div className="mb-6 flex flex-col items-center gap-3">
               <img
@@ -228,11 +281,7 @@ const QRModal: React.FC<QRModalProps> = ({
           )}
 
           <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={onClose}
-              className="flex-1"
-            >
+            <Button variant="outline" onClick={onClose} className="flex-1">
               Cerrar
             </Button>
             <Button

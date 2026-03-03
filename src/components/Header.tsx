@@ -13,6 +13,7 @@ import {
   LogOut,
   Settings,
   Building2,
+  LayoutTemplate,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +37,10 @@ const Header = () => {
     { name: t("nav.home"), href: "/", icon: Home },
     { name: "Directorio", href: "/directorio", icon: Users },
     ...(isAdminLoggedIn
-      ? [{ name: t("nav.dashboard"), href: "/editar-negocio", icon: Settings }]
+      ? [
+          { name: t("nav.dashboard"), href: "/editar-negocio", icon: Settings },
+          { name: "Banners", href: "/admin-banners", icon: LayoutTemplate },
+        ]
       : []),
   ];
 
@@ -81,9 +85,9 @@ const Header = () => {
         <div className="flex items-center justify-between h-12 sm:h-14">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-1.5">
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/2288/2288494.png" 
-              alt="RoaBusiness Logo" 
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/2288/2288494.png"
+              alt="RoaBusiness Logo"
               className="w-8 h-8 object-contain"
             />
             <div className="hidden sm:block">
@@ -166,7 +170,6 @@ const Header = () => {
                 </Link>
               );
             })}
-
 
             {/* Authentication removed: no login/profile buttons shown */}
           </nav>

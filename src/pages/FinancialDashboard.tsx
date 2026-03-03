@@ -87,8 +87,12 @@ const FinancialDashboard = () => {
   const [renewalReceipt, setRenewalReceipt] = useState<PaymentReceipt | null>(
     null,
   );
-  const [pagoFilter, setPagoFilter] = useState<"todos" | "ejecutado" | "sin pagar">("todos");
-  const [transactionReceipt, setTransactionReceipt] = useState<Transaction & { business_name?: string } | null>(null);
+  const [pagoFilter, setPagoFilter] = useState<
+    "todos" | "ejecutado" | "sin pagar"
+  >("todos");
+  const [transactionReceipt, setTransactionReceipt] = useState<
+    (Transaction & { business_name?: string }) | null
+  >(null);
 
   const [newTransaction, setNewTransaction] = useState({
     business_id: "",
@@ -169,14 +173,16 @@ const FinancialDashboard = () => {
 
     if (transaction) {
       // Obtener nombre del negocio para el recibo
-      const business = businesses.find(b => b.id === newTransaction.business_id);
-      
+      const business = businesses.find(
+        (b) => b.id === newTransaction.business_id,
+      );
+
       // Mostrar comprobante de transacción
       setTransactionReceipt({
         ...transaction,
         business_name: business?.name || "Desconocido",
       });
-      
+
       setShowAddTransactionModal(false);
       setNewTransaction({
         business_id: "",
@@ -702,7 +708,7 @@ const FinancialDashboard = () => {
                 <h2 className="text-xl font-bold text-gray-900">
                   Estado Financiero de Negocios
                 </h2>
-                
+
                 {/* Filtro de Estado de Pago */}
                 <div className="flex items-center gap-2">
                   <label className="text-sm font-medium text-gray-700">
@@ -749,79 +755,81 @@ const FinancialDashboard = () => {
                   </thead>
                   <tbody>
                     {businesses
-                      .filter((b) => pagoFilter === "todos" || b.pago === pagoFilter)
+                      .filter(
+                        (b) => pagoFilter === "todos" || b.pago === pagoFilter,
+                      )
                       .map((business) => (
-                      <tr
-                        key={business.id}
-                        className="border-b hover:bg-gray-50"
-                      >
-                        <td className="py-3 px-4">
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              {business.name}
-                            </p>
-                            {business.profile_name && (
-                              <p className="text-sm text-gray-500">
-                                @{business.profile_name}
+                        <tr
+                          key={business.id}
+                          className="border-b hover:bg-gray-50"
+                        >
+                          <td className="py-3 px-4">
+                            <div>
+                              <p className="font-medium text-gray-900">
+                                {business.name}
                               </p>
-                            )}
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <Badge
-                            variant={
-                              business.pago === "ejecutado"
-                                ? "default"
-                                : "destructive"
-                            }
-                          >
-                            {business.pago === "ejecutado"
-                              ? "✓ Pagado"
-                              : "⚠ Pendiente"}
-                          </Badge>
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          {business.subscription_months} meses
-                        </td>
-                        <td className="py-3 px-4 text-right font-semibold">
-                          {business.subscription_price
-                            ? formatCurrency(business.subscription_price)
-                            : "-"}
-                        </td>
-                        <td className="py-3 px-4 text-center text-sm">
-                          {business.subscription_expires_at
-                            ? formatDate(business.subscription_expires_at)
-                            : "-"}
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <Badge
-                            variant={
-                              business.subscription_status === "activa"
-                                ? "default"
-                                : "destructive"
-                            }
-                          >
-                            {business.subscription_status}
-                          </Badge>
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          {business.pago === "sin pagar" && (
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                // Prellenar modal con los datos del negocio
-                                setSelectedBusinessForRenewal(business.id);
-                                setSelectedPlanForRenewal("");
-                                setRenewalPaymentMethod("efectivo");
-                                setShowRenewModal(true);
-                              }}
+                              {business.profile_name && (
+                                <p className="text-sm text-gray-500">
+                                  @{business.profile_name}
+                                </p>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <Badge
+                              variant={
+                                business.pago === "ejecutado"
+                                  ? "default"
+                                  : "destructive"
+                              }
                             >
-                              Renovar Suscripción
-                            </Button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
+                              {business.pago === "ejecutado"
+                                ? "✓ Pagado"
+                                : "⚠ Pendiente"}
+                            </Badge>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            {business.subscription_months} meses
+                          </td>
+                          <td className="py-3 px-4 text-right font-semibold">
+                            {business.subscription_price
+                              ? formatCurrency(business.subscription_price)
+                              : "-"}
+                          </td>
+                          <td className="py-3 px-4 text-center text-sm">
+                            {business.subscription_expires_at
+                              ? formatDate(business.subscription_expires_at)
+                              : "-"}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <Badge
+                              variant={
+                                business.subscription_status === "activa"
+                                  ? "default"
+                                  : "destructive"
+                              }
+                            >
+                              {business.subscription_status}
+                            </Badge>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            {business.pago === "sin pagar" && (
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  // Prellenar modal con los datos del negocio
+                                  setSelectedBusinessForRenewal(business.id);
+                                  setSelectedPlanForRenewal("");
+                                  setRenewalPaymentMethod("efectivo");
+                                  setShowRenewModal(true);
+                                }}
+                              >
+                                Renovar Suscripción
+                              </Button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -919,21 +927,21 @@ const FinancialDashboard = () => {
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          
+
                           // Prellenar el negocio siempre
                           setSelectedBusinessForRenewal(suscripcion.id);
-                          
+
                           // Intentar encontrar el plan correspondiente
                           const plan = plans.find(
                             (p) => p.months === suscripcion.subscription_months,
                           );
-                          
+
                           if (plan) {
                             setSelectedPlanForRenewal(plan.id.toString());
                           } else {
                             setSelectedPlanForRenewal("");
                           }
-                          
+
                           setRenewalPaymentMethod("efectivo");
                           setShowRenewModal(true);
                         }}
@@ -1484,7 +1492,7 @@ const FinancialDashboard = () => {
           </div>
         </div>
       )}
-      
+
       {/* Comprobante de Transacción */}
       {transactionReceipt && (
         <TransactionReceipt

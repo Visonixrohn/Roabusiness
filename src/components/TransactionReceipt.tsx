@@ -77,14 +77,12 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
               <p className="text-gray-600">Plataforma de Negocios</p>
             </div>
           </div>
-          
+
           <div className="text-center">
             <h2 className={`text-2xl font-bold ${tipoInfo.color} uppercase`}>
               Comprobante de {tipoInfo.label}
             </h2>
-            <p className="text-gray-600 mt-1">
-              Transacción #{transactionId}
-            </p>
+            <p className="text-gray-600 mt-1">Transacción #{transactionId}</p>
           </div>
         </div>
 
@@ -92,9 +90,7 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
         <div className="mb-6 bg-gray-50 p-4 rounded-lg">
           <h3 className="font-semibold text-gray-700 mb-2">Negocio</h3>
           <p className="text-lg font-medium">{businessName}</p>
-          {profileName && (
-            <p className="text-gray-600">@{profileName}</p>
-          )}
+          {profileName && <p className="text-gray-600">@{profileName}</p>}
         </div>
 
         {/* Detalles de la transacción */}
@@ -114,7 +110,8 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
           <div className="flex justify-between items-center border-b pb-2">
             <span className="text-gray-600">Monto:</span>
             <span className={`text-2xl font-bold ${tipoInfo.color}`}>
-              {tipo === "egreso" ? "-" : "+"}{formatCurrency(monto)}
+              {tipo === "egreso" ? "-" : "+"}
+              {formatCurrency(monto)}
             </span>
           </div>
 

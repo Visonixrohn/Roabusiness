@@ -460,7 +460,13 @@ const RegisterBusinessModalAdmin: React.FC<Props> = ({
               </button>
               <button
                 type="button"
-                onClick={() => setEditForm({ ...editForm, pago: "sin pagar", subscriptionMonths: 0 })}
+                onClick={() =>
+                  setEditForm({
+                    ...editForm,
+                    pago: "sin pagar",
+                    subscriptionMonths: 0,
+                  })
+                }
                 className={`p-3 rounded-lg border text-center transition-colors ${
                   editForm.pago === "sin pagar"
                     ? "border-red-500 bg-red-50 text-red-700 font-semibold"
@@ -483,13 +489,17 @@ const RegisterBusinessModalAdmin: React.FC<Props> = ({
                   max="30"
                   value={editForm.graceDays}
                   onChange={(e) =>
-                    setEditForm({ ...editForm, graceDays: parseInt(e.target.value) || 7 })
+                    setEditForm({
+                      ...editForm,
+                      graceDays: parseInt(e.target.value) || 7,
+                    })
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   placeholder="Ej: 7"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Número de días que el negocio estará visible sin pagar (por defecto 7 días)
+                  Número de días que el negocio estará visible sin pagar (por
+                  defecto 7 días)
                 </p>
               </div>
             )}

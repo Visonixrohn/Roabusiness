@@ -205,13 +205,19 @@ const EditBusinessPage = () => {
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [receiptData, setReceiptData] = useState<PaymentReceipt | null>(null);
   const [showRenewModal, setShowRenewModal] = useState(false);
-  const [selectedBusinessForRenewal, setSelectedBusinessForRenewal] = useState<Business | null>(null);
-  const [selectedPlanForRenewal, setSelectedPlanForRenewal] = useState<string>("");
-  const [renewalPaymentMethod, setRenewalPaymentMethod] = useState<string>("efectivo");
-  const [renewalReceipt, setRenewalReceipt] = useState<PaymentReceipt | null>(null);
+  const [selectedBusinessForRenewal, setSelectedBusinessForRenewal] =
+    useState<Business | null>(null);
+  const [selectedPlanForRenewal, setSelectedPlanForRenewal] =
+    useState<string>("");
+  const [renewalPaymentMethod, setRenewalPaymentMethod] =
+    useState<string>("efectivo");
+  const [renewalReceipt, setRenewalReceipt] = useState<PaymentReceipt | null>(
+    null,
+  );
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
 
-  const { processBusinessPayment, renovarSuscripcion, fetchSubscriptionPlans } = useFinancial();
+  const { processBusinessPayment, renovarSuscripcion, fetchSubscriptionPlans } =
+    useFinancial();
   const [municipios, setMunicipios] = useState<string[]>([]);
 
   useEffect(() => {
@@ -724,18 +730,16 @@ const EditBusinessPage = () => {
   const handleRenewSubscription = async (business: Business) => {
     // Abrir modal de renovación prellenando el negocio seleccionado
     setSelectedBusinessForRenewal(business);
-    
+
     // Intentar encontrar el plan correspondiente
-    const plan = plans.find(
-      (p) => p.months === business.subscription_months,
-    );
-    
+    const plan = plans.find((p) => p.months === business.subscription_months);
+
     if (plan) {
       setSelectedPlanForRenewal(plan.id.toString());
     } else {
       setSelectedPlanForRenewal("");
     }
-    
+
     setRenewalPaymentMethod("efectivo");
     setShowRenewModal(true);
   };
@@ -745,8 +749,8 @@ const EditBusinessPage = () => {
       toast.error("Por favor selecciona un negocio y un plan");
       return;
     }
-    
-    const plan = plans.find(p => p.id === parseInt(selectedPlanForRenewal));
+
+    const plan = plans.find((p) => p.id === parseInt(selectedPlanForRenewal));
     if (!plan) {
       toast.error("Plan no encontrado");
       return;

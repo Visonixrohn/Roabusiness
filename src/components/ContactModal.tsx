@@ -396,7 +396,11 @@ interface QuickActionsProps {
   onOpenQRModal: () => void;
 }
 
-const QuickActions = ({ business, contacts, onOpenQRModal }: QuickActionsProps) => (
+const QuickActions = ({
+  business,
+  contacts,
+  onOpenQRModal,
+}: QuickActionsProps) => (
   <div className="border-t pt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
     <Button
       variant="outline"
@@ -437,10 +441,7 @@ const QuickActions = ({ business, contacts, onOpenQRModal }: QuickActionsProps) 
       size="sm"
       onClick={() => {
         // Copiar automáticamente el enlace
-        copyBusinessLink(
-          business.profile_name || business.id,
-          business.name,
-        );
+        copyBusinessLink(business.profile_name || business.id, business.name);
         // Abrir modal QR
         onOpenQRModal();
       }}
@@ -610,7 +611,9 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-          <h3 className="font-semibold text-gray-900 text-sm">Calificaciones</h3>
+          <h3 className="font-semibold text-gray-900 text-sm">
+            Calificaciones
+          </h3>
         </div>
         {average !== null && average > 0 && (
           <span className="text-xl font-bold text-gray-900">
@@ -643,7 +646,8 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
           <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-2">
             <p className="text-xs text-green-800 font-medium flex items-center gap-1.5">
               <Star className="h-3.5 w-3.5 fill-green-600 text-green-600" />
-              Tu calificación: {deviceRating} estrella{deviceRating === 1 ? "" : "s"}
+              Tu calificación: {deviceRating} estrella
+              {deviceRating === 1 ? "" : "s"}
             </p>
           </div>
         ) : (
@@ -759,7 +763,7 @@ const ContactModal = ({
               <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/45 to-black/60" />
             </div>
           )}
-          
+
           {/* Botón Ver perfil - Siempre visible en la parte inferior */}
           <div className="absolute bottom-3 right-3 z-20">
             <Button
@@ -783,10 +787,14 @@ const ContactModal = ({
               className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg"
             />
             <div>
-              <DialogTitle className={`text-2xl font-bold leading-tight ${business.coverImage ? 'text-white' : 'text-gray-900'}`}>
+              <DialogTitle
+                className={`text-2xl font-bold leading-tight ${business.coverImage ? "text-white" : "text-gray-900"}`}
+              >
                 Contactar a {business.name}
               </DialogTitle>
-              <DialogDescription className={`text-sm mt-1 ${business.coverImage ? 'text-white/95' : 'text-gray-600'}`}>
+              <DialogDescription
+                className={`text-sm mt-1 ${business.coverImage ? "text-white/95" : "text-gray-600"}`}
+              >
                 {business.description ||
                   "Encuentra toda la información de contacto y ubicación."}
               </DialogDescription>
@@ -802,8 +810,8 @@ const ContactModal = ({
           <SocialMediaLinks business={business} />
 
           {/* Sección de Acciones Rápidas */}
-          <QuickActions 
-            business={business} 
+          <QuickActions
+            business={business}
             contacts={contacts}
             onOpenQRModal={() => setShowQRModal(true)}
           />
@@ -821,7 +829,7 @@ const ContactModal = ({
           />
         )}
       </DialogContent>
-      
+
       {/* Modal QR */}
       <QRModal
         isOpen={showQRModal}

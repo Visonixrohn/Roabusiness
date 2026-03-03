@@ -164,7 +164,11 @@ interface QuickActionsBarProps {
   onOpenQRModal: () => void;
 }
 
-const QuickActionsBar = ({ business, contacts, onOpenQRModal }: QuickActionsBarProps) => {
+const QuickActionsBar = ({
+  business,
+  contacts,
+  onOpenQRModal,
+}: QuickActionsBarProps) => {
   const { t } = useLanguage();
   const contactData = contacts || business.contact || {};
 
@@ -203,10 +207,7 @@ const QuickActionsBar = ({ business, contacts, onOpenQRModal }: QuickActionsBarP
       <Button
         onClick={() => {
           // Copiar automáticamente el enlace
-          copyBusinessLink(
-            business.profile_name || business.id,
-            business.name,
-          );
+          copyBusinessLink(business.profile_name || business.id, business.name);
           // Abrir modal QR
           onOpenQRModal();
         }}
@@ -878,9 +879,9 @@ const BusinessProfilePage = () => {
               totalRatings={totalRatings}
             />
 
-            <QuickActionsBar 
-              business={business} 
-              contacts={contacts} 
+            <QuickActionsBar
+              business={business}
+              contacts={contacts}
               onOpenQRModal={() => setShowQRModal(true)}
             />
           </div>

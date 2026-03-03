@@ -8,7 +8,7 @@ import { useNegociosDestacados } from "@/hooks/useNegociosDestacados";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
 import IslandsSection from "@/components/Islansection";
-import HeroSection from "@/components/Hero";
+import BannerCarousel from "@/components/BannerCarousel";
 import AboutPage from "./AboutPage";
 const HomePage = () => {
   // Usar negocios destacados ordenados por calificación
@@ -68,12 +68,18 @@ const HomePage = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      <HeroSection />
+      <BannerCarousel />
 
       {/* Negocios Destacados */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16 max-w-3xl mx-auto px-4">
+            {/* Logo sobre el título */}
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/2288/2288494.png"
+              alt="RoaBusiness"
+              className="w-16 h-16 mx-auto mb-4 drop-shadow-lg"
+            />
             <h2 className="text-5xl font-extrabold text-gray-900 mb-4 tracking-tight drop-shadow-md">
               Negocios Destacados
             </h2>
@@ -99,8 +105,14 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {destacados
+              {[...destacados]
                 .filter((business) => business.is_public !== false)
+                .sort((a, b) => {
+                  const ratingDiff =
+                    (b.average_rating || 0) - (a.average_rating || 0);
+                  if (ratingDiff !== 0) return ratingDiff;
+                  return (b.total_ratings || 0) - (a.total_ratings || 0);
+                })
                 .slice(0, 6)
                 .map((business) => (
                   <BusinessCard

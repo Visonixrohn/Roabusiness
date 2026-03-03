@@ -124,7 +124,10 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
                 className="bg-white/90 backdrop-blur-sm text-gray-800 hover:bg-white rounded-full px-2.5 sm:px-3 py-1.5 text-xs h-auto font-medium shadow-lg"
               >
                 <Eye className="h-3.5 w-3.5 mr-1 sm:mr-1.5" />
-                <span>{business.gallery?.length} foto{business.gallery.length !== 1 ? 's' : ''}</span>
+                <span>
+                  {business.gallery?.length} foto
+                  {business.gallery.length !== 1 ? "s" : ""}
+                </span>
               </Button>
             </div>
           )}

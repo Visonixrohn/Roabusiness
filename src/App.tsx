@@ -30,6 +30,7 @@ import UserSettingsPage from "@/pages/UserSettingsPage";
 import AdminLoginPage from "@/pages/AdminLoginPage";
 import AdminRouteGuard from "@/components/AdminRouteGuard";
 import FinancialDashboard from "@/pages/FinancialDashboard";
+import BannerAdminPage from "@/pages/BannerAdminPage";
 
 import "./App.css";
 import { useEffect } from "react";
@@ -139,6 +140,14 @@ function App() {
                   element={
                     <AdminRouteGuard>
                       <FinancialDashboard />
+                    </AdminRouteGuard>
+                  }
+                />
+                <Route
+                  path="/admin-banners"
+                  element={
+                    <AdminRouteGuard>
+                      <BannerAdminPage />
                     </AdminRouteGuard>
                   }
                 />
