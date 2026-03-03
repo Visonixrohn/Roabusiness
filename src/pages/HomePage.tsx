@@ -112,10 +112,12 @@ const HomePage = () => {
               {[...destacados]
                 .filter((business) => business.is_public !== false)
                 .sort((a, b) => {
-                  const ratingDiff =
-                    (b.average_rating || 0) - (a.average_rating || 0);
-                  if (ratingDiff !== 0) return ratingDiff;
-                  return (b.total_ratings || 0) - (a.total_ratings || 0);
+                  // Primero: cantidad de valoraciones
+                  const totalRatingsDiff =
+                    (b.total_ratings || 0) - (a.total_ratings || 0);
+                  if (totalRatingsDiff !== 0) return totalRatingsDiff;
+                  // Segundo: promedio de estrellas
+                  return (b.average_rating || 0) - (a.average_rating || 0);
                 })
                 .slice(0, 6)
                 .map((business) => (

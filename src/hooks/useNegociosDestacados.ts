@@ -25,22 +25,22 @@ export const useNegociosDestacados = (limit: number = 6) => {
           .from("vista_negocios_destacados")
           .select("*")
           .eq("is_public", true)
-          .order("average_rating", { ascending: false })
-          .order("total_ratings", { ascending: false })
+          .order("total_ratings", { ascending: false })    // Primero: cantidad de valoraciones
+          .order("average_rating", { ascending: false })   // Segundo: promedio de estrellas
           .limit(limit * 8); // margen amplio para filtrar suscripciones vencidas
 
         if (error) throw error;
 
         // Filtrar por suscripción activa y ordenar:
-        // 1. Mayor estrellas (average_rating DESC)
-        // 2. Mayor número de valoraciones (total_ratings DESC)
+        // 1. Mayor número de valoraciones (total_ratings DESC)
+        // 2. Mayor estrellas (average_rating DESC)
         const filtrados = (data || ([] as NegocioDestacado[]))
           .filter((b) => isSubscriptionActive(b))
           .sort((a, b) => {
-            const ratingDiff =
-              (b.average_rating || 0) - (a.average_rating || 0);
-            if (ratingDiff !== 0) return ratingDiff;
-            return (b.total_ratings || 0) - (a.total_ratings || 0);
+            const totalRatingsDiff =
+              (b.total_ratings || 0) - (a.total_ratings || 0);
+            if (totalRatingsDiff !== 0) return totalRatingsDiff;
+            return (b.average_rating || 0) - (a.average_rating || 0);
           })
           .slice(0, limit);
 
