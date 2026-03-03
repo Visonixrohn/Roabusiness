@@ -143,7 +143,8 @@ const DirectoryPage = () => {
 
             const sameMunicipio =
               !modalFilters.municipio ||
-              (business.municipio || business.location) === modalFilters.municipio;
+              (business.municipio || business.location) ===
+                modalFilters.municipio;
 
             return sameDepartamento && sameMunicipio;
           })
@@ -215,8 +216,6 @@ const DirectoryPage = () => {
         <BannerCarousel />
         {/* Header del directorio */}
         <Tabs defaultValue="businesses" className="space-y-6">
-         
-
           <TabsContent value="businesses">
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
@@ -224,7 +223,6 @@ const DirectoryPage = () => {
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
                     Directorio de Negocios
                   </h1>
-                 
                 </div>
                 <div className="flex gap-2 mt-4 lg:mt-0">
                   <Button
@@ -276,7 +274,10 @@ const DirectoryPage = () => {
                   </Button>
                 </div>
 
-                <Dialog open={showFiltersModal} onOpenChange={setShowFiltersModal}>
+                <Dialog
+                  open={showFiltersModal}
+                  onOpenChange={setShowFiltersModal}
+                >
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 rounded-2xl border-0 shadow-2xl">
                     <DialogHeader className="px-6 pt-6 pb-4 border-b bg-white">
                       <DialogTitle className="text-xl font-bold text-gray-900">
@@ -290,7 +291,9 @@ const DirectoryPage = () => {
                     <div className="px-6 py-5 space-y-4 bg-gray-50/60">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2 bg-white border border-gray-200 rounded-xl p-3">
-                          <p className="text-sm font-medium text-gray-700">Departamento</p>
+                          <p className="text-sm font-medium text-gray-700">
+                            Departamento
+                          </p>
                           <Combobox
                             value={modalFilters.departamento}
                             onInputChange={setDepartamentoInput}
@@ -314,13 +317,17 @@ const DirectoryPage = () => {
                                 .includes(departamentoInput.toLowerCase()),
                             )}
                             placeholder="Departamento"
-                            inputValue={departamentoInput || modalFilters.departamento}
+                            inputValue={
+                              departamentoInput || modalFilters.departamento
+                            }
                             clearable
                           />
                         </div>
 
                         <div className="space-y-2 bg-white border border-gray-200 rounded-xl p-3">
-                          <p className="text-sm font-medium text-gray-700">Municipio</p>
+                          <p className="text-sm font-medium text-gray-700">
+                            Municipio
+                          </p>
                           <Combobox
                             value={modalFilters.municipio}
                             onInputChange={setMunicipioInput}
@@ -335,24 +342,29 @@ const DirectoryPage = () => {
                               setColoniaInput("");
                               setCategoryInput("");
                             }}
-                            options={municipiosModalFiltrados.filter((municipio) =>
-                              municipio
-                                .toLowerCase()
-                                .includes(municipioInput.toLowerCase()),
+                            options={municipiosModalFiltrados.filter(
+                              (municipio) =>
+                                municipio
+                                  .toLowerCase()
+                                  .includes(municipioInput.toLowerCase()),
                             )}
                             placeholder={
                               modalFilters.departamento
                                 ? "Municipio"
                                 : "Primero selecciona departamento"
                             }
-                            inputValue={municipioInput || modalFilters.municipio}
+                            inputValue={
+                              municipioInput || modalFilters.municipio
+                            }
                             clearable
                             disabled={!modalFilters.departamento}
                           />
                         </div>
 
                         <div className="space-y-2 bg-white border border-gray-200 rounded-xl p-3">
-                          <p className="text-sm font-medium text-gray-700">Colonia / Sector</p>
+                          <p className="text-sm font-medium text-gray-700">
+                            Colonia / Sector
+                          </p>
                           <Combobox
                             value={modalFilters.colonia}
                             onInputChange={setColoniaInput}
@@ -371,29 +383,39 @@ const DirectoryPage = () => {
                                 .includes(coloniaInput.toLowerCase()),
                             )}
                             placeholder={
-                              modalFilters.departamento || modalFilters.municipio
+                              modalFilters.departamento ||
+                              modalFilters.municipio
                                 ? "Colonia / Sector"
                                 : "Primero selecciona ubicación"
                             }
                             inputValue={coloniaInput || modalFilters.colonia}
                             clearable
-                            disabled={!modalFilters.departamento && !modalFilters.municipio}
+                            disabled={
+                              !modalFilters.departamento &&
+                              !modalFilters.municipio
+                            }
                           />
                         </div>
 
                         <div className="space-y-2 bg-white border border-gray-200 rounded-xl p-3">
-                          <p className="text-sm font-medium text-gray-700">Categoría</p>
+                          <p className="text-sm font-medium text-gray-700">
+                            Categoría
+                          </p>
                           <Combobox
                             value={modalFilters.category}
                             onInputChange={setCategoryInput}
                             onChange={(value) => {
-                              setModalFilters((prev) => ({ ...prev, category: value }));
+                              setModalFilters((prev) => ({
+                                ...prev,
+                                category: value,
+                              }));
                               setCategoryInput(value);
                             }}
-                            options={categoriasModalFiltradas.filter((category) =>
-                              category
-                                .toLowerCase()
-                                .includes(categoryInput.toLowerCase()),
+                            options={categoriasModalFiltradas.filter(
+                              (category) =>
+                                category
+                                  .toLowerCase()
+                                  .includes(categoryInput.toLowerCase()),
                             )}
                             placeholder="Categoría"
                             inputValue={categoryInput || modalFilters.category}
@@ -412,10 +434,15 @@ const DirectoryPage = () => {
                         Limpiar
                       </Button>
                       <div className="flex gap-2 sm:justify-end">
-                        <Button variant="outline" onClick={() => setShowFiltersModal(false)}>
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowFiltersModal(false)}
+                        >
                           Cancelar
                         </Button>
-                        <Button onClick={handleApplyModalFilters}>Filtrar</Button>
+                        <Button onClick={handleApplyModalFilters}>
+                          Filtrar
+                        </Button>
                       </div>
                     </div>
                   </DialogContent>
@@ -500,8 +527,6 @@ const DirectoryPage = () => {
               </div>
 
               <Separator className="my-4" />
-
-             
             </div>
 
             {/* Contenido principal */}

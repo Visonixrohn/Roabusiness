@@ -46,6 +46,20 @@ const Header = () => {
 
   const isActive = (href: string) => location.pathname === href;
 
+  const handleGoHome = () => {
+    if (location.pathname === "/") {
+      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    }
+    setIsMenuOpen(false);
+  };
+
+  const handleNavLinkClick = (href: string) => {
+    if (location.pathname === href) {
+      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    }
+    setIsMenuOpen(false);
+  };
+
   // Filtrar negocios por nombre, descripción, categoría y amenidades
   const normalize = (text = "") =>
     text
@@ -84,7 +98,11 @@ const Header = () => {
       <div className="container mx-auto px-2 sm:px-4">
         <div className="flex items-center justify-between h-12 sm:h-14">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-1.5">
+          <Link
+            to="/"
+            onClick={handleGoHome}
+            className="flex items-center space-x-1.5"
+          >
             <img
               src="https://cdn-icons-png.flaticon.com/512/2288/2288494.png"
               alt="RoaBusiness Logo"
@@ -158,6 +176,7 @@ const Header = () => {
                 <Link
                   key={item.name}
                   to={item.href}
+                  onClick={() => handleNavLinkClick(item.href)}
                   className={cn(
                     "flex items-center px-2 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200",
                     isActive(item.href)
@@ -290,7 +309,7 @@ const Header = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={() => handleNavLinkClick(item.href)}
                   className={cn(
                     "flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                     isActive(item.href)

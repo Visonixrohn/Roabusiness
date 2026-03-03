@@ -31,6 +31,7 @@ import AdminLoginPage from "@/pages/AdminLoginPage";
 import AdminRouteGuard from "@/components/AdminRouteGuard";
 import FinancialDashboard from "@/pages/FinancialDashboard";
 import BannerAdminPage from "@/pages/BannerAdminPage";
+import ScrollToTop from "@/components/ScrollToTop";
 
 import "./App.css";
 import { useEffect } from "react";
@@ -75,6 +76,7 @@ function App() {
           }
         >
           <Router>
+            <ScrollToTop />
             <div className="min-h-screen bg-gray-50">
               {/* Top bar móvil eliminado */}
               <Routes>

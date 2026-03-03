@@ -257,9 +257,7 @@ export const useBusinesses = () => {
         newFilters.departamento !== prev.departamento
       ) {
         const nextMunicipio =
-          "municipio" in newFilters
-            ? (newFilters.municipio ?? "")
-            : "";
+          "municipio" in newFilters ? (newFilters.municipio ?? "") : "";
         const nextColonia =
           "colonia" in newFilters ? (newFilters.colonia ?? "") : "";
         return {
