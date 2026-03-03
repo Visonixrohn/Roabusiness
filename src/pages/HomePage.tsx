@@ -68,7 +68,6 @@ const HomePage = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      <BannerCarousel />
 
       {/* Negocios Destacados */}
       <section className="py-16 bg-gray-50">
@@ -91,6 +90,11 @@ const HomePage = () => {
               <span className="inline-block w-12 h-1 bg-teal-300 rounded-full animate-pulse delay-150"></span>
               <span className="inline-block w-8 h-1 bg-teal-200 rounded-full animate-pulse delay-300"></span>
             </div>
+          </div>
+
+          {/* Banner justo debajo del título de Negocios Destacados */}
+          <div className="mb-8">
+            <BannerCarousel />
           </div>
 
           {loadingDestacados ? (
