@@ -59,12 +59,12 @@ const TransactionReceipt: React.FC<TransactionReceiptProps> = ({
   const tipoInfo = getTipoLabel();
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="receipt-container max-w-2xl mx-auto bg-white p-8 shadow-lg rounded-lg relative">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-3 sm:p-4 overflow-y-auto">
+      <div className="receipt-container relative w-full max-w-2xl bg-white p-4 sm:p-8 shadow-lg rounded-lg my-4">
         {/* Botón cerrar */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full print:hidden"
+          className="absolute top-3 right-3 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full print:hidden"
         >
           <X className="h-5 w-5" />
         </button>

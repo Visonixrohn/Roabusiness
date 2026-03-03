@@ -274,7 +274,7 @@ const FinancialDashboard = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
           <div className="flex justify-center items-center h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -292,78 +292,86 @@ const FinancialDashboard = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {/* Encabezado */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
             Panel Financiero
           </h1>
-          <p className="text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600">
             Gestión completa de ingresos, egresos y suscripciones
           </p>
         </div>
 
         {/* Resumen financiero */}
         {summary && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6">
+            <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Ingresos Totales</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                    Ingresos
+                  </p>
+                  <p className="text-lg sm:text-2xl font-bold text-green-600">
                     {formatCurrency(summary.ingresos_totales)}
                   </p>
                 </div>
-                <DollarSign className="h-12 w-12 text-green-600 opacity-20" />
+                <DollarSign className="h-8 w-8 sm:h-12 sm:w-12 text-green-600 opacity-20" />
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Egresos Totales</p>
-                  <p className="text-2xl font-bold text-red-600">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                    Egresos
+                  </p>
+                  <p className="text-lg sm:text-2xl font-bold text-red-600">
                     {formatCurrency(
                       summary.egresos_totales + summary.costos_publicidad,
                     )}
                   </p>
                 </div>
-                <TrendingDown className="h-12 w-12 text-red-600 opacity-20" />
+                <TrendingDown className="h-8 w-8 sm:h-12 sm:w-12 text-red-600 opacity-20" />
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Balance Total</p>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                    Balance
+                  </p>
                   <p
-                    className={`text-2xl font-bold ${summary.balance_total >= 0 ? "text-blue-600" : "text-red-600"}`}
+                    className={`text-lg sm:text-2xl font-bold ${summary.balance_total >= 0 ? "text-blue-600" : "text-red-600"}`}
                   >
                     {formatCurrency(summary.balance_total)}
                   </p>
                 </div>
-                <TrendingUp className="h-12 w-12 text-blue-600 opacity-20" />
+                <TrendingUp className="h-8 w-8 sm:h-12 sm:w-12 text-blue-600 opacity-20" />
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Suscripciones</p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-green-600">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                    Suscripciones
+                  </p>
+                  <div className="flex items-center gap-1">
+                    <span className="text-base sm:text-lg font-bold text-green-600">
                       {summary.suscripciones_activas}
                     </span>
                     <span className="text-gray-400">/</span>
-                    <span className="text-lg font-bold text-red-600">
+                    <span className="text-base sm:text-lg font-bold text-red-600">
                       {summary.suscripciones_vencidas}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 mt-0.5">
                     Activas / Vencidas
                   </p>
                 </div>
-                <Users className="h-12 w-12 text-purple-600 opacity-20" />
+                <Users className="h-8 w-8 sm:h-12 sm:w-12 text-purple-600 opacity-20" />
               </div>
             </div>
           </div>
@@ -402,17 +410,13 @@ const FinancialDashboard = () => {
           )}
 
         {/* Tabs */}
-        <div className="bg-white rounded-lg shadow-md mb-6">
+        <div className="bg-white rounded-lg shadow-md mb-4">
           <div className="border-b border-gray-200">
             <nav className="flex -mb-px overflow-x-auto">
               {[
                 { id: "dashboard", label: "Dashboard", icon: PieChart },
                 { id: "plans", label: "Planes", icon: FileText },
-                {
-                  id: "transactions",
-                  label: "Transacciones",
-                  icon: DollarSign,
-                },
+                { id: "transactions", label: "Transacc.", icon: DollarSign },
                 { id: "advertising", label: "Publicidad", icon: BarChart3 },
                 { id: "businesses", label: "Negocios", icon: Users },
                 { id: "expiring", label: "Por Vencer", icon: Calendar },
@@ -420,14 +424,14 @@ const FinancialDashboard = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm whitespace-nowrap ${
+                  className={`flex items-center gap-1.5 px-3 sm:px-6 py-3 sm:py-4 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${
                     activeTab === tab.id
                       ? "border-blue-500 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
                 >
-                  <tab.icon className="h-4 w-4" />
-                  {tab.label}
+                  <tab.icon className="h-4 w-4 shrink-0" />
+                  <span>{tab.label}</span>
                 </button>
               ))}
             </nav>
@@ -435,10 +439,10 @@ const FinancialDashboard = () => {
         </div>
 
         {/* Contenido de tabs */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-3 sm:p-6">
           {activeTab === "dashboard" && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-bold text-gray-900">
+            <div className="space-y-4">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">
                 Ingresos por Mes
               </h2>
               <div className="overflow-x-auto">
@@ -480,9 +484,9 @@ const FinancialDashboard = () => {
           )}
 
           {activeTab === "plans" && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
                   Planes de Suscripción
                 </h2>
               </div>
@@ -533,27 +537,83 @@ const FinancialDashboard = () => {
           )}
 
           {activeTab === "transactions" && (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-gray-900">
+            <div className="space-y-4">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
                   Transacciones
                 </h2>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <Button
                     variant="outline"
+                    size="sm"
                     onClick={() => setShowRenewModal(true)}
                   >
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Renovar Suscripción
+                    <Calendar className="h-4 w-4 mr-1.5" />
+                    Renovar
                   </Button>
-                  <Button onClick={() => setShowAddTransactionModal(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nueva Transacción
+                  <Button
+                    size="sm"
+                    onClick={() => setShowAddTransactionModal(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-1.5" />
+                    Nueva
                   </Button>
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
+              {/* Cards móvil */}
+              <div className="block sm:hidden space-y-3">
+                {transactions.slice(0, 50).map((transaction) => (
+                  <div key={transaction.id} className="border rounded-lg p-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <p className="font-medium text-gray-900 text-sm">
+                          {transaction.business_name || "Sin nombre"}
+                        </p>
+                        {transaction.business_profile && (
+                          <p className="text-xs text-gray-500">
+                            @{transaction.business_profile}
+                          </p>
+                        )}
+                      </div>
+                      <Badge
+                        variant={
+                          transaction.tipo === "ingreso"
+                            ? "default"
+                            : transaction.tipo === "egreso"
+                              ? "destructive"
+                              : "secondary"
+                        }
+                      >
+                        {transaction.tipo}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-gray-500 mb-1">
+                      {transaction.concepto}
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-400">
+                        {formatDate(transaction.fecha)}
+                      </span>
+                      <span
+                        className={`font-bold text-sm ${transaction.tipo === "ingreso" ? "text-green-600" : "text-red-600"}`}
+                      >
+                        {transaction.tipo === "ingreso" ? "+" : "-"}
+                        {formatCurrency(transaction.monto)}
+                      </span>
+                    </div>
+                    {transaction.metodo_pago && (
+                      <p className="text-xs text-gray-400 mt-1">
+                        {transaction.metodo_pago}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Tabla desktop */}
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b">
@@ -613,11 +673,7 @@ const FinancialDashboard = () => {
                           {transaction.concepto}
                         </td>
                         <td
-                          className={`py-3 px-4 text-right font-semibold ${
-                            transaction.tipo === "ingreso"
-                              ? "text-green-600"
-                              : "text-red-600"
-                          }`}
+                          className={`py-3 px-4 text-right font-semibold ${transaction.tipo === "ingreso" ? "text-green-600" : "text-red-600"}`}
                         >
                           {transaction.tipo === "ingreso" ? "+" : "-"}
                           {formatCurrency(transaction.monto)}
@@ -634,23 +690,24 @@ const FinancialDashboard = () => {
           )}
 
           {activeTab === "advertising" && (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-gray-900">
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
                   Costos de Publicidad
                 </h2>
-                <Button onClick={() => setShowAddAdvertisingModal(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
+                <Button
+                  size="sm"
+                  onClick={() => setShowAddAdvertisingModal(true)}
+                >
+                  <Plus className="h-4 w-4 mr-1.5" />
                   Nuevo Costo
                 </Button>
               </div>
 
-              <div className="bg-blue-50 rounded-lg p-4 mb-4">
+              <div className="bg-blue-50 rounded-lg p-3 sm:p-4">
                 <p className="text-sm text-gray-700">
-                  <span className="font-semibold">
-                    Total invertido en publicidad:
-                  </span>{" "}
-                  <span className="text-lg font-bold text-blue-600">
+                  <span className="font-semibold">Total invertido:</span>{" "}
+                  <span className="text-base sm:text-lg font-bold text-blue-600">
                     {formatCurrency(
                       advertisingCosts.reduce(
                         (sum, cost) => sum + cost.monto,
@@ -661,7 +718,32 @@ const FinancialDashboard = () => {
                 </p>
               </div>
 
-              <div className="overflow-x-auto">
+              {/* Cards móvil */}
+              <div className="block sm:hidden space-y-3">
+                {advertisingCosts.map((cost) => (
+                  <div key={cost.id} className="border rounded-lg p-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium text-gray-900 text-sm">
+                          {cost.descripcion}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {cost.plataforma || "Sin plataforma"}
+                        </p>
+                      </div>
+                      <p className="font-bold text-red-600 text-sm">
+                        {formatCurrency(cost.monto)}
+                      </p>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {formatDate(cost.fecha)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Tabla desktop */}
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b">
@@ -703,21 +785,20 @@ const FinancialDashboard = () => {
           )}
 
           {activeTab === "businesses" && (
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-gray-900">
+            <div className="space-y-4">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
                   Estado Financiero de Negocios
                 </h2>
-
-                {/* Filtro de Estado de Pago */}
                 <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-gray-700">
-                    Filtrar por:
+                  <label className="text-xs sm:text-sm font-medium text-gray-700">
+                    Filtrar:
                   </label>
                   <select
                     value={pagoFilter}
                     onChange={(e) => setPagoFilter(e.target.value as any)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="todos">Todos</option>
                     <option value="ejecutado">Pagado</option>
@@ -726,7 +807,84 @@ const FinancialDashboard = () => {
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
+              {/* Cards móvil */}
+              <div className="block sm:hidden space-y-3">
+                {businesses
+                  .filter(
+                    (b) => pagoFilter === "todos" || b.pago === pagoFilter,
+                  )
+                  .map((business) => (
+                    <div
+                      key={business.id}
+                      className="border rounded-lg p-3 space-y-2"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium text-gray-900 text-sm">
+                            {business.name}
+                          </p>
+                          {business.profile_name && (
+                            <p className="text-xs text-gray-500">
+                              @{business.profile_name}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          <Badge
+                            variant={
+                              business.pago === "ejecutado"
+                                ? "default"
+                                : "destructive"
+                            }
+                          >
+                            {business.pago === "ejecutado"
+                              ? "✓ Pagado"
+                              : "⚠ Pendiente"}
+                          </Badge>
+                          <Badge
+                            variant={
+                              business.subscription_status === "activa"
+                                ? "default"
+                                : "destructive"
+                            }
+                          >
+                            {business.subscription_status}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="flex justify-between text-xs text-gray-500">
+                        <span>{business.subscription_months} meses</span>
+                        <span>
+                          {business.subscription_price
+                            ? formatCurrency(business.subscription_price)
+                            : "-"}
+                        </span>
+                      </div>
+                      {business.subscription_expires_at && (
+                        <p className="text-xs text-gray-400">
+                          Vence: {formatDate(business.subscription_expires_at)}
+                        </p>
+                      )}
+                      {business.pago === "sin pagar" && (
+                        <Button
+                          size="sm"
+                          className="w-full"
+                          onClick={() => {
+                            setSelectedBusinessForRenewal(business.id);
+                            setSelectedPlanForRenewal("");
+                            setRenewalPaymentMethod("efectivo");
+                            setShowRenewModal(true);
+                          }}
+                        >
+                          Renovar Suscripción
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+              </div>
+
+              {/* Tabla desktop */}
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b">
@@ -764,16 +922,14 @@ const FinancialDashboard = () => {
                           className="border-b hover:bg-gray-50"
                         >
                           <td className="py-3 px-4">
-                            <div>
-                              <p className="font-medium text-gray-900">
-                                {business.name}
+                            <p className="font-medium text-gray-900">
+                              {business.name}
+                            </p>
+                            {business.profile_name && (
+                              <p className="text-sm text-gray-500">
+                                @{business.profile_name}
                               </p>
-                              {business.profile_name && (
-                                <p className="text-sm text-gray-500">
-                                  @{business.profile_name}
-                                </p>
-                              )}
-                            </div>
+                            )}
                           </td>
                           <td className="py-3 px-4 text-center">
                             <Badge
@@ -817,14 +973,13 @@ const FinancialDashboard = () => {
                               <Button
                                 size="sm"
                                 onClick={() => {
-                                  // Prellenar modal con los datos del negocio
                                   setSelectedBusinessForRenewal(business.id);
                                   setSelectedPlanForRenewal("");
                                   setRenewalPaymentMethod("efectivo");
                                   setShowRenewModal(true);
                                 }}
                               >
-                                Renovar Suscripción
+                                Renovar
                               </Button>
                             )}
                           </td>
@@ -837,8 +992,8 @@ const FinancialDashboard = () => {
           )}
 
           {activeTab === "expiring" && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-bold text-gray-900">
+            <div className="space-y-4">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">
                 Suscripciones por Vencer (30 días)
               </h2>
 
@@ -959,8 +1114,8 @@ const FinancialDashboard = () => {
 
       {/* Modal: Renovar Suscripción */}
       {showRenewModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-4 sm:p-6 my-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold">Renovar Suscripción</h3>
               <button onClick={() => setShowRenewModal(false)}>
@@ -1133,8 +1288,8 @@ const FinancialDashboard = () => {
 
       {/* Modal: Nueva Transacción */}
       {showAddTransactionModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-4 sm:p-6 my-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold">Nueva Transacción</h3>
               <button onClick={() => setShowAddTransactionModal(false)}>
@@ -1276,8 +1431,8 @@ const FinancialDashboard = () => {
 
       {/* Modal: Nueva Publicidad */}
       {showAddAdvertisingModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-4 sm:p-6 my-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold">Nuevo Costo de Publicidad</h3>
               <button onClick={() => setShowAddAdvertisingModal(false)}>
@@ -1394,8 +1549,8 @@ const FinancialDashboard = () => {
 
       {/* Modal: Editar Plan */}
       {showEditPlanModal && selectedPlan && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-4 sm:p-6 my-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold">Editar Plan</h3>
               <button onClick={() => setShowEditPlanModal(false)}>
@@ -1470,25 +1625,27 @@ const FinancialDashboard = () => {
 
       {/* Recibo de Renovación */}
       {renewalReceipt && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="relative max-w-4xl w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-3 sm:p-4 overflow-y-auto">
+          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl my-4">
             <button
               onClick={() => setRenewalReceipt(null)}
-              className="absolute top-4 right-4 z-10 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 print:hidden"
+              className="sticky top-2 float-right mr-2 mt-2 z-10 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 print:hidden"
             >
               <X className="h-5 w-5" />
             </button>
-            <Receipt
-              transactionId={renewalReceipt.transaction_id}
-              businessName={renewalReceipt.business_name}
-              profileName={renewalReceipt.profile_name}
-              planMonths={renewalReceipt.plan_months}
-              amountPaid={renewalReceipt.amount_paid}
-              paymentMethod={renewalReceipt.payment_method}
-              paymentDate={renewalReceipt.payment_date}
-              expiresAt={renewalReceipt.expires_at}
-              wasGracePeriod={renewalReceipt.was_grace_period}
-            />
+            <div className="clear-both">
+              <Receipt
+                transactionId={renewalReceipt.transaction_id}
+                businessName={renewalReceipt.business_name}
+                profileName={renewalReceipt.profile_name}
+                planMonths={renewalReceipt.plan_months}
+                amountPaid={renewalReceipt.amount_paid}
+                paymentMethod={renewalReceipt.payment_method}
+                paymentDate={renewalReceipt.payment_date}
+                expiresAt={renewalReceipt.expires_at}
+                wasGracePeriod={renewalReceipt.was_grace_period}
+              />
+            </div>
           </div>
         </div>
       )}

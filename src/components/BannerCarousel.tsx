@@ -140,12 +140,14 @@ const BannerCarousel = () => {
       {banner.link_url && (
         <a
           href={banner.link_url}
-          target={banner.link_url.startsWith('http') ? '_blank' : '_self'}
+          target={banner.link_url.startsWith("http") ? "_blank" : "_self"}
           rel="noopener noreferrer"
           className="absolute bottom-3 right-14 z-30 flex items-center gap-1.5 text-white font-semibold text-sm px-4 py-1.5 rounded-full shadow-lg transition whitespace-nowrap hover:opacity-90"
-          style={{ backgroundColor: (banner as any).link_button_color || '#06b6d4' }}
+          style={{
+            backgroundColor: (banner as any).link_button_color || "#06b6d4",
+          }}
         >
-          {banner.link_label || 'Ver más'}
+          {banner.link_label || "Ver más"}
           <ExternalLink className="w-3.5 h-3.5 shrink-0" />
         </a>
       )}

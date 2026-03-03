@@ -240,7 +240,10 @@ const BannerAdminPage = () => {
   };
 
   // ── Imagen móvil ───────────────────────────────────────────
-  const validateMobileImageDimensions = (file: File, onValid: (f: File) => void) => {
+  const validateMobileImageDimensions = (
+    file: File,
+    onValid: (f: File) => void,
+  ) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
@@ -254,14 +257,20 @@ const BannerAdminPage = () => {
       }
       onValid(file);
     };
-    img.onerror = () => { URL.revokeObjectURL(url); toast.error("No se pudo leer la imagen"); };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      toast.error("No se pudo leer la imagen");
+    };
     img.src = url;
   };
 
   const handleMobileFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    if (f.size > 5 * 1024 * 1024) { toast.error("La imagen debe ser menor a 5 MB"); return; }
+    if (f.size > 5 * 1024 * 1024) {
+      toast.error("La imagen debe ser menor a 5 MB");
+      return;
+    }
     validateMobileImageDimensions(f, (valid) => {
       setMobileImgFile(valid);
       setMobileImgPreview(URL.createObjectURL(valid));
@@ -272,8 +281,14 @@ const BannerAdminPage = () => {
   const handleMobileDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const f = e.dataTransfer.files?.[0];
-    if (!f || !f.type.startsWith("image/")) { toast.error("Solo imágenes"); return; }
-    if (f.size > 5 * 1024 * 1024) { toast.error("Máximo 5 MB"); return; }
+    if (!f || !f.type.startsWith("image/")) {
+      toast.error("Solo imágenes");
+      return;
+    }
+    if (f.size > 5 * 1024 * 1024) {
+      toast.error("Máximo 5 MB");
+      return;
+    }
     validateMobileImageDimensions(f, (valid) => {
       setMobileImgFile(valid);
       setMobileImgPreview(URL.createObjectURL(valid));
@@ -282,8 +297,14 @@ const BannerAdminPage = () => {
 
   // ── Guardar (crear / actualizar) ───────────────────────────
   const handleSave = async () => {
-    if (!form.title.trim()) { toast.error("El título es obligatorio"); return; }
-    if (!imgPreview && !editingId) { toast.error("Sube una imagen para el banner"); return; }
+    if (!form.title.trim()) {
+      toast.error("El título es obligatorio");
+      return;
+    }
+    if (!imgPreview && !editingId) {
+      toast.error("Sube una imagen para el banner");
+      return;
+    }
 
     setSaving(true);
     setUploading(true);
@@ -307,13 +328,17 @@ const BannerAdminPage = () => {
         const ext = mobileImgFile.name.split(".").pop();
         const mobilePath = `banners/mobile-${bannerId}-${Date.now()}.${ext}`;
         if (form.mobile_image_path) {
-          await supabase.storage.from("banner-images").remove([form.mobile_image_path]);
+          await supabase.storage
+            .from("banner-images")
+            .remove([form.mobile_image_path]);
         }
         const { error: mErr } = await supabase.storage
           .from("banner-images")
           .upload(mobilePath, mobileImgFile, { upsert: true });
         if (mErr) throw mErr;
-        const { data: { publicUrl } } = supabase.storage.from("banner-images").getPublicUrl(mobilePath);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("banner-images").getPublicUrl(mobilePath);
         finalMobileUrl = publicUrl;
         finalMobilePath = mobilePath;
       }
@@ -335,11 +360,16 @@ const BannerAdminPage = () => {
       };
 
       if (editingId) {
-        const { error } = await supabase.from("banner_ads").update(payload).eq("id", editingId);
+        const { error } = await supabase
+          .from("banner_ads")
+          .update(payload)
+          .eq("id", editingId);
         if (error) throw error;
         toast.success("Banner actualizado");
       } else {
-        const { error } = await supabase.from("banner_ads").insert({ id: bannerId, ...payload });
+        const { error } = await supabase
+          .from("banner_ads")
+          .insert({ id: bannerId, ...payload });
         if (error) throw error;
         toast.success("Banner creado correctamente");
       }
@@ -730,7 +760,9 @@ const BannerAdminPage = () => {
               <div>
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                   📱 Imagen para móviles
-                  <span className="ml-2 text-gray-300 normal-case font-normal">— opcional, si no se sube se usa la imagen principal</span>
+                  <span className="ml-2 text-gray-300 normal-case font-normal">
+                    — opcional, si no se sube se usa la imagen principal
+                  </span>
                 </label>
                 <div
                   onDrop={handleMobileDrop}
@@ -750,21 +782,38 @@ const BannerAdminPage = () => {
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
                         <div className="text-white text-center">
                           <Upload className="w-6 h-6 mx-auto mb-1 opacity-90" />
-                          <p className="text-sm font-semibold">Cambiar imagen móvil</p>
+                          <p className="text-sm font-semibold">
+                            Cambiar imagen móvil
+                          </p>
                         </div>
                       </div>
                       <button
                         type="button"
-                        onClick={(e) => { e.stopPropagation(); setMobileImgFile(null); setMobileImgPreview(""); setForm({ ...form, mobile_image_url: "", mobile_image_path: null }); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMobileImgFile(null);
+                          setMobileImgPreview("");
+                          setForm({
+                            ...form,
+                            mobile_image_url: "",
+                            mobile_image_path: null,
+                          });
+                        }}
                         className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs z-10 hover:bg-red-600"
-                      >✕</button>
+                      >
+                        ✕
+                      </button>
                     </>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-8 text-gray-400">
                       <ImageIcon className="w-8 h-8 mb-2 opacity-40" />
-                      <p className="font-semibold text-sm">Arrastra o haz clic para subir</p>
+                      <p className="font-semibold text-sm">
+                        Arrastra o haz clic para subir
+                      </p>
                       <p className="text-xs mt-1">PNG, JPG, WebP — máx 5 MB</p>
-                      <p className="text-xs font-bold text-blue-500 mt-1.5">✦ Dimensión obligatoria: 800 × 400 px</p>
+                      <p className="text-xs font-bold text-blue-500 mt-1.5">
+                        ✦ Dimensión obligatoria: 800 × 400 px
+                      </p>
                     </div>
                   )}
                   <input
@@ -966,16 +1015,20 @@ const BannerAdminPage = () => {
                   <input
                     type="color"
                     value={form.link_button_color}
-                    onChange={(e) => setForm({ ...form, link_button_color: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, link_button_color: e.target.value })
+                    }
                     className="w-10 h-10 rounded-lg border border-gray-200 cursor-pointer p-0.5"
                   />
                   <span
                     className="flex items-center gap-2 px-4 py-1.5 rounded-full text-white text-sm font-semibold shadow"
                     style={{ backgroundColor: form.link_button_color }}
                   >
-                    {form.link_label || 'Ver más'} ↗
+                    {form.link_label || "Ver más"} ↗
                   </span>
-                  <span className="text-xs text-gray-400">{form.link_button_color}</span>
+                  <span className="text-xs text-gray-400">
+                    {form.link_button_color}
+                  </span>
                 </div>
               </div>
 

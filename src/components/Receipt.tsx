@@ -47,7 +47,7 @@ const Receipt: React.FC<ReceiptProps> = ({
   };
 
   return (
-    <div className="receipt-container max-w-2xl mx-auto bg-white p-8 shadow-lg">
+    <div className="receipt-container w-full bg-white p-4 sm:p-8">
       {/* Header con logo */}
       <div className="text-center mb-8 border-b-2 border-blue-600 pb-6">
         <div className="flex items-center justify-center mb-4">
@@ -81,7 +81,7 @@ const Receipt: React.FC<ReceiptProps> = ({
         <h3 className="text-lg font-semibold text-gray-800 mb-4">
           Datos del Negocio
         </h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-gray-600">Nombre del Negocio:</p>
             <p className="font-semibold text-gray-900">{businessName}</p>
@@ -172,7 +172,7 @@ const Receipt: React.FC<ReceiptProps> = ({
       <div className="mt-8 text-center print:hidden">
         <button
           onClick={handlePrint}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg transition-colors"
+          className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg transition-colors"
         >
           🖨️ Imprimir Recibo
         </button>

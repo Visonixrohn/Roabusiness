@@ -1913,25 +1913,27 @@ const EditBusinessPage = () => {
 
       {/* Recibo de Renovación */}
       {renewalReceipt && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-3 sm:p-4 overflow-y-auto">
+          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl my-4">
             <button
               onClick={() => setRenewalReceipt(null)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
+              className="sticky top-2 float-right mr-2 mt-2 z-10 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 print:hidden"
             >
-              <X className="h-6 w-6" />
+              <X className="h-5 w-5" />
             </button>
-            <Receipt
-              transactionId={renewalReceipt.transaction_id}
-              businessName={renewalReceipt.business_name}
-              profileName={renewalReceipt.profile_name}
-              planMonths={renewalReceipt.plan_months}
-              amountPaid={renewalReceipt.amount_paid}
-              paymentMethod={renewalReceipt.payment_method}
-              paymentDate={renewalReceipt.payment_date}
-              expiresAt={renewalReceipt.expires_at}
-              wasGracePeriod={renewalReceipt.was_grace_period}
-            />
+            <div className="clear-both">
+              <Receipt
+                transactionId={renewalReceipt.transaction_id}
+                businessName={renewalReceipt.business_name}
+                profileName={renewalReceipt.profile_name}
+                planMonths={renewalReceipt.plan_months}
+                amountPaid={renewalReceipt.amount_paid}
+                paymentMethod={renewalReceipt.payment_method}
+                paymentDate={renewalReceipt.payment_date}
+                expiresAt={renewalReceipt.expires_at}
+                wasGracePeriod={renewalReceipt.was_grace_period}
+              />
+            </div>
           </div>
         </div>
       )}
