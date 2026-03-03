@@ -256,14 +256,27 @@ export const useBusinesses = () => {
         "departamento" in newFilters &&
         newFilters.departamento !== prev.departamento
       ) {
-        return { ...prev, ...newFilters, municipio: "", colonia: "" };
+        const nextMunicipio =
+          "municipio" in newFilters
+            ? (newFilters.municipio ?? "")
+            : "";
+        const nextColonia =
+          "colonia" in newFilters ? (newFilters.colonia ?? "") : "";
+        return {
+          ...prev,
+          ...newFilters,
+          municipio: nextMunicipio,
+          colonia: nextColonia,
+        };
       }
       // Si se cambia el municipio, resetear colonia
       if (
         "municipio" in newFilters &&
         newFilters.municipio !== prev.municipio
       ) {
-        return { ...prev, ...newFilters, colonia: "" };
+        const nextColonia =
+          "colonia" in newFilters ? (newFilters.colonia ?? "") : "";
+        return { ...prev, ...newFilters, colonia: nextColonia };
       }
       return { ...prev, ...newFilters };
     });
@@ -286,6 +299,7 @@ export const useBusinesses = () => {
 
   return {
     businesses: filteredBusinesses,
+    allBusinesses: businessData?.businesses || [],
     featuredBusinesses,
     mostFollowedBusinesses,
     categories,

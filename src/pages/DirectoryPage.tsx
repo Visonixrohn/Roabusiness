@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Search,
   Filter,
@@ -12,33 +12,30 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BusinessCard from "@/components/BusinessCard";
-import PostCard from "@/components/PostCard";
 import MapView from "@/components/MapView";
 import { useBusinesses } from "@/hooks/useBusinesses";
-import { useRecentPosts } from "@/hooks/useRecentPosts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import BannerCarousel from "@/components/BannerCarousel";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Combobox } from "@/components/ui/combobox";
 import businessCategories from "@/data/businessCategories";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const DirectoryPage = () => {
   const {
     businesses,
+    allBusinesses,
     categories,
     departamentos,
     municipios,
-    municipiosFiltrados,
-    coloniasFiltradas,
     filters,
     loading: loadingBusinesses,
     error: businessError,
@@ -48,13 +45,58 @@ const DirectoryPage = () => {
     totalBusinesses,
   } = useBusinesses();
 
-  const { posts, loading: loadingPosts, error: postsError } = useRecentPosts();
+  // Nota: `useRecentPosts` eliminado para simplificar la página de directorio
   const [viewMode, setViewMode] = useState<"grid" | "map" | "list">("grid");
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFiltersModal, setShowFiltersModal] = useState(false);
+  const [modalFilters, setModalFilters] = useState({
+    departamento: filters.departamento || "",
+    municipio: filters.municipio || "",
+    colonia: filters.colonia || "",
+    category: filters.category || "",
+  });
   const [departamentoInput, setDepartamentoInput] = useState("");
   const [municipioInput, setMunicipioInput] = useState("");
   const [coloniaInput, setColoniaInput] = useState("");
   const [categoryInput, setCategoryInput] = useState("");
+  const [clearQueryOnApply, setClearQueryOnApply] = useState(false);
+
+  const openFiltersModal = () => {
+    setModalFilters({
+      departamento: filters.departamento || "",
+      municipio: filters.municipio || "",
+      colonia: filters.colonia || "",
+      category: filters.category || "",
+    });
+    setDepartamentoInput(filters.departamento || "");
+    setMunicipioInput(filters.municipio || "");
+    setColoniaInput(filters.colonia || "");
+    setCategoryInput(filters.category || "");
+    setClearQueryOnApply(false);
+    setShowFiltersModal(true);
+  };
+
+  const handleApplyModalFilters = () => {
+    updateFilters({
+      ...modalFilters,
+      query: clearQueryOnApply ? "" : filters.query,
+    });
+    setShowFiltersModal(false);
+    setClearQueryOnApply(false);
+  };
+
+  const handleClearModalFilters = () => {
+    setModalFilters({
+      departamento: "",
+      municipio: "",
+      colonia: "",
+      category: "",
+    });
+    setDepartamentoInput("");
+    setMunicipioInput("");
+    setColoniaInput("");
+    setCategoryInput("");
+    setClearQueryOnApply(false);
+  };
 
   const priceRanges = [
     { value: "$", label: "Económico ($)" },
@@ -70,6 +112,80 @@ const DirectoryPage = () => {
     filters.municipio ||
     filters.colonia ||
     filters.priceRange;
+
+  const municipiosModalFiltrados = useMemo(() => {
+    if (!modalFilters.departamento) return municipios;
+
+    return Array.from(
+      new Set(
+        allBusinesses
+          .filter(
+            (business) =>
+              (business.departamento || business.island) ===
+              modalFilters.departamento,
+          )
+          .map((business) => (business.municipio || business.location)?.trim()),
+      ),
+    )
+      .filter(Boolean)
+      .sort() as string[];
+  }, [allBusinesses, municipios, modalFilters.departamento]);
+
+  const coloniasModalFiltradas = useMemo(() => {
+    return Array.from(
+      new Set(
+        allBusinesses
+          .filter((business) => {
+            const sameDepartamento =
+              !modalFilters.departamento ||
+              (business.departamento || business.island) ===
+                modalFilters.departamento;
+
+            const sameMunicipio =
+              !modalFilters.municipio ||
+              (business.municipio || business.location) === modalFilters.municipio;
+
+            return sameDepartamento && sameMunicipio;
+          })
+          .map((business) => business.colonia?.trim()),
+      ),
+    )
+      .filter(Boolean)
+      .sort() as string[];
+  }, [allBusinesses, modalFilters.departamento, modalFilters.municipio]);
+
+  const categoriasModalFiltradas = useMemo(() => {
+    return Array.from(
+      new Set(
+        allBusinesses
+          .filter((business) => {
+            const sameDepartamento =
+              !modalFilters.departamento ||
+              (business.departamento || business.island) ===
+                modalFilters.departamento;
+
+            const sameMunicipio =
+              !modalFilters.municipio ||
+              (business.municipio || business.location) ===
+                modalFilters.municipio;
+
+            const sameColonia =
+              !modalFilters.colonia ||
+              (business.colonia || "") === modalFilters.colonia;
+
+            return sameDepartamento && sameMunicipio && sameColonia;
+          })
+          .map((business) => business.category?.trim()),
+      ),
+    )
+      .filter(Boolean)
+      .sort() as string[];
+  }, [
+    allBusinesses,
+    modalFilters.departamento,
+    modalFilters.municipio,
+    modalFilters.colonia,
+  ]);
 
   if (businessError) {
     return (
@@ -96,23 +212,10 @@ const DirectoryPage = () => {
       <Header />
 
       <div className="container mx-auto px-4 py-6">
+        <BannerCarousel />
         {/* Header del directorio */}
         <Tabs defaultValue="businesses" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <TabsList>
-              <TabsTrigger
-                value="businesses"
-                className="flex items-center gap-2"
-              >
-                <Layout className="h-4 w-4" />
-                Negocios
-              </TabsTrigger>
-              <TabsTrigger value="posts" className="flex items-center gap-2">
-                <ListFilter className="h-4 w-4" />
-                Publicaciones Recientes
-              </TabsTrigger>
-            </TabsList>
-          </div>
+         
 
           <TabsContent value="businesses">
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -121,10 +224,7 @@ const DirectoryPage = () => {
                   <h1 className="text-3xl font-bold text-gray-900 mb-2">
                     Directorio de Negocios
                   </h1>
-                  <p className="text-gray-600">
-                    Descubre {totalBusinesses} negocios únicos en las Islas de
-                    la Bahía
-                  </p>
+                 
                 </div>
                 <div className="flex gap-2 mt-4 lg:mt-0">
                   <Button
@@ -164,126 +264,162 @@ const DirectoryPage = () => {
                   />
                 </div>
 
-                {/* Filtros rápidos - Móvil */}
-                <div className="lg:hidden">
+                {/* Botón de filtros (móvil y desktop) */}
+                <div>
                   <Button
                     variant="outline"
-                    onClick={() => setShowFilters(!showFilters)}
-                    className="w-full"
+                    onClick={openFiltersModal}
+                    className="w-full lg:w-auto"
                   >
                     <SlidersHorizontal className="h-4 w-4 mr-2" />
                     Filtros {hasActiveFilters && "(activos)"}
                   </Button>
                 </div>
 
-                {/* Filtros - Desktop y Móvil expandido */}
-                <div
-                  className={`grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3 ${
-                    showFilters ? "" : "hidden lg:grid"
-                  }`}
-                >
-                  {/* Departamento */}
-                  <Combobox
-                    value={filters.departamento}
-                    onInputChange={setDepartamentoInput}
-                    onChange={(value) => {
-                      updateFilters({ departamento: value });
-                      setDepartamentoInput("");
-                    }}
-                    options={departamentos.filter((d) =>
-                      d.toLowerCase().includes(departamentoInput.toLowerCase()),
-                    )}
-                    placeholder="Departamento"
-                    inputValue={departamentoInput}
-                    clearable
-                  />
-                  {/* Municipio */}
-                  <Combobox
-                    value={filters.municipio}
-                    onInputChange={setMunicipioInput}
-                    onChange={(value) => {
-                      updateFilters({ municipio: value });
-                      setMunicipioInput("");
-                    }}
-                    options={municipiosFiltrados.filter((m) =>
-                      m.toLowerCase().includes(municipioInput.toLowerCase()),
-                    )}
-                    placeholder={
-                      filters.departamento
-                        ? "Municipio"
-                        : "Primero selecciona departamento"
-                    }
-                    inputValue={municipioInput}
-                    clearable
-                    disabled={!filters.departamento}
-                  />
-                  {/* Colonia */}
-                  <Combobox
-                    value={filters.colonia}
-                    onInputChange={setColoniaInput}
-                    onChange={(value) => {
-                      updateFilters({ colonia: value });
-                      setColoniaInput("");
-                    }}
-                    options={coloniasFiltradas.filter((c) =>
-                      c.toLowerCase().includes(coloniaInput.toLowerCase()),
-                    )}
-                    placeholder={
-                      filters.departamento || filters.municipio
-                        ? "Colonia / Sector"
-                        : "Primero selecciona ubicación"
-                    }
-                    inputValue={coloniaInput}
-                    clearable
-                    disabled={!filters.departamento && !filters.municipio}
-                  />
-                  {/* Categoría */}
-                  <Combobox
-                    value={filters.category}
-                    onInputChange={setCategoryInput}
-                    onChange={(value) => {
-                      updateFilters({ category: value });
-                      setCategoryInput("");
-                    }}
-                    options={categories.filter((cat) =>
-                      cat.toLowerCase().includes(categoryInput.toLowerCase()),
-                    )}
-                    placeholder="Categoría"
-                    inputValue={categoryInput}
-                    clearable
-                  />
-                  {/* Precio */}
-                  <Select
-                    value={filters.priceRange || "all"}
-                    onValueChange={(value) =>
-                      updateFilters({
-                        priceRange: value === "all" ? "" : value,
-                      })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Precio" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos los precios</SelectItem>
-                      {priceRanges.map((range) => (
-                        <SelectItem key={range.value} value={range.value}>
-                          {range.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <Dialog open={showFiltersModal} onOpenChange={setShowFiltersModal}>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 rounded-2xl border-0 shadow-2xl">
+                    <DialogHeader className="px-6 pt-6 pb-4 border-b bg-white">
+                      <DialogTitle className="text-xl font-bold text-gray-900">
+                        Filtrar resultados
+                      </DialogTitle>
+                      <p className="text-sm text-gray-500">
+                        Selecciona criterios y pulsa "Filtrar" para aplicar.
+                      </p>
+                    </DialogHeader>
 
-                  {hasActiveFilters && (
-                    <Button
-                      variant="outline"
-                      onClick={clearFilters}
-                      className="text-red-600 border-red-200 hover:bg-red-50"
-                    >
-                      Limpiar Filtros
-                    </Button>
-                  )}
-                </div>
+                    <div className="px-6 py-5 space-y-4 bg-gray-50/60">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2 bg-white border border-gray-200 rounded-xl p-3">
+                          <p className="text-sm font-medium text-gray-700">Departamento</p>
+                          <Combobox
+                            value={modalFilters.departamento}
+                            onInputChange={setDepartamentoInput}
+                            onChange={(value) => {
+                              setModalFilters((prev) => ({
+                                ...prev,
+                                departamento: value,
+                                municipio: "",
+                                colonia: "",
+                                category: "",
+                              }));
+                              setDepartamentoInput(value);
+                              setMunicipioInput("");
+                              setColoniaInput("");
+                              setCategoryInput("");
+                              setClearQueryOnApply(true);
+                            }}
+                            options={departamentos.filter((departamento) =>
+                              departamento
+                                .toLowerCase()
+                                .includes(departamentoInput.toLowerCase()),
+                            )}
+                            placeholder="Departamento"
+                            inputValue={departamentoInput || modalFilters.departamento}
+                            clearable
+                          />
+                        </div>
+
+                        <div className="space-y-2 bg-white border border-gray-200 rounded-xl p-3">
+                          <p className="text-sm font-medium text-gray-700">Municipio</p>
+                          <Combobox
+                            value={modalFilters.municipio}
+                            onInputChange={setMunicipioInput}
+                            onChange={(value) => {
+                              setModalFilters((prev) => ({
+                                ...prev,
+                                municipio: value,
+                                colonia: "",
+                                category: "",
+                              }));
+                              setMunicipioInput(value);
+                              setColoniaInput("");
+                              setCategoryInput("");
+                            }}
+                            options={municipiosModalFiltrados.filter((municipio) =>
+                              municipio
+                                .toLowerCase()
+                                .includes(municipioInput.toLowerCase()),
+                            )}
+                            placeholder={
+                              modalFilters.departamento
+                                ? "Municipio"
+                                : "Primero selecciona departamento"
+                            }
+                            inputValue={municipioInput || modalFilters.municipio}
+                            clearable
+                            disabled={!modalFilters.departamento}
+                          />
+                        </div>
+
+                        <div className="space-y-2 bg-white border border-gray-200 rounded-xl p-3">
+                          <p className="text-sm font-medium text-gray-700">Colonia / Sector</p>
+                          <Combobox
+                            value={modalFilters.colonia}
+                            onInputChange={setColoniaInput}
+                            onChange={(value) => {
+                              setModalFilters((prev) => ({
+                                ...prev,
+                                colonia: value,
+                                category: "",
+                              }));
+                              setColoniaInput(value);
+                              setCategoryInput("");
+                            }}
+                            options={coloniasModalFiltradas.filter((colonia) =>
+                              colonia
+                                .toLowerCase()
+                                .includes(coloniaInput.toLowerCase()),
+                            )}
+                            placeholder={
+                              modalFilters.departamento || modalFilters.municipio
+                                ? "Colonia / Sector"
+                                : "Primero selecciona ubicación"
+                            }
+                            inputValue={coloniaInput || modalFilters.colonia}
+                            clearable
+                            disabled={!modalFilters.departamento && !modalFilters.municipio}
+                          />
+                        </div>
+
+                        <div className="space-y-2 bg-white border border-gray-200 rounded-xl p-3">
+                          <p className="text-sm font-medium text-gray-700">Categoría</p>
+                          <Combobox
+                            value={modalFilters.category}
+                            onInputChange={setCategoryInput}
+                            onChange={(value) => {
+                              setModalFilters((prev) => ({ ...prev, category: value }));
+                              setCategoryInput(value);
+                            }}
+                            options={categoriasModalFiltradas.filter((category) =>
+                              category
+                                .toLowerCase()
+                                .includes(categoryInput.toLowerCase()),
+                            )}
+                            placeholder="Categoría"
+                            inputValue={categoryInput || modalFilters.category}
+                            clearable
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="px-6 py-4 border-t bg-white flex flex-col sm:flex-row gap-2 sm:justify-between">
+                      <Button
+                        variant="outline"
+                        onClick={handleClearModalFilters}
+                        className="text-red-600 border-red-200 hover:bg-red-50"
+                      >
+                        Limpiar
+                      </Button>
+                      <div className="flex gap-2 sm:justify-end">
+                        <Button variant="outline" onClick={() => setShowFiltersModal(false)}>
+                          Cancelar
+                        </Button>
+                        <Button onClick={handleApplyModalFilters}>Filtrar</Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
 
                 {/* Filtros activos */}
                 {hasActiveFilters && (
@@ -365,18 +501,7 @@ const DirectoryPage = () => {
 
               <Separator className="my-4" />
 
-              {/* Resultados */}
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-600">
-                  Mostrando {filteredCount} de {totalBusinesses} negocios
-                </p>
-                {filteredCount === 0 && filters.query && (
-                  <p className="text-sm text-orange-600">
-                    ¿No encuentras lo que buscas?{" "}
-                    <button className="underline">Contáctanos</button>
-                  </p>
-                )}
-              </div>
+             
             </div>
 
             {/* Contenido principal */}
@@ -461,61 +586,7 @@ const DirectoryPage = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="posts">
-            <div className="space-y-6">
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  Publicaciones Recientes
-                </h2>
-                <p className="text-gray-600">
-                  Descubre las últimas novedades de los negocios en las Islas de
-                  la Bahía
-                </p>
-              </div>
-
-              {loadingPosts ? (
-                <div className="space-y-6">
-                  {[...Array(3)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="bg-white rounded-lg p-6 animate-pulse"
-                    >
-                      <div className="flex items-center space-x-3 mb-4">
-                        <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                        <div className="flex-1">
-                          <div className="h-4 bg-gray-300 rounded w-1/4 mb-2"></div>
-                          <div className="h-3 bg-gray-300 rounded w-1/5"></div>
-                        </div>
-                      </div>
-                      <div className="h-4 bg-gray-300 rounded mb-2"></div>
-                      <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                    </div>
-                  ))}
-                </div>
-              ) : postsError ? (
-                <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-                  <p className="text-red-600">{postsError}</p>
-                </div>
-              ) : posts.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-                  <p className="text-gray-600">
-                    No hay publicaciones recientes
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                  {posts.map((post) => (
-                    <PostCard
-                      key={post.id}
-                      post={{
-                        ...post,
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </TabsContent>
+          {/* Se eliminó la pestaña de Publicaciones y su contenido */}
         </Tabs>
       </div>
 
