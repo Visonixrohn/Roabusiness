@@ -167,53 +167,17 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
         <div className="p-4 pt-8">
           {/* Header con nombre y categoría */}
           <div className="mb-3">
-            {/* Nombre y botón compartir en la misma línea */}
-            <div className="flex items-center justify-between gap-2 mb-1">
-              <h3 className="font-bold text-lg text-gray-900 line-clamp-1 group-hover:text-teal-600 transition-colors flex-1">
-                {business.name}
-              </h3> {(contacts?.website || fallbackContacts?.website) && (
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const website =
-                    contacts?.website || fallbackContacts?.website;
-                  const url = website?.startsWith("http")
-                    ? website
-                    : `https://${website}`;
-                  window.open(url, "_blank");
-                }}
-                variant="outline"
-                className="px-2.5 sm:px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-xl h-9 sm:h-10 font-medium transition-all min-w-[2.25rem] sm:min-w-[2.5rem] flex items-center justify-center"
-                aria-label="Ir al sitio web"
-              >
-                <Globe className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </Button>
-            )}
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  copyBusinessLink(
-                    business.profile_name || business.id,
-                    business.name,
-                  );
-                  setShowQRModal(true);
-                }}
-                variant="outline"
-                size="sm"
-                className="px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-lg h-10 font-medium transition-all flex items-center justify-center flex-shrink-0"
-                aria-label="Compartir enlace del negocio"
-              >
-                <Share2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-            <div className="flex items-center justify-between gap-2">
+            {/* Nombre completo y centrado (sin truncar) */}
+            <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-2 text-center group-hover:text-teal-600 transition-colors">
+              {business.name}
+            </h3>
+            <div className="flex items-center justify-center gap-2">
               <Badge
                 variant="outline"
-                className="text-teal-600 border-teal-300 bg-teal-50 text-xs px-2 py-0.5 font-medium"
+                className="text-teal-600 border-teal-300 bg-teal-50 text-[10px] sm:text-xs px-2 py-0.5 font-medium"
               >
                 {business.category}
               </Badge>
-              {/* Indicador de rango de precio eliminado por petición */}
             </div>
           </div>
           {/* Amenidades */}
@@ -224,7 +188,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
                   <Badge
                     key={index}
                     variant="secondary"
-                    className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 font-normal"
+                    className="text-[9px] sm:text-xs bg-gray-100 text-gray-700 px-1.5 sm:px-2 py-0.5 font-normal"
                   >
                     {amenity}
                   </Badge>
@@ -232,7 +196,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
                 {business.amenities.length > 3 && (
                   <Badge
                     variant="secondary"
-                    className="text-xs bg-gradient-to-r from-blue-100 to-teal-100 text-blue-700 px-2 py-0.5 font-medium"
+                    className="text-[9px] sm:text-xs bg-gradient-to-r from-blue-100 to-teal-100 text-blue-700 px-1.5 sm:px-2 py-0.5 font-medium"
                   >
                     +{business.amenities.length - 3} más
                   </Badge>
@@ -242,8 +206,8 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
           )}
 
           {/* Ubicación */}
-          <div className="flex items-start gap-2 mb-3 text-sm text-gray-600">
-            <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2 mb-3 text-xs sm:text-sm text-gray-600">
+            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 flex-shrink-0 mt-0.5" />
             <span className="line-clamp-1">
               {[business.municipio || business.location, business.colonia]
                 .filter(Boolean)
@@ -252,7 +216,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
           </div>
 
           {/* Descripción */}
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2 leading-relaxed">
+          <p className="text-gray-600 text-xs sm:text-sm mb-3 line-clamp-2 leading-relaxed">
             {business.description ||
               "Descubre este increíble negocio en Honduras"}
           </p>
@@ -260,10 +224,10 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
           {/* Stats (seguidores si existe) */}
           {followers !== undefined && followers > 0 && (
             <div className="flex items-center gap-4 mb-4 pb-3 border-b border-gray-100">
-              <div className="flex items-center gap-1.5 text-sm text-gray-600">
-                <Users className="h-4 w-4 text-teal-500" />
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-600">
+                <Users className="h-3 w-3 sm:h-4 sm:w-4 text-teal-500" />
                 <span className="font-semibold text-gray-900">{followers}</span>
-                <span className="text-xs">seguidores</span>
+                <span className="text-[10px] sm:text-xs">seguidores</span>
               </div>
             </div>
           )}
@@ -280,7 +244,22 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
               <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2" />
               <span className="hidden sm:inline ml-1.5 sm:ml-0">Contactar</span>
             </Button>
-           
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                copyBusinessLink(
+                  business.profile_name || business.id,
+                  business.name,
+                );
+                setShowQRModal(true);
+              }}
+              variant="outline"
+              className="px-2.5 sm:px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-xl h-9 sm:h-10 font-medium transition-all min-w-[2.25rem] sm:min-w-[2.5rem] flex items-center justify-center"
+              aria-label="Compartir enlace del negocio"
+            >
+              <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            </Button>
+            
           </div>
         </div>
       </div>
