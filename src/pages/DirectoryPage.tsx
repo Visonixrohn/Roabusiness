@@ -58,6 +58,7 @@ const DirectoryPage = () => {
   const [municipioInput, setMunicipioInput] = useState("");
   const [coloniaInput, setColoniaInput] = useState("");
   const [categoryInput, setCategoryInput] = useState("");
+  const [inlineCategoryInput, setInlineCategoryInput] = useState("");
   const [clearQueryOnApply, setClearQueryOnApply] = useState(false);
 
   const openFiltersModal = () => {
@@ -188,6 +189,13 @@ const DirectoryPage = () => {
     modalFilters.colonia,
   ]);
 
+  const categoriasInline = useMemo(() => {
+    const source = categories.length > 0 ? categories : businessCategories;
+    return Array.from(new Set(source.map((category) => category?.trim())))
+      .filter(Boolean)
+      .sort() as string[];
+  }, [categories]);
+
   if (businessError) {
     return (
       <div className="min-h-screen">
@@ -259,6 +267,28 @@ const DirectoryPage = () => {
                     value={filters.query}
                     onChange={(e) => updateFilters({ query: e.target.value })}
                     className="pl-10 py-3 text-base"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-700">
+                    Filtrar por categoría
+                  </p>
+                  <Combobox
+                    value={filters.category}
+                    onInputChange={setInlineCategoryInput}
+                    onChange={(value) => {
+                      updateFilters({ category: value });
+                      setInlineCategoryInput(value);
+                    }}
+                    options={categoriasInline.filter((category) =>
+                      category
+                        .toLowerCase()
+                        .includes(inlineCategoryInput.toLowerCase()),
+                    )}
+                    placeholder="Selecciona una categoría"
+                    inputValue={inlineCategoryInput || filters.category}
+                    clearable
                   />
                 </div>
 
