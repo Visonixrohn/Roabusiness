@@ -47,6 +47,8 @@ export const useBusinesses = () => {
 
           const priceRange = b.price_range || b.priceRange || "";
           const coverImage = b.cover_image || b.coverImage || "";
+          const google_maps_url =
+            b.google_maps_url || b.contact?.google_maps_url || "";
           const latitude =
             typeof b.latitude === "number"
               ? b.latitude
@@ -71,6 +73,7 @@ export const useBusinesses = () => {
             profile_name: b.profile_name, // Asegurar que se incluya
             priceRange,
             coverImage,
+            google_maps_url: google_maps_url || undefined,
             latitude: latitude ?? undefined,
             longitude: longitude ?? undefined,
             coordinates:

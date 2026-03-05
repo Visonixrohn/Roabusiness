@@ -425,7 +425,7 @@ interface MapSectionProps {
 
 const MapSection = ({ business }: MapSectionProps) => {
   const { t, language } = useLanguage();
-  const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
+  const [mapType, setMapType] = useState<"roadmap" | "hybrid">("roadmap");
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_CONFIG.apiKey,
     language: language,
@@ -444,7 +444,9 @@ const MapSection = ({ business }: MapSectionProps) => {
       ? { lat: initialLat, lng: initialLng }
       : GOOGLE_MAPS_CONFIG.defaultCenter;
 
-  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapPosition.lat},${mapPosition.lng}`;
+  const googleMapsUrl =
+    business.google_maps_url ||
+    `https://www.google.com/maps/search/?api=1&query=${mapPosition.lat},${mapPosition.lng}`;
 
   if (loadError) {
     return (
@@ -476,10 +478,15 @@ const MapSection = ({ business }: MapSectionProps) => {
           zoom={18}
           options={{
             mapTypeId: mapType,
+            styles:
+              mapType === "roadmap"
+                ? GOOGLE_MAPS_CONFIG.cleanMapStyle
+                : undefined,
             mapTypeControl: false,
             streetViewControl: false,
             fullscreenControl: false,
             zoomControl: true,
+            clickableIcons: false,
           }}
         >
           <Marker
@@ -515,7 +522,7 @@ const MapSection = ({ business }: MapSectionProps) => {
             size="sm"
             onClick={() =>
               setMapType((prev) =>
-                prev === "roadmap" ? "satellite" : "roadmap",
+                prev === "roadmap" ? "hybrid" : "roadmap",
               )
             }
           >

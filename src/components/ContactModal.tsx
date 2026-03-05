@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   X,
   Phone,
@@ -53,23 +53,6 @@ const useMapPosition = (business: Business, isOpen: boolean) => {
     lng: number;
   } | null>(null);
 
-  const islandCenter = useMemo(() => {
-    const centers: Record<string, { lat: number; lng: number }> = {
-      Roatán: { lat: 16.3156, lng: -86.5889 },
-      Utila: { lat: 16.1, lng: -86.9 },
-      Guanaja: { lat: 16.45, lng: -85.9 },
-      "Jose Santos Guardiola": { lat: 16.36, lng: -86.35 },
-    };
-    const dep = business.departamento || business.island || "";
-    const muni = business.municipio || business.location || "";
-    return centers[muni] || centers[dep] || GOOGLE_MAPS_CONFIG.defaultCenter;
-  }, [
-    business.departamento,
-    business.island,
-    business.municipio,
-    business.location,
-  ]);
-
   const parseCoordinate = (value: unknown) => {
     if (typeof value === "number") {
       return Number.isFinite(value) ? value : null;
@@ -82,7 +65,10 @@ const useMapPosition = (business: Business, isOpen: boolean) => {
   };
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      setResolvedMapPosition(null);
+      return;
+    }
 
     const initialLat = parseCoordinate(
       business.latitude ?? business.coordinates?.lat,
@@ -100,7 +86,7 @@ const useMapPosition = (business: Business, isOpen: boolean) => {
       typeof window !== "undefined" && !!window.google?.maps?.Geocoder;
 
     if (!hasGoogleGeocoder || !business.location) {
-      setResolvedMapPosition(islandCenter);
+      // Sin coordenadas ni geocodificación posible → no mostrar mapa
       return;
     }
 
@@ -113,7 +99,7 @@ const useMapPosition = (business: Business, isOpen: boolean) => {
         setResolvedMapPosition({ lat: location.lat(), lng: location.lng() });
         return;
       }
-      setResolvedMapPosition(islandCenter);
+      // Geocodificación fallida → no mostrar mapa
     });
   }, [
     isOpen,
@@ -123,7 +109,6 @@ const useMapPosition = (business: Business, isOpen: boolean) => {
     business.island,
     business.municipio,
     business.location,
-    islandCenter,
   ]);
 
   return resolvedMapPosition;
@@ -204,8 +189,8 @@ const handleSaveContact = (business: Business, contacts?: ContactData) => {
 interface MapDisplayProps {
   business: Business;
   mapPosition: { lat: number; lng: number } | null;
-  mapType: "roadmap" | "satellite";
-  setMapType: React.Dispatch<React.SetStateAction<"roadmap" | "satellite">>;
+  mapType: "roadmap" | "hybrid";
+  setMapType: React.Dispatch<React.SetStateAction<"roadmap" | "hybrid">>;
 }
 
 const MapDisplay = ({
@@ -220,9 +205,17 @@ const MapDisplay = ({
     region: "HN",
   });
 
-  const googleMapsUrl = mapPosition
-    ? `https://www.google.com/maps/search/?api=1&query=${mapPosition.lat},${mapPosition.lng}`
-    : "";
+  // Obtener URL de Google Maps desde el top-level o desde el contact JSON
+  const effectiveGoogleMapsUrl =
+    business.google_maps_url ||
+    (business.contact as any)?.google_maps_url ||
+    "";
+
+  const googleMapsUrl =
+    effectiveGoogleMapsUrl ||
+    (mapPosition
+      ? `https://www.google.com/maps/search/?api=1&query=${mapPosition.lat},${mapPosition.lng}`
+      : "");
 
   if (loadError)
     return (
@@ -234,6 +227,29 @@ const MapDisplay = ({
     return (
       <div className="text-gray-500 text-center py-4">Cargando mapa...</div>
     );
+
+  // Si solo hay URL pero no coordenadas, mostrar botón directamente
+  if (!mapPosition && effectiveGoogleMapsUrl) {
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="font-semibold text-gray-900 flex items-center gap-2 text-base">
+            <MapPin className="h-5 w-5 text-red-500" />
+            Ubicación
+          </h4>
+        </div>
+        <a
+          href={effectiveGoogleMapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+        >
+          <Navigation className="h-4 w-4" />
+          Ver en Google Maps
+        </a>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -251,11 +267,16 @@ const MapDisplay = ({
             zoom={18}
             options={{
               mapTypeId: mapType,
+              styles:
+                mapType === "roadmap"
+                  ? GOOGLE_MAPS_CONFIG.cleanMapStyle
+                  : undefined,
               mapTypeControl: false,
               streetViewControl: false,
               fullscreenControl: false,
               zoomControl: true,
               disableDefaultUI: false,
+              clickableIcons: false,
             }}
           >
             <Marker
@@ -291,7 +312,7 @@ const MapDisplay = ({
               size="sm"
               onClick={() =>
                 setMapType((prev) =>
-                  prev === "roadmap" ? "satellite" : "roadmap",
+                  prev === "roadmap" ? "hybrid" : "roadmap",
                 )
               }
               className="h-8 text-xs px-2"
@@ -306,11 +327,7 @@ const MapDisplay = ({
             </Button>
           </div>
         </div>
-      ) : (
-        <p className="text-xs text-gray-500 italic">
-          No se pudieron cargar las coordenadas del mapa para este negocio.
-        </p>
-      )}
+      ) : null}
     </div>
   );
 };
@@ -694,7 +711,7 @@ const ContactModal = ({
     phone: "",
     message: "",
   });
-  const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
+  const [mapType, setMapType] = useState<"roadmap" | "hybrid">("roadmap");
   const [showQRModal, setShowQRModal] = useState(false);
 
   const mapPosition = useMapPosition(business, isOpen);
@@ -819,8 +836,8 @@ const ContactModal = ({
           {/* Sección de Calificaciones */}
           <RatingsSection businessId={business.id} />
         </div>
-        {/* Sección de Mapa - Solo mostrar si hay coordenadas */}
-        {mapPosition && (
+        {/* Sección de Mapa - Solo mostrar si hay coordenadas o URL de Google Maps */}
+        {(mapPosition || business.google_maps_url || (business.contact as any)?.google_maps_url) && (
           <MapDisplay
             business={business}
             mapPosition={mapPosition}

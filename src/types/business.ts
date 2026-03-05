@@ -8,6 +8,7 @@ export interface BusinessContact {
   tiktok?: string;
   whatsapp?: string;
   tripadvisor?: string;
+  google_maps_url?: string;
 }
 
 export interface Business {
@@ -49,6 +50,7 @@ export interface Business {
   twitter?: string;
   tiktok?: string;
   tripadvisor?: string;
+  google_maps_url?: string;
 }
 
 export interface BusinessData {

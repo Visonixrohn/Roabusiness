@@ -56,6 +56,7 @@ interface FormData {
   tiktok?: string;
   whatsapp?: string;
   tripadvisor?: string;
+  google_maps_url?: string;
 
   // Detalles
   priceRange: string;
@@ -67,6 +68,30 @@ interface FormData {
   subscriptionMonths: number;
 
   // No auth fields here; admin will create users directly
+}
+
+/** Extrae lat/lng de una URL de Google Maps pegada por el usuario */
+function parseGoogleMapsUrl(url: string): { lat: number; lng: number } | null {
+  try {
+    // ?q=lat,lng  o  ?query=lat,lng
+    const qMatch = url.match(/[?&](?:q|query)=([-\d.]+),([-\d.]+)/);
+    if (qMatch)
+      return { lat: parseFloat(qMatch[1]), lng: parseFloat(qMatch[2]) };
+    // /@lat,lng,zoom
+    const atMatch = url.match(/@([-\d.]+),([-\d.]+)/);
+    if (atMatch)
+      return { lat: parseFloat(atMatch[1]), lng: parseFloat(atMatch[2]) };
+    // /search/lat,lng
+    const searchMatch = url.match(/\/search\/([-\d.]+),([-\d.]+)/);
+    if (searchMatch)
+      return {
+        lat: parseFloat(searchMatch[1]),
+        lng: parseFloat(searchMatch[2]),
+      };
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 const BusinessRegistrationPage = () => {
@@ -96,6 +121,7 @@ const BusinessRegistrationPage = () => {
     tiktok: "",
     whatsapp: "",
     tripadvisor: "",
+    google_maps_url: "",
     priceRange: "",
     amenities: [],
     coverImage: "",
@@ -111,7 +137,8 @@ const BusinessRegistrationPage = () => {
   };
 
   const [mapCenter, setMapCenter] = useState(GOOGLE_MAPS_CONFIG.defaultCenter);
-  const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
+  const [mapType, setMapType] = useState<"roadmap" | "hybrid">("roadmap");
+  const [locationInputMode, setLocationInputMode] = useState<"map" | "url">("map");
 
   const islands = ["Roatán", "Utila", "Guanaja", "Jose Santos Guardiola"];
   const priceRanges = [
@@ -262,6 +289,7 @@ const BusinessRegistrationPage = () => {
           tiktok: formData.tiktok,
           whatsapp: formData.whatsapp,
           tripadvisor: formData.tripadvisor,
+          google_maps_url: formData.google_maps_url,
         },
         // Redes sociales como columnas individuales
         facebook: formData.facebook || null,
@@ -269,6 +297,7 @@ const BusinessRegistrationPage = () => {
         twitter: formData.twitter || null,
         tiktok: formData.tiktok || null,
         tripadvisor: formData.tripadvisor || null,
+        google_maps_url: formData.google_maps_url || null,
         priceRange: formData.priceRange,
         amenities: formData.amenities,
         coverImage: formData.coverImage,
@@ -299,6 +328,7 @@ const BusinessRegistrationPage = () => {
           tiktok: formData.tiktok,
           whatsapp: formData.whatsapp,
           tripadvisor: formData.tripadvisor,
+          google_maps_url: formData.google_maps_url,
         },
         // Redes sociales como columnas individuales
         facebook: formData.facebook || null,
@@ -306,6 +336,7 @@ const BusinessRegistrationPage = () => {
         twitter: formData.twitter || null,
         tiktok: formData.tiktok || null,
         tripadvisor: formData.tripadvisor || null,
+        google_maps_url: formData.google_maps_url || null,
         price_range: formData.priceRange,
         amenities: formData.amenities,
         cover_image: formData.coverImage,
@@ -326,11 +357,13 @@ const BusinessRegistrationPage = () => {
         businessData = result.data;
       } catch (err: any) {
         // Si falla por columnas, intentar con snake_case
-        const msg = String(err?.message || err);
+        const msg = String(err?.message || err).toLowerCase();
         if (
           msg.includes("cover_image") ||
-          msg.includes("coverImage") ||
+          msg.includes("coverimage") ||
+          msg.includes("google_maps_url") ||
           msg.includes("could not find") ||
+          msg.includes("schema cache") ||
           msg.includes("column")
         ) {
           const result = await supabase
@@ -590,87 +623,218 @@ const BusinessRegistrationPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Selecciona ubicación en mapa
-                </label>
-                <p className="text-xs text-gray-500 mb-2">
-                  Haz clic en el mapa para guardar la ubicación exacta del
-                  negocio.
-                </p>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setMapType((prev) =>
-                        prev === "roadmap" ? "satellite" : "roadmap",
-                      )
-                    }
-                  >
-                    <Satellite className="h-4 w-4 mr-1" />
-                    {mapType === "roadmap" ? "Ver satélite" : "Ver mapa"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={
-                      formData.latitude == null || formData.longitude == null
-                    }
-                    onClick={() => {
-                      if (
-                        formData.latitude == null ||
-                        formData.longitude == null
-                      )
-                        return;
-                      window.open(
-                        `https://www.google.com/maps/search/?api=1&query=${formData.latitude},${formData.longitude}`,
-                        "_blank",
-                      );
-                    }}
-                  >
-                    <Navigation className="h-4 w-4 mr-1" /> Ver en Google Maps
-                  </Button>
+                {/* Encabezado con badges de estado */}
+                <div className="flex items-center gap-3 mb-3">
+                  <p className="text-sm font-medium text-gray-700">
+                    Ubicación{" "}
+                    <span className="text-xs font-normal text-gray-400">
+                      (opcional)
+                    </span>
+                  </p>
+                  {formData.latitude != null && (
+                    <span className="inline-flex items-center gap-1 text-xs text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
+                      <Check className="h-3 w-3" /> Coordenadas
+                    </span>
+                  )}
+                  {formData.google_maps_url && (
+                    <span className="inline-flex items-center gap-1 text-xs text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+                      <Globe className="h-3 w-3" /> URL guardada
+                    </span>
+                  )}
                 </div>
-                <div className="rounded-lg overflow-hidden border border-gray-300">
-                  <GoogleMap
-                    mapContainerStyle={{ width: "100%", height: "300px" }}
-                    center={
-                      formData.latitude != null && formData.longitude != null
-                        ? { lat: formData.latitude, lng: formData.longitude }
-                        : mapCenter
-                    }
-                    zoom={13}
-                    onClick={(event) => {
-                      const lat = event.latLng?.lat();
-                      const lng = event.latLng?.lng();
-                      if (lat == null || lng == null) return;
-                      setFormData((prev) => ({
-                        ...prev,
-                        latitude: lat,
-                        longitude: lng,
-                      }));
-                    }}
-                    options={{
-                      mapTypeId: mapType,
-                      styles: GOOGLE_MAPS_CONFIG.mapStyle,
-                      mapTypeControl: false,
-                      streetViewControl: false,
-                    }}
+
+                {/* Tabs */}
+                <div className="flex border-b border-gray-200 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setLocationInputMode("map")}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${locationInputMode === "map" ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
                   >
-                    {formData.latitude != null &&
-                      formData.longitude != null && (
-                        <Marker
-                          position={{
-                            lat: formData.latitude,
-                            lng: formData.longitude,
-                          }}
-                          title={formData.name || "Ubicación del negocio"}
-                        />
-                      )}
-                  </GoogleMap>
+                    <MapPin className="h-4 w-4" /> Mapa
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLocationInputMode("url")}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${locationInputMode === "url" ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+                  >
+                    <Globe className="h-4 w-4" /> URL de Google Maps
+                  </button>
                 </div>
+
+                {/* Tab: Mapa */}
+                {locationInputMode === "map" && (
+                  <div>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Haz clic en el mapa para marcar la ubicación exacta.
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setMapType((prev) =>
+                            prev === "roadmap" ? "hybrid" : "roadmap",
+                          )
+                        }
+                      >
+                        <Satellite className="h-4 w-4 mr-1" />
+                        {mapType === "roadmap" ? "Ver satélite" : "Ver mapa"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={
+                          formData.latitude == null ||
+                          formData.longitude == null
+                        }
+                        onClick={() => {
+                          if (
+                            formData.latitude == null ||
+                            formData.longitude == null
+                          )
+                            return;
+                          window.open(
+                            `https://www.google.com/maps/search/?api=1&query=${formData.latitude},${formData.longitude}`,
+                            "_blank",
+                          );
+                        }}
+                      >
+                        <Navigation className="h-4 w-4 mr-1" /> Ver en Google
+                        Maps
+                      </Button>
+                    </div>
+                    <div className="rounded-lg overflow-hidden border border-gray-300">
+                      <GoogleMap
+                        mapContainerStyle={{ width: "100%", height: "300px" }}
+                        center={
+                          formData.latitude != null &&
+                          formData.longitude != null
+                            ? {
+                                lat: formData.latitude,
+                                lng: formData.longitude,
+                              }
+                            : mapCenter
+                        }
+                        zoom={13}
+                        onClick={(event) => {
+                          const lat = event.latLng?.lat();
+                          const lng = event.latLng?.lng();
+                          if (lat == null || lng == null) return;
+                          setFormData((prev) => ({
+                            ...prev,
+                            latitude: lat,
+                            longitude: lng,
+                          }));
+                        }}
+                        options={{
+                          mapTypeId: mapType,
+                          styles:
+                            mapType === "roadmap"
+                              ? GOOGLE_MAPS_CONFIG.cleanMapStyle
+                              : undefined,
+                          mapTypeControl: false,
+                          streetViewControl: false,
+                          clickableIcons: false,
+                        }}
+                      >
+                        {formData.latitude != null &&
+                          formData.longitude != null && (
+                            <Marker
+                              position={{
+                                lat: formData.latitude,
+                                lng: formData.longitude,
+                              }}
+                              title={formData.name || "Ubicación del negocio"}
+                            />
+                          )}
+                      </GoogleMap>
+                    </div>
+                    {formData.latitude != null && (
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-xs text-green-600 flex items-center gap-1">
+                          <Check className="h-3 w-3" /> Coordenadas:{" "}
+                          {formData.latitude.toFixed(5)},{" "}
+                          {formData.longitude?.toFixed(5)}
+                        </span>
+                        <button
+                          type="button"
+                          className="text-xs text-red-500 hover:underline"
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              latitude: null,
+                              longitude: null,
+                            }))
+                          }
+                        >
+                          Limpiar
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Tab: URL */}
+                {locationInputMode === "url" && (
+                  <div>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Pega el enlace directo a tu negocio en Google Maps.
+                    </p>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                        value={formData.google_maps_url || ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          handleInputChange("google_maps_url", val);
+                          if (val) {
+                            const coords = parseGoogleMapsUrl(val);
+                            if (coords)
+                              setFormData((prev) => ({
+                                ...prev,
+                                latitude: coords.lat,
+                                longitude: coords.lng,
+                              }));
+                          }
+                        }}
+                        placeholder="https://maps.google.com/..."
+                      />
+                      {formData.latitude != null &&
+                        formData.longitude != null && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="whitespace-nowrap"
+                            onClick={() => {
+                              const url = `https://www.google.com/maps/search/?api=1&query=${formData.latitude},${formData.longitude}`;
+                              handleInputChange("google_maps_url", url);
+                              toast.success("URL generada desde el mapa");
+                            }}
+                          >
+                            <MapPin className="h-4 w-4 mr-1" /> Desde mapa
+                          </Button>
+                        )}
+                    </div>
+                    {formData.google_maps_url && (
+                      <div className="mt-2">
+                        <button
+                          type="button"
+                          className="flex items-center gap-1 text-xs text-blue-600 hover:underline"
+                          onClick={() =>
+                            window.open(formData.google_maps_url, "_blank")
+                          }
+                        >
+                          <Navigation className="h-3 w-3" /> Abrir en Google
+                          Maps
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}

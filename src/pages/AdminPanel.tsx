@@ -332,10 +332,12 @@ const AdminPanel = () => {
         );
       } catch (err: any) {
         // si el error menciona columnas faltantes, intentar con snake_case
-        const msg = String(err?.message || err);
+        const msg = String(err?.message || err).toLowerCase();
         if (
           msg.includes("cover_image") ||
-          msg.includes("could not find the") ||
+          msg.includes("google_maps_url") ||
+          msg.includes("could not find") ||
+          msg.includes("schema cache") ||
           msg.includes("column")
         ) {
           try {

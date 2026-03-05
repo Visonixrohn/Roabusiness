@@ -25,6 +25,35 @@ export const GOOGLE_MAPS_CONFIG = {
       ],
     },
   ],
+  // Estilo limpio para vistas de perfil/contacto: oculta POIs de otros negocios
+  // para que el mapa se vea idéntico a Google Maps pero sin locales cercanos
+  cleanMapStyle: [
+    {
+      featureType: "poi",
+      elementType: "labels",
+      stylers: [{ visibility: "off" }],
+    },
+    {
+      featureType: "poi.business",
+      elementType: "all",
+      stylers: [{ visibility: "off" }],
+    },
+    {
+      featureType: "poi.attraction",
+      elementType: "labels",
+      stylers: [{ visibility: "off" }],
+    },
+    {
+      featureType: "poi.park",
+      elementType: "labels",
+      stylers: [{ visibility: "off" }],
+    },
+    {
+      featureType: "transit",
+      elementType: "labels.icon",
+      stylers: [{ visibility: "off" }],
+    },
+  ],
 };
 
 export const BAY_ISLANDS_BOUNDS = {

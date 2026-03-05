@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ImageUpload from "@/components/ImageUpload";
 import { GoogleMap, Marker } from "@react-google-maps/api";
-import { Satellite, X, Plus } from "lucide-react";
+import { MapPin, Globe, Check, Navigation, Satellite, X, Plus } from "lucide-react";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
 import { departamentos } from "@/data/hondurasLocations";
 
@@ -26,6 +26,7 @@ interface EditFormData {
   tiktok: string;
   whatsapp: string;
   tripadvisor: string;
+  google_maps_url: string;
   priceRange: string;
   amenities: string[];
   coverImage: string;
@@ -51,13 +52,34 @@ interface Props {
   newAmenity: string;
   setNewAmenity: (value: string) => void;
   mapCenter: { lat: number; lng: number };
-  mapType: "roadmap" | "satellite";
-  setMapType: (type: "roadmap" | "satellite") => void;
+  mapType: "roadmap" | "hybrid";
+  setMapType: (type: "roadmap" | "hybrid") => void;
   isSubmitting: boolean;
   handleSubmitRegister: () => void;
 }
 
 const SUBSCRIPTION_MONTHS = [6, 12, 18, 24, 30, 36];
+
+/** Extrae lat/lng de una URL de Google Maps */
+function parseGoogleMapsUrl(url: string): { lat: number; lng: number } | null {
+  try {
+    const qMatch = url.match(/[?&](?:q|query)=([-\d.]+),([-\d.]+)/);
+    if (qMatch)
+      return { lat: parseFloat(qMatch[1]), lng: parseFloat(qMatch[2]) };
+    const atMatch = url.match(/@([-\d.]+),([-\d.]+)/);
+    if (atMatch)
+      return { lat: parseFloat(atMatch[1]), lng: parseFloat(atMatch[2]) };
+    const searchMatch = url.match(/\/search\/([-\d.]+),([-\d.]+)/);
+    if (searchMatch)
+      return {
+        lat: parseFloat(searchMatch[1]),
+        lng: parseFloat(searchMatch[2]),
+      };
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 const RegisterBusinessModalAdmin: React.FC<Props> = ({
   isOpen,
@@ -79,6 +101,8 @@ const RegisterBusinessModalAdmin: React.FC<Props> = ({
   isSubmitting,
   handleSubmitRegister,
 }) => {
+  const [locationInputMode, setLocationInputMode] = useState<"map" | "url">("map");
+
   if (!isOpen) return null;
 
   return (
@@ -198,62 +222,209 @@ const RegisterBusinessModalAdmin: React.FC<Props> = ({
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Mapa de ubicación
-              </label>
-              <p className="text-xs text-gray-500 mb-2">
-                Haz clic en el mapa para seleccionar la ubicación exacta.
-              </p>
-              <div className="flex flex-wrap gap-2 mb-2">
-                <Button
+              {/* Encabezado con badges de estado */}
+              <div className="flex items-center gap-3 mb-3">
+                <p className="text-sm font-medium text-gray-700">
+                  Ubicación{" "}
+                  <span className="text-xs font-normal text-gray-400">
+                    (opcional)
+                  </span>
+                </p>
+                {editForm.latitude != null && (
+                  <span className="inline-flex items-center gap-1 text-xs text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
+                    <Check className="h-3 w-3" /> Coordenadas
+                  </span>
+                )}
+                {editForm.google_maps_url && (
+                  <span className="inline-flex items-center gap-1 text-xs text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+                    <Globe className="h-3 w-3" /> URL guardada
+                  </span>
+                )}
+              </div>
+
+              {/* Tabs */}
+              <div className="flex border-b border-gray-200 mb-4">
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setMapType(mapType === "roadmap" ? "satellite" : "roadmap")
-                  }
+                  onClick={() => setLocationInputMode("map")}
+                  className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${locationInputMode === "map" ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
                 >
-                  <Satellite className="h-4 w-4 mr-1" />
-                  {mapType === "roadmap" ? "Ver satélite" : "Ver mapa"}
-                </Button>
+                  <MapPin className="h-4 w-4" /> Mapa
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLocationInputMode("url")}
+                  className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${locationInputMode === "url" ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+                >
+                  <Globe className="h-4 w-4" /> URL de Google Maps
+                </button>
               </div>
-              <div className="rounded-lg overflow-hidden border border-gray-300">
-                <GoogleMap
-                  mapContainerStyle={{ width: "100%", height: "280px" }}
-                  center={
-                    editForm.latitude != null && editForm.longitude != null
-                      ? { lat: editForm.latitude, lng: editForm.longitude }
-                      : mapCenter
-                  }
-                  zoom={13}
-                  onClick={(event) => {
-                    const lat = event.latLng?.lat();
-                    const lng = event.latLng?.lng();
-                    if (lat == null || lng == null) return;
-                    setEditForm({
-                      ...editForm,
-                      latitude: lat,
-                      longitude: lng,
-                    });
-                  }}
-                  options={{
-                    mapTypeId: mapType,
-                    styles: GOOGLE_MAPS_CONFIG.mapStyle,
-                    mapTypeControl: false,
-                    streetViewControl: false,
-                  }}
-                >
-                  {editForm.latitude != null && editForm.longitude != null && (
-                    <Marker
-                      position={{
-                        lat: editForm.latitude,
-                        lng: editForm.longitude,
+
+              {/* Tab: Mapa */}
+              {locationInputMode === "map" && (
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Haz clic en el mapa para seleccionar la ubicación exacta.
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setMapType(
+                          mapType === "roadmap" ? "hybrid" : "roadmap",
+                        )
+                      }
+                    >
+                      <Satellite className="h-4 w-4 mr-1" />
+                      {mapType === "roadmap" ? "Ver satélite" : "Ver mapa"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={
+                        editForm.latitude == null || editForm.longitude == null
+                      }
+                      onClick={() => {
+                        if (
+                          editForm.latitude == null ||
+                          editForm.longitude == null
+                        )
+                          return;
+                        window.open(
+                          `https://www.google.com/maps/search/?api=1&query=${editForm.latitude},${editForm.longitude}`,
+                          "_blank",
+                        );
                       }}
-                      title={editForm.name || "Ubicación del negocio"}
-                    />
+                    >
+                      <Navigation className="h-4 w-4 mr-1" /> Ver en Google
+                      Maps
+                    </Button>
+                  </div>
+                  <div className="rounded-lg overflow-hidden border border-gray-300">
+                    <GoogleMap
+                      mapContainerStyle={{ width: "100%", height: "280px" }}
+                      center={
+                        editForm.latitude != null && editForm.longitude != null
+                          ? { lat: editForm.latitude, lng: editForm.longitude }
+                          : mapCenter
+                      }
+                      zoom={13}
+                      onClick={(event) => {
+                        const lat = event.latLng?.lat();
+                        const lng = event.latLng?.lng();
+                        if (lat == null || lng == null) return;
+                        setEditForm({
+                          ...editForm,
+                          latitude: lat,
+                          longitude: lng,
+                        });
+                      }}
+                      options={{
+                        mapTypeId: mapType,
+                        styles:
+                          mapType === "roadmap"
+                            ? GOOGLE_MAPS_CONFIG.cleanMapStyle
+                            : undefined,
+                        mapTypeControl: false,
+                        streetViewControl: false,
+                        clickableIcons: false,
+                      }}
+                    >
+                      {editForm.latitude != null &&
+                        editForm.longitude != null && (
+                          <Marker
+                            position={{
+                              lat: editForm.latitude,
+                              lng: editForm.longitude,
+                            }}
+                            title={editForm.name || "Ubicación del negocio"}
+                          />
+                        )}
+                    </GoogleMap>
+                  </div>
+                  {editForm.latitude != null && (
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xs text-green-600 flex items-center gap-1">
+                        <Check className="h-3 w-3" /> Coordenadas:{" "}
+                        {editForm.latitude.toFixed(5)},{" "}
+                        {editForm.longitude?.toFixed(5)}
+                      </span>
+                      <button
+                        type="button"
+                        className="text-xs text-red-500 hover:underline"
+                        onClick={() =>
+                          setEditForm({
+                            ...editForm,
+                            latitude: null,
+                            longitude: null,
+                          })
+                        }
+                      >
+                        Limpiar
+                      </button>
+                    </div>
                   )}
-                </GoogleMap>
-              </div>
+                </div>
+              )}
+
+              {/* Tab: URL */}
+              {locationInputMode === "url" && (
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">
+                    Pega el enlace directo al negocio en Google Maps.
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      value={editForm.google_maps_url}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const coords = val ? parseGoogleMapsUrl(val) : null;
+                        setEditForm({
+                          ...editForm,
+                          google_maps_url: val,
+                          ...(coords
+                            ? { latitude: coords.lat, longitude: coords.lng }
+                            : {}),
+                        });
+                      }}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="https://maps.google.com/..."
+                    />
+                    {editForm.latitude != null &&
+                      editForm.longitude != null && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="whitespace-nowrap"
+                          onClick={() => {
+                            const url = `https://www.google.com/maps/search/?api=1&query=${editForm.latitude},${editForm.longitude}`;
+                            setEditForm({ ...editForm, google_maps_url: url });
+                          }}
+                        >
+                          <MapPin className="h-4 w-4 mr-1" /> Desde mapa
+                        </Button>
+                      )}
+                  </div>
+                  {editForm.google_maps_url && (
+                    <div className="mt-2">
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 text-xs text-blue-600 hover:underline"
+                        onClick={() =>
+                          window.open(editForm.google_maps_url, "_blank")
+                        }
+                      >
+                        <Navigation className="h-3 w-3" /> Abrir en Google Maps
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -439,6 +610,7 @@ const RegisterBusinessModalAdmin: React.FC<Props> = ({
                 placeholder="URL de TripAdvisor"
               />
             </div>
+
           </div>
 
           {/* Estado de Pago y Duración */}
