@@ -17,6 +17,7 @@ export interface Business {
   profile_name?: string;
   description: string;
   category: string;
+  categories?: string[];
   departamento: string;
   municipio: string;
   colonia?: string;

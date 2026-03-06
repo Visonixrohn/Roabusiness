@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import MultiCategorySelect from "@/components/MultiCategorySelect";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import {
@@ -115,6 +116,7 @@ interface EditFormData {
   name: string;
   profile_name: string;
   category: string;
+  categories: string[];
   departamento: string;
   municipio: string;
   colonia: string;
@@ -175,6 +177,7 @@ const EditBusinessPage = () => {
     name: "",
     profile_name: "",
     category: "",
+    categories: [],
     departamento: "",
     municipio: "",
     colonia: "",
@@ -225,7 +228,9 @@ const EditBusinessPage = () => {
   };
   const [mapCenter, setMapCenter] = useState(GOOGLE_MAPS_CONFIG.defaultCenter);
   const [mapType, setMapType] = useState<"roadmap" | "hybrid">("roadmap");
-  const [locationInputMode, setLocationInputMode] = useState<"map" | "url">("map");
+  const [locationInputMode, setLocationInputMode] = useState<"map" | "url">(
+    "map",
+  );
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [receiptData, setReceiptData] = useState<PaymentReceipt | null>(null);
   const [showRenewModal, setShowRenewModal] = useState(false);
@@ -317,10 +322,17 @@ const EditBusinessPage = () => {
     }
 
     setSelectedBusiness(business);
+    const loadedCategories: string[] =
+      (business as any).categories && (business as any).categories.length > 0
+        ? (business as any).categories
+        : business.category
+          ? [business.category]
+          : [];
     setEditForm({
       name: business.name || "",
       profile_name: (business as any).profile_name || "",
       category: business.category || "",
+      categories: loadedCategories,
       departamento: business.departamento || business.island || "",
       municipio: business.municipio || business.location || "",
       colonia: business.colonia || "",
@@ -411,7 +423,8 @@ const EditBusinessPage = () => {
       const payloadCamel = {
         name: editForm.name,
         profile_name: editForm.profile_name || null,
-        category: editForm.category,
+        category: editForm.categories[0] || editForm.category,
+        categories: editForm.categories,
         departamento: editForm.departamento,
         municipio: editForm.municipio,
         colonia: editForm.colonia || null,
@@ -451,7 +464,8 @@ const EditBusinessPage = () => {
       const payloadSnake = {
         name: editForm.name,
         profile_name: editForm.profile_name || null,
-        category: editForm.category,
+        category: editForm.categories[0] || editForm.category,
+        categories: editForm.categories,
         departamento: editForm.departamento,
         municipio: editForm.municipio,
         colonia: editForm.colonia || null,
@@ -532,6 +546,7 @@ const EditBusinessPage = () => {
       name: "",
       profile_name: "",
       category: "",
+      categories: [],
       departamento: "Islas de la Bahía",
       municipio: "Roatán",
       colonia: "",
@@ -562,8 +577,14 @@ const EditBusinessPage = () => {
   };
 
   const handleSubmitRegister = async () => {
-    if (!editForm.name || !editForm.category || !editForm.departamento) {
-      toast.error("Por favor, completa los campos obligatorios");
+    if (
+      !editForm.name ||
+      editForm.categories.length === 0 ||
+      !editForm.departamento
+    ) {
+      toast.error(
+        "Por favor, completa los campos obligatorios (nombre, categoría y departamento)",
+      );
       return;
     }
 
@@ -599,7 +620,8 @@ const EditBusinessPage = () => {
       const basePayload = {
         name: editForm.name,
         profile_name: editForm.profile_name || null,
-        category: editForm.category,
+        category: editForm.categories[0] || editForm.category,
+        categories: editForm.categories,
         departamento: editForm.departamento,
         municipio: editForm.municipio,
         colonia: editForm.colonia || null,
@@ -1274,21 +1296,25 @@ const EditBusinessPage = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Categoría *
+                    Categoría(s) *
                   </label>
-                  <input
-                    list="categories-list-edit"
-                    value={editForm.category}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, category: e.target.value })
+                  <MultiCategorySelect
+                    categories={categories}
+                    selected={editForm.categories}
+                    onChange={(cats) =>
+                      setEditForm({
+                        ...editForm,
+                        categories: cats,
+                        category: cats[0] || "",
+                      })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Selecciona una o más categorías"
                   />
-                  <datalist id="categories-list-edit">
-                    {categories.map((category) => (
-                      <option key={category} value={category} />
-                    ))}
-                  </datalist>
+                  {editForm.categories.length === 0 && (
+                    <p className="text-xs text-red-500 mt-1">
+                      Selecciona al menos una categoría
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -1524,9 +1550,7 @@ const EditBusinessPage = () => {
                           value={editForm.google_maps_url}
                           onChange={(e) => {
                             const val = e.target.value;
-                            const coords = val
-                              ? parseGoogleMapsUrl(val)
-                              : null;
+                            const coords = val ? parseGoogleMapsUrl(val) : null;
                             setEditForm({
                               ...editForm,
                               google_maps_url: val,

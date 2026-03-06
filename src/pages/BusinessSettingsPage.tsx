@@ -16,6 +16,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import businessCategories from "@/data/businessCategories";
+import MultiCategorySelect from "@/components/MultiCategorySelect";
 import { Menu, MenuIcon } from "lucide-react";
 import { Facebook, Instagram, Twitter, Globe, Mail, Phone } from "lucide-react";
 import TikTokIcon from "@/components/icons/TikTokIcon";
@@ -97,7 +98,7 @@ export default function BusinessSettingsPage() {
               day: d,
               open: "",
               close: "",
-            }
+            },
         );
       }
       if (!business.contact)
@@ -164,7 +165,7 @@ export default function BusinessSettingsPage() {
     setErrorProfile("");
     if (!passwordInput) {
       setErrorProfile(
-        "Debes ingresar tu contraseña actual para guardar cambios."
+        "Debes ingresar tu contraseña actual para guardar cambios.",
       );
       toast.error("Debes ingresar tu contraseña actual para guardar cambios.");
       return;
@@ -172,7 +173,7 @@ export default function BusinessSettingsPage() {
     setSaving(true);
     const { error: authError } = await signInWithEmail(
       user.email,
-      passwordInput
+      passwordInput,
     );
     if (authError) {
       setErrorProfile("Contraseña actual incorrecta.");
@@ -246,7 +247,7 @@ export default function BusinessSettingsPage() {
     setSaving(true);
     const { error: authError } = await signInWithEmail(
       user.email,
-      currentPasswordPass
+      currentPasswordPass,
     );
     if (authError) {
       setErrorPass("Contraseña actual incorrecta.");
@@ -275,7 +276,7 @@ export default function BusinessSettingsPage() {
       const { error: passError } = await updatePassword(newPassword);
       if (passError) {
         setErrorPass(
-          passError.message || "No se pudo actualizar la contraseña."
+          passError.message || "No se pudo actualizar la contraseña.",
         );
         setSaving(false);
         return;
@@ -308,7 +309,7 @@ export default function BusinessSettingsPage() {
     // Verificar contraseña
     const { error: authError } = await signInWithEmail(
       user.email,
-      deactivatePass1
+      deactivatePass1,
     );
     if (authError) {
       setDeactivateError("Contraseña incorrecta.");
@@ -320,7 +321,7 @@ export default function BusinessSettingsPage() {
     await supabase.from("businesses").update({ is_public: false }).eq("id", id);
     await updatePassword(newRandomPassword);
     toast.success(
-      "Cuenta desactivada correctamente. Si deseas volver a acceder, deberás restablecer tu contraseña."
+      "Cuenta desactivada correctamente. Si deseas volver a acceder, deberás restablecer tu contraseña.",
     );
     logout(); // Cerrar sesión explícitamente
     setTimeout(() => {
@@ -430,7 +431,9 @@ export default function BusinessSettingsPage() {
                 <option value="Roatán">Roatán</option>
                 <option value="Utila">Utila</option>
                 <option value="Guanaja">Guanaja</option>
-                <option value="Jose Santos Guardiola">Jose Santos Guardiola</option>
+                <option value="Jose Santos Guardiola">
+                  Jose Santos Guardiola
+                </option>
               </select>
               <Button
                 onClick={() => setShowPasswordModal(true)}
@@ -693,19 +696,24 @@ export default function BusinessSettingsPage() {
           <Fragment>
             <h2 className="text-3xl font-bold mb-6 text-blue-800">Categoría</h2>
             <div className="space-y-4">
-              <input
-                list="categories-list"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                value={form.category}
-                onChange={(e) => handleChange("category", e.target.value)}
-                placeholder="Escribe o selecciona una categoría"
-                required
+              <MultiCategorySelect
+                categories={businessCategories}
+                selected={
+                  form?.categories && form.categories.length > 0
+                    ? form.categories
+                    : form?.category
+                      ? [form.category]
+                      : []
+                }
+                onChange={(cats) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    categories: cats,
+                    category: cats[0] || "",
+                  }))
+                }
+                placeholder="Selecciona una o más categorías"
               />
-              <datalist id="categories-list">
-                {businessCategories.map((cat) => (
-                  <option key={cat} value={cat} />
-                ))}
-              </datalist>
               <Button
                 onClick={() => setShowPasswordModal(true)}
                 disabled={saving}
@@ -785,7 +793,7 @@ export default function BusinessSettingsPage() {
                     onChange={(e) =>
                       handleImageChange(
                         "coverImage",
-                        e.target.files?.[0] || null
+                        e.target.files?.[0] || null,
                       )
                     }
                     className="block text-sm text-gray-600"

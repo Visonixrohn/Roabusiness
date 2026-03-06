@@ -27,6 +27,7 @@ import Header from "@/components/Header";
 import ImageUpload from "@/components/ImageUpload";
 import { toast } from "sonner";
 import businessCategories from "@/data/businessCategories";
+import MultiCategorySelect from "@/components/MultiCategorySelect";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
 import {
@@ -39,6 +40,7 @@ interface FormData {
   name: string;
   profile_name: string;
   category: string;
+  categories: string[];
   departamento: string;
   municipio: string;
   colonia: string;
@@ -106,6 +108,7 @@ const BusinessRegistrationPage = () => {
     name: "",
     profile_name: "",
     category: "",
+    categories: [],
     departamento: "",
     municipio: "",
     colonia: "",
@@ -138,7 +141,9 @@ const BusinessRegistrationPage = () => {
 
   const [mapCenter, setMapCenter] = useState(GOOGLE_MAPS_CONFIG.defaultCenter);
   const [mapType, setMapType] = useState<"roadmap" | "hybrid">("roadmap");
-  const [locationInputMode, setLocationInputMode] = useState<"map" | "url">("map");
+  const [locationInputMode, setLocationInputMode] = useState<"map" | "url">(
+    "map",
+  );
 
   const islands = ["Roatán", "Utila", "Guanaja", "Jose Santos Guardiola"];
   const priceRanges = [
@@ -210,7 +215,7 @@ const BusinessRegistrationPage = () => {
       case 1:
         return !!(
           formData.name &&
-          formData.category &&
+          formData.categories.length > 0 &&
           formData.departamento &&
           formData.municipio
         );
@@ -270,7 +275,8 @@ const BusinessRegistrationPage = () => {
       const payloadCamel = {
         name: formData.name,
         profile_name: formData.profile_name || null,
-        category: formData.category,
+        category: formData.categories[0] || formData.category,
+        categories: formData.categories,
         departamento: formData.departamento,
         municipio: formData.municipio,
         colonia: formData.colonia || null,
@@ -309,7 +315,8 @@ const BusinessRegistrationPage = () => {
       const payloadSnake = {
         name: formData.name,
         profile_name: formData.profile_name || null,
-        category: formData.category,
+        category: formData.categories[0] || formData.category,
+        categories: formData.categories,
         departamento: formData.departamento,
         municipio: formData.municipio,
         colonia: formData.colonia || null,
@@ -541,23 +548,25 @@ const BusinessRegistrationPage = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Categoría *
+                    Categoría(s) *
                   </label>
-                  <input
-                    list="categories-list"
-                    value={formData.category}
-                    onChange={(e) =>
-                      handleInputChange("category", e.target.value)
+                  <MultiCategorySelect
+                    categories={categories}
+                    selected={formData.categories}
+                    onChange={(cats) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        categories: cats,
+                        category: cats[0] || "",
+                      }))
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
-                    placeholder="Escribe o selecciona una categoría"
-                    required
+                    placeholder="Selecciona una o más categorías"
                   />
-                  <datalist id="categories-list">
-                    {categories.map((category) => (
-                      <option key={category} value={category} />
-                    ))}
-                  </datalist>
+                  {formData.categories.length === 0 && (
+                    <p className="text-xs text-red-500 mt-1">
+                      Selecciona al menos una categoría
+                    </p>
+                  )}
                 </div>
 
                 <div>

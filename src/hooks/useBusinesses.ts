@@ -94,14 +94,18 @@ export const useBusinesses = () => {
     loadBusinesses();
   }, []);
 
-  // Categorías únicas
+  // Categorías únicas (incluyendo soporte para arrays de categorías)
   const categories = useMemo(() => {
     if (!businessData) return [];
-    return Array.from(
-      new Set(businessData.businesses.map((b) => b.category?.trim())),
-    )
-      .filter(Boolean)
-      .sort();
+    const catSet = new Set<string>();
+    businessData.businesses.forEach((b) => {
+      if (b.categories && b.categories.length > 0) {
+        b.categories.forEach((c) => c?.trim() && catSet.add(c.trim()));
+      } else if (b.category?.trim()) {
+        catSet.add(b.category.trim());
+      }
+    });
+    return Array.from(catSet).sort();
   }, [businessData]);
 
   // Departamentos únicos (ex-islands)
@@ -203,7 +207,11 @@ export const useBusinesses = () => {
         muni.includes(q);
       const matchesCategory =
         !filters.category ||
-        normalizeText(b.category) === normalizeText(filters.category);
+        (b.categories && b.categories.length > 0
+          ? b.categories.some(
+              (c) => normalizeText(c) === normalizeText(filters.category),
+            )
+          : normalizeText(b.category) === normalizeText(filters.category));
       const matchesDepartamento =
         !filters.departamento || dept === normalizeText(filters.departamento);
       const matchesMunicipio =

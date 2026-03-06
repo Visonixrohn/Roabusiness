@@ -171,13 +171,21 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
             <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-2 text-center group-hover:text-teal-600 transition-colors">
               {business.name}
             </h3>
-            <div className="flex items-center justify-center gap-2">
-              <Badge
-                variant="outline"
-                className="text-teal-600 border-teal-300 bg-teal-50 text-[10px] sm:text-xs px-2 py-0.5 font-medium"
-              >
-                {business.category}
-              </Badge>
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
+              {(business.categories && business.categories.length > 0
+                ? business.categories
+                : [business.category]
+              )
+                .filter(Boolean)
+                .map((cat) => (
+                  <Badge
+                    key={cat}
+                    variant="outline"
+                    className="text-teal-600 border-teal-300 bg-teal-50 text-[10px] sm:text-xs px-2 py-0.5 font-medium"
+                  >
+                    {cat}
+                  </Badge>
+                ))}
             </div>
           </div>
           {/* Amenidades */}

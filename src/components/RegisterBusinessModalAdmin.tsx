@@ -1,9 +1,18 @@
 import React, { useState } from "react";
+import MultiCategorySelect from "@/components/MultiCategorySelect";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ImageUpload from "@/components/ImageUpload";
 import { GoogleMap, Marker } from "@react-google-maps/api";
-import { MapPin, Globe, Check, Navigation, Satellite, X, Plus } from "lucide-react";
+import {
+  MapPin,
+  Globe,
+  Check,
+  Navigation,
+  Satellite,
+  X,
+  Plus,
+} from "lucide-react";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
 import { departamentos } from "@/data/hondurasLocations";
 
@@ -11,6 +20,7 @@ interface EditFormData {
   name: string;
   profile_name: string;
   category: string;
+  categories: string[];
   departamento: string;
   municipio: string;
   colonia: string;
@@ -101,7 +111,9 @@ const RegisterBusinessModalAdmin: React.FC<Props> = ({
   isSubmitting,
   handleSubmitRegister,
 }) => {
-  const [locationInputMode, setLocationInputMode] = useState<"map" | "url">("map");
+  const [locationInputMode, setLocationInputMode] = useState<"map" | "url">(
+    "map",
+  );
 
   if (!isOpen) return null;
 
@@ -139,21 +151,25 @@ const RegisterBusinessModalAdmin: React.FC<Props> = ({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Categoría *
+                Categoría(s) *
               </label>
-              <input
-                list="categories-list-register"
-                value={editForm.category}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, category: e.target.value })
+              <MultiCategorySelect
+                categories={categories}
+                selected={editForm.categories}
+                onChange={(cats) =>
+                  setEditForm({
+                    ...editForm,
+                    categories: cats,
+                    category: cats[0] || "",
+                  })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="Selecciona una o más categorías"
               />
-              <datalist id="categories-list-register">
-                {categories.map((category) => (
-                  <option key={category} value={category} />
-                ))}
-              </datalist>
+              {editForm.categories.length === 0 && (
+                <p className="text-xs text-red-500 mt-1">
+                  Selecciona al menos una categoría
+                </p>
+              )}
             </div>
 
             <div>
@@ -272,9 +288,7 @@ const RegisterBusinessModalAdmin: React.FC<Props> = ({
                       variant="outline"
                       size="sm"
                       onClick={() =>
-                        setMapType(
-                          mapType === "roadmap" ? "hybrid" : "roadmap",
-                        )
+                        setMapType(mapType === "roadmap" ? "hybrid" : "roadmap")
                       }
                     >
                       <Satellite className="h-4 w-4 mr-1" />
@@ -299,8 +313,7 @@ const RegisterBusinessModalAdmin: React.FC<Props> = ({
                         );
                       }}
                     >
-                      <Navigation className="h-4 w-4 mr-1" /> Ver en Google
-                      Maps
+                      <Navigation className="h-4 w-4 mr-1" /> Ver en Google Maps
                     </Button>
                   </div>
                   <div className="rounded-lg overflow-hidden border border-gray-300">
@@ -610,7 +623,6 @@ const RegisterBusinessModalAdmin: React.FC<Props> = ({
                 placeholder="URL de TripAdvisor"
               />
             </div>
-
           </div>
 
           {/* Estado de Pago y Duración */}
