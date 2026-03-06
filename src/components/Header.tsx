@@ -76,6 +76,12 @@ const Header = () => {
           const name = normalize(b.name || "");
           const desc = normalize(b.description || "");
           const category = normalize(b.category || "");
+          const categories = normalize(
+            (b.categories && b.categories.length > 0
+              ? b.categories
+              : [b.category]
+            ).filter(Boolean).join(" ")
+          );
           const amenities = normalize((b.amenities || []).join(" "));
           const contactText = normalize(
             [b.contact?.phone, b.contact?.email, b.contact?.website]
@@ -87,6 +93,7 @@ const Header = () => {
             name.includes(q) ||
             desc.includes(q) ||
             category.includes(q) ||
+            categories.includes(q) ||
             amenities.includes(q) ||
             contactText.includes(q)
           );

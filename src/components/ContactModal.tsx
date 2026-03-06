@@ -347,6 +347,22 @@ const ContactInfoSection = ({
       Datos de Contacto
     </h4>
     <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-gray-700 shadow-inner">
+      {/* Categorías */}
+      {((business.categories && business.categories.length > 0) || business.category) && (
+        <div className="flex flex-wrap gap-1.5 pb-1">
+          {(business.categories && business.categories.length > 0
+            ? business.categories
+            : [business.category]
+          ).filter(Boolean).map((cat) => (
+            <span
+              key={cat}
+              className="inline-block bg-teal-50 text-teal-700 border border-teal-200 text-xs font-medium px-2 py-0.5 rounded-full"
+            >
+              {cat}
+            </span>
+          ))}
+        </div>
+      )}
       <div className="flex items-center gap-2">
         <MapPin className="h-4 w-4 text-gray-500" />
         <span className="text-sm">
