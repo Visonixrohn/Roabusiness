@@ -66,6 +66,8 @@ interface Props {
   setMapType: (type: "roadmap" | "hybrid") => void;
   isSubmitting: boolean;
   handleSubmitRegister: () => void;
+  onCreateCategory?: (name: string) => Promise<boolean>;
+  creatingCategory?: boolean;
 }
 
 const SUBSCRIPTION_MONTHS = [6, 12, 18, 24, 30, 36];
@@ -110,6 +112,8 @@ const RegisterBusinessModalAdmin: React.FC<Props> = ({
   setMapType,
   isSubmitting,
   handleSubmitRegister,
+  onCreateCategory,
+  creatingCategory = false,
 }) => {
   const [locationInputMode, setLocationInputMode] = useState<"map" | "url">(
     "map",
@@ -163,6 +167,8 @@ const RegisterBusinessModalAdmin: React.FC<Props> = ({
                     category: cats[0] || "",
                   })
                 }
+                onCreateCategory={onCreateCategory}
+                creating={creatingCategory}
                 placeholder="Selecciona una o más categorías"
               />
               {editForm.categories.length === 0 && (

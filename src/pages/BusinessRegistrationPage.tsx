@@ -26,7 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import ImageUpload from "@/components/ImageUpload";
 import { toast } from "sonner";
-import businessCategories from "@/data/businessCategories";
+import { useCategories } from "@/hooks/useCategories";
 import MultiCategorySelect from "@/components/MultiCategorySelect";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
@@ -153,7 +153,7 @@ const BusinessRegistrationPage = () => {
     { value: "$$$$", label: "$$$$ - Muy Caro" },
   ];
 
-  const categories = businessCategories;
+  const { categories, creating: creatingCategory, createCategory } = useCategories();
 
   const totalSteps = 4;
 
@@ -560,6 +560,8 @@ const BusinessRegistrationPage = () => {
                         category: cats[0] || "",
                       }))
                     }
+                    onCreateCategory={createCategory}
+                    creating={creatingCategory}
                     placeholder="Selecciona una o más categorías"
                   />
                   {formData.categories.length === 0 && (

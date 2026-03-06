@@ -33,7 +33,7 @@ import { useFinancial } from "@/hooks/useFinancial";
 import Receipt from "@/components/Receipt";
 import type { PaymentReceipt, SubscriptionPlan } from "@/types/financial";
 import { toast } from "sonner";
-import businessCategories from "@/data/businessCategories";
+import { useCategories } from "@/hooks/useCategories";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
 import {
@@ -219,7 +219,7 @@ const EditBusinessPage = () => {
     { value: "$$$", label: "$$$ - Caro" },
     { value: "$$$$", label: "$$$$ - Muy Caro" },
   ];
-  const categories = businessCategories;
+  const { categories, creating: creatingCategory, createCategory } = useCategories();
   const islandCenters: Record<string, { lat: number; lng: number }> = {
     Roatán: { lat: 16.3156, lng: -86.5889 },
     Utila: { lat: 16.1, lng: -86.9 },
@@ -1308,6 +1308,8 @@ const EditBusinessPage = () => {
                         category: cats[0] || "",
                       })
                     }
+                    onCreateCategory={createCategory}
+                    creating={creatingCategory}
                     placeholder="Selecciona una o más categorías"
                   />
                   {editForm.categories.length === 0 && (
@@ -1954,6 +1956,8 @@ const EditBusinessPage = () => {
         setMapType={setMapType}
         isSubmitting={isSubmitting}
         handleSubmitRegister={handleSubmitRegister}
+        onCreateCategory={createCategory}
+        creatingCategory={creatingCategory}
       />
 
       {/* Modal de Recibo */}

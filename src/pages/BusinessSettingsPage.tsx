@@ -15,7 +15,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import businessCategories from "@/data/businessCategories";
+import { useCategories } from "@/hooks/useCategories";
 import MultiCategorySelect from "@/components/MultiCategorySelect";
 import { Menu, MenuIcon } from "lucide-react";
 import { Facebook, Instagram, Twitter, Globe, Mail, Phone } from "lucide-react";
@@ -72,6 +72,7 @@ export default function BusinessSettingsPage() {
   const [deactivatePass1, setDeactivatePass1] = useState("");
   const [deactivatePass2, setDeactivatePass2] = useState("");
   const [deactivateError, setDeactivateError] = useState("");
+  const { categories: dbCategories, creating: creatingCategory, createCategory } = useCategories();
 
   useEffect(() => {
     const fetchBusiness = async () => {
@@ -697,7 +698,7 @@ export default function BusinessSettingsPage() {
             <h2 className="text-3xl font-bold mb-6 text-blue-800">Categoría</h2>
             <div className="space-y-4">
               <MultiCategorySelect
-                categories={businessCategories}
+                categories={dbCategories}
                 selected={
                   form?.categories && form.categories.length > 0
                     ? form.categories
@@ -712,6 +713,8 @@ export default function BusinessSettingsPage() {
                     category: cats[0] || "",
                   }))
                 }
+                onCreateCategory={createCategory}
+                creating={creatingCategory}
                 placeholder="Selecciona una o más categorías"
               />
               <Button
