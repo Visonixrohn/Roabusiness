@@ -219,7 +219,11 @@ const EditBusinessPage = () => {
     { value: "$$$", label: "$$$ - Caro" },
     { value: "$$$$", label: "$$$$ - Muy Caro" },
   ];
-  const { categories, creating: creatingCategory, createCategory } = useCategories();
+  const {
+    categories,
+    creating: creatingCategory,
+    createCategory,
+  } = useCategories();
   const islandCenters: Record<string, { lat: number; lng: number }> = {
     Roatán: { lat: 16.3156, lng: -86.5889 },
     Utila: { lat: 16.1, lng: -86.9 },

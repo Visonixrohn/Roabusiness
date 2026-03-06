@@ -153,7 +153,11 @@ const BusinessRegistrationPage = () => {
     { value: "$$$$", label: "$$$$ - Muy Caro" },
   ];
 
-  const { categories, creating: creatingCategory, createCategory } = useCategories();
+  const {
+    categories,
+    creating: creatingCategory,
+    createCategory,
+  } = useCategories();
 
   const totalSteps = 4;
 

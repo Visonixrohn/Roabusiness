@@ -34,11 +34,10 @@ const AboutPage = () => {
             {" "}
             {/* Más margen inferior y posición relativa para el adorno */}
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight mb-3 sm:mb-4 tracking-tight px-4">
-               Negocios Cercanos
+              Negocios Cercanos
             </h2>
-           
             {/* Adorno sutil */}
-                </div>
+          </div>
 
           <NearbyBusinesses />
         </section>
@@ -512,21 +511,26 @@ function NearbyBusinesses() {
                         </div>
                         {/* Categoría e isla */}
                         <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-                          {" "}
-                          {/* flex-wrap para varias badges */}
-                          <Badge
-                            variant="secondary"
-                            className="bg-purple-100 text-purple-700 text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full"
-                          >
-                            {b.category || "General"}
-                          </Badge>
+                          {(b.categories && b.categories.length > 0
+                            ? b.categories
+                            : [b.category || "General"]
+                          )
+                            .filter(Boolean)
+                            .map((cat: string) => (
+                              <Badge
+                                key={cat}
+                                variant="secondary"
+                                className="bg-purple-100 text-purple-700 text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full"
+                              >
+                                {cat}
+                              </Badge>
+                            ))}
                           <Badge
                             variant="secondary"
                             className="bg-blue-100 text-blue-700 text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full"
                           >
                             {b.departamento || b.island || "Honduras"}
                           </Badge>
-                          {/* Podrías añadir más badges si hay más info, ej: "Envío a domicilio" */}
                         </div>
                         {/* Botones de acción */}
                         <div className="flex gap-1.5 sm:gap-2">

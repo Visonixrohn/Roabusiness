@@ -136,11 +136,17 @@ const BusinessInfoHeader = ({
         {(business.categories && business.categories.length > 0
           ? business.categories
           : [business.category]
-        ).filter(Boolean).map((cat) => (
-          <Badge key={cat} variant="secondary" className="text-sm text-teal-700 bg-teal-50 border border-teal-200">
-            {cat}
-          </Badge>
-        ))}
+        )
+          .filter(Boolean)
+          .map((cat) => (
+            <Badge
+              key={cat}
+              variant="secondary"
+              className="text-sm text-teal-700 bg-teal-50 border border-teal-200"
+            >
+              {cat}
+            </Badge>
+          ))}
         <Badge variant="outline" className="text-sm">
           <MapPin className="h-3 w-3 mr-1" />
           {business.municipio || business.location}
@@ -526,9 +532,7 @@ const MapSection = ({ business }: MapSectionProps) => {
             variant="outline"
             size="sm"
             onClick={() =>
-              setMapType((prev) =>
-                prev === "roadmap" ? "hybrid" : "roadmap",
-              )
+              setMapType((prev) => (prev === "roadmap" ? "hybrid" : "roadmap"))
             }
           >
             <Satellite className="h-4 w-4 mr-1" />

@@ -72,7 +72,11 @@ export default function BusinessSettingsPage() {
   const [deactivatePass1, setDeactivatePass1] = useState("");
   const [deactivatePass2, setDeactivatePass2] = useState("");
   const [deactivateError, setDeactivateError] = useState("");
-  const { categories: dbCategories, creating: creatingCategory, createCategory } = useCategories();
+  const {
+    categories: dbCategories,
+    creating: creatingCategory,
+    createCategory,
+  } = useCategories();
 
   useEffect(() => {
     const fetchBusiness = async () => {

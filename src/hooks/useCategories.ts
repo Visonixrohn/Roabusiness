@@ -26,9 +26,9 @@ export const useCategories = () => {
       if (data && data.length > 0) {
         // Fusionar con la lista estática para no perder nada
         const dbNames = data.map((c: Pick<Category, "name">) => c.name);
-        const merged = Array.from(new Set([...dbNames, ...businessCategories])).sort(
-          (a, b) => a.localeCompare(b, "es"),
-        );
+        const merged = Array.from(
+          new Set([...dbNames, ...businessCategories]),
+        ).sort((a, b) => a.localeCompare(b, "es"));
         setCategories(merged);
       }
       // Si la tabla aún no existe o está vacía, usar la lista estática (ya inicializada)
@@ -109,5 +109,12 @@ export const useCategories = () => {
     }
   }, []);
 
-  return { categories, loading, creating, fetchCategories, createCategory, deleteCategory };
+  return {
+    categories,
+    loading,
+    creating,
+    fetchCategories,
+    createCategory,
+    deleteCategory,
+  };
 };

@@ -80,7 +80,9 @@ const Header = () => {
             (b.categories && b.categories.length > 0
               ? b.categories
               : [b.category]
-            ).filter(Boolean).join(" ")
+            )
+              .filter(Boolean)
+              .join(" "),
           );
           const amenities = normalize((b.amenities || []).join(" "));
           const contactText = normalize(
@@ -273,7 +275,9 @@ const Header = () => {
           onClick={() => setIsMenuOpen(false)}
           className={cn(
             "fixed inset-0 bg-black z-40 md:hidden transition-opacity",
-            isMenuOpen ? "bg-opacity-50 opacity-100 pointer-events-auto" : "bg-opacity-0 opacity-0 pointer-events-none",
+            isMenuOpen
+              ? "bg-opacity-50 opacity-100 pointer-events-auto"
+              : "bg-opacity-0 opacity-0 pointer-events-none",
           )}
           aria-hidden={!isMenuOpen}
         />
@@ -295,8 +299,12 @@ const Header = () => {
                 className="w-8 h-8"
               />
               <div>
-                <span className="text-sm font-bold text-blue-600">RoaBusiness</span>
-                <span className="text-xs text-gray-600 block leading-none">Menú</span>
+                <span className="text-sm font-bold text-blue-600">
+                  RoaBusiness
+                </span>
+                <span className="text-xs text-gray-600 block leading-none">
+                  Menú
+                </span>
               </div>
             </div>
             <button
@@ -339,4 +347,3 @@ const Header = () => {
 };
 
 export default Header;
-
