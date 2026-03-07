@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
 import {
   X,
   Phone,
@@ -35,7 +36,11 @@ import { supabase } from "@/lib/supabaseClient";
 import { StarRating } from "@/components/StarRating";
 import { useRatings } from "@/hooks/useRatings";
 import QRModal from "@/components/QRModal";
-import { copyBusinessLink, getBusinessUrl } from "@/lib/shareUtils";
+import {
+  copyBusinessLink,
+  getBusinessUrl,
+  shareBusinessLink,
+} from "@/lib/shareUtils";
 
 // --- Custom Hooks y Utilidades ---
 
@@ -475,12 +480,9 @@ const QuickActions = ({
     <Button
       variant="outline"
       size="sm"
-      onClick={() => {
-        // Copiar automáticamente el enlace
-        copyBusinessLink(business.profile_name || business.id, business.name);
-        // Abrir modal QR
-        onOpenQRModal();
-      }}
+      onClick={() =>
+        shareBusinessLink(business.profile_name || business.id, business.name)
+      }
       className="flex items-center justify-center gap-2 text-sm"
       aria-label="Compartir enlace del negocio"
     >
@@ -734,6 +736,9 @@ const ContactModal = ({
   const [showQRModal, setShowQRModal] = useState(false);
 
   const mapPosition = useMapPosition(business, isOpen);
+
+  // Cerrar este modal cuando se presiona el botón atrás de Android
+  useAndroidBack(onClose, isOpen);
 
   // Incrementar contador de contactos cuando se abre el modal
   useEffect(() => {

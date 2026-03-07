@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
 import { X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -19,6 +20,9 @@ const QRModal: React.FC<QRModalProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
+
+  // Cerrar al presionar atrás en Android
+  useAndroidBack(onClose, isOpen);
 
   useEffect(() => {
     if (isOpen && canvasRef.current) {
@@ -228,13 +232,39 @@ const QRModal: React.FC<QRModalProps> = ({
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!qrDataUrl) return;
 
+    const fileName = `${businessName.replace(/\s+/g, "_")}_QR.png`;
+
+    // Convertir dataURL a Blob
+    const res = await fetch(qrDataUrl);
+    const blob = await res.blob();
+    const file = new File([blob], fileName, { type: "image/png" });
+
+    // En Android (Capacitor) usar Web Share API para guardar la imagen
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: `QR - ${businessName}`,
+        });
+        return;
+      } catch (err) {
+        // Si el usuario cancela el share, no mostrar error
+        if ((err as Error).name === "AbortError") return;
+      }
+    }
+
+    // Fallback para navegadores de escritorio
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.download = `${businessName.replace(/\s+/g, "_")}_QR.png`;
-    link.href = qrDataUrl;
+    link.download = fileName;
+    link.href = url;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   if (!isOpen) return null;

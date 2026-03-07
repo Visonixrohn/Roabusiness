@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
 import { ChevronLeft, ChevronRight, X, Download, Share2 } from "lucide-react";
 import { Business } from "@/types/business";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,9 @@ interface GalleryModalProps {
 
 const GalleryModal = ({ business, isOpen, onClose }: GalleryModalProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Cerrar al presionar atrás en Android
+  useAndroidBack(onClose, isOpen);
 
   // Reiniciar índice al abrir el modal
   useEffect(() => {

@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
-import { Search, MapPin, Star, ChevronRight, Download } from "lucide-react";
+import { Search, MapPin, Star, ChevronRight } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BusinessCard from "@/components/BusinessCard";
 import { useBusinesses } from "@/hooks/useBusinesses";
 import { useNegociosDestacados } from "@/hooks/useNegociosDestacados";
 import { Button } from "@/components/ui/button";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import IslandsSection from "@/components/Islansection";
 import BannerCarousel from "@/components/BannerCarousel";
 import AboutPage from "./AboutPage";
@@ -18,9 +18,6 @@ const HomePage = () => {
   const { businesses } = useBusinesses();
   const publicCount = businesses.filter((b) => b.is_public !== false).length;
   const [displayedCount, setDisplayedCount] = useState(0);
-  const installPromptRef = useRef<any>(null);
-  const [showTutorial, setShowTutorial] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(false);
   // Estado para animación de imagen hero
   const [imgLoaded, setImgLoaded] = useState(false);
   const [rippleActive, setRippleActive] = useState(false);
@@ -30,19 +27,6 @@ const HomePage = () => {
     setImgLoaded(true);
     setTimeout(() => setRippleActive(true), 50); // Pequeño delay para el efecto
   };
-
-  useEffect(() => {
-    // Detectar si ya está instalada como PWA
-    setIsStandalone(
-      window.matchMedia("(display-mode: standalone)").matches ||
-        (window.navigator as any).standalone === true,
-    );
-    // Capturar el evento beforeinstallprompt
-    window.addEventListener("beforeinstallprompt", (e: any) => {
-      e.preventDefault();
-      installPromptRef.current = e;
-    });
-  }, []);
 
   // Animación de incremento para el conteo de negocios públicos
   useEffect(() => {
@@ -147,10 +131,7 @@ const HomePage = () => {
       </section>
       <AboutPage />
       {/* Islas */}
-      <IslandsSection
-        isStandalone={isStandalone}
-        installPromptRef={installPromptRef}
-      />
+      <IslandsSection />
 
       <Footer />
     </div>

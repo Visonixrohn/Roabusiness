@@ -32,15 +32,57 @@ import AdminRouteGuard from "@/components/AdminRouteGuard";
 import FinancialDashboard from "@/pages/FinancialDashboard";
 import BannerAdminPage from "@/pages/BannerAdminPage";
 import ScrollToTop from "@/components/ScrollToTop";
+import MobileBottomBar from "@/components/MobileBottomBar";
+import NegociosCercaPage from "@/pages/NegociosCercaPage";
 
 import "./App.css";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { App as CapacitorApp } from "@capacitor/app";
+import { toast } from "sonner";
+import { backHandlerStack } from "@/utils/backHandlerStack";
 
 const libraries: ("places" | "geometry" | "drawing" | "visualization")[] = [
   "places",
 ];
 
 function App() {
+  const lastBackPress = useRef<number>(0);
+
+  useEffect(() => {
+    // Botón atrás de Android
+    const backHandler = CapacitorApp.addListener(
+      "backButton",
+      ({ canGoBack }) => {
+        // 1. Si hay un modal u overlay registrado → cerrarlo
+        if (backHandlerStack.pop()) {
+          return;
+        }
+
+        // 2. Si se puede retroceder en el historial → hacerlo
+        if (canGoBack) {
+          window.history.back();
+          return;
+        }
+
+        // 3. Estamos en la raíz: lógica de doble toque para salir
+        const now = Date.now();
+        if (now - lastBackPress.current < 2000) {
+          // Segundo toque dentro de 2 s → minimizar (salir de la app)
+          CapacitorApp.minimizeApp();
+        } else {
+          lastBackPress.current = now;
+          toast("Presiona atrás otra vez para salir", {
+            duration: 2000,
+            position: "bottom-center",
+          });
+        }
+      },
+    );
+    return () => {
+      backHandler.then((h) => h.remove());
+    };
+  }, []);
+
   useEffect(() => {
     // Bloquear Ctrl+U
     const handleKeyDown = (e) => {
@@ -77,7 +119,7 @@ function App() {
         >
           <Router>
             <ScrollToTop />
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-gray-50 pb-16 md:pb-0">
               {/* Top bar móvil eliminado */}
               <Routes>
                 <Route path="/" element={<HomePage />} />
@@ -131,6 +173,7 @@ function App() {
                   element={<SetNewPasswordPage />}
                 />
                 <Route path="/recent-posts" element={<RecentPostsPage />} />
+                <Route path="/negocios-cerca" element={<NegociosCercaPage />} />
                 <Route
                   path="/google-callback"
                   element={<GoogleCallbackPage />}
@@ -165,7 +208,8 @@ function App() {
                 }}
               />
 
-              {/* Barra inferior móvil eliminada */}
+              {/* Barra inferior móvil */}
+              <MobileBottomBar />
             </div>
           </Router>
         </LoadScript>

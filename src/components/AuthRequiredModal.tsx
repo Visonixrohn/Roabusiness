@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -15,6 +16,9 @@ const AuthRequiredModal: React.FC<AuthRequiredModalProps> = ({
 }) => {
   const navigate = useNavigate();
   const backdropRef = useRef<HTMLDivElement>(null);
+
+  // Cerrar al presionar atrás en Android
+  useAndroidBack(onClose, open);
 
   if (!open) return null;
 
@@ -54,10 +58,10 @@ const AuthRequiredModal: React.FC<AuthRequiredModalProps> = ({
 
         {/* Botón de acción */}
         <Button
-            onClick={() => {
-              onClose();
-              navigate("/registrar-usuario");
-            }}
+          onClick={() => {
+            onClose();
+            navigate("/registrar-usuario");
+          }}
           className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-2.5 rounded-xl shadow-md hover:shadow-xl transition-all hover:scale-105"
         >
           Iniciar sesión o registrarse

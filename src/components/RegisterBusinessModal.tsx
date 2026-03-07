@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAndroidBack } from "@/hooks/useAndroidBack";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,6 +25,9 @@ interface Props {
 }
 
 const RegisterBusinessModal = ({ isOpen, onClose }: Props) => {
+  // Cerrar al presionar atrás en Android
+  useAndroidBack(onClose, isOpen);
+
   const [form, setForm] = useState({
     name: "",
     description: "",

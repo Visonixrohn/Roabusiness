@@ -3,6 +3,7 @@
  */
 
 import { toast } from "sonner";
+import { Share } from "@capacitor/share";
 
 /**
  * Detecta si un string es un UUID
@@ -19,7 +20,7 @@ function isUUID(str: string): boolean {
  * @returns URL completa del negocio
  */
 export function getBusinessUrl(profileName: string): string {
-  const baseUrl = window.location.origin;
+  const baseUrl = "https://www.roabusiness.com";
 
   // Si es un UUID, usar el formato legacy con ID
   if (isUUID(profileName)) {
@@ -105,24 +106,19 @@ export async function shareBusinessLink(
 ): Promise<void> {
   const url = getBusinessUrl(profileName);
 
-  // Verificar si Web Share API está disponible
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: businessName,
-        text: "Calificame en Roabusiness.com",
-        url: url,
-      });
-      toast.success("Enlace compartido exitosamente");
-    } catch (error: any) {
-      // El usuario canceló el share o hubo un error
-      if (error.name !== "AbortError") {
-        console.error("Error al compartir:", error);
-        // Fallback a copiar al portapapeles
-        await copyBusinessLink(profileName, businessName);
-      }
-    }
-  } else {
+  try {
+    // @capacitor/share abre el menú nativo en Android/iOS
+    // y usa navigator.share en web si está disponible
+    await Share.share({
+      title: businessName,
+      text: "Calificame en Roabusiness.com",
+      url: url,
+      dialogTitle: `Compartir ${businessName}`,
+    });
+  } catch (error: any) {
+    // El usuario canceló (AbortError) — no hacer nada
+    if (error.name === "AbortError" || error.message?.includes("cancel"))
+      return;
     // Fallback: copiar al portapapeles
     await copyBusinessLink(profileName, businessName);
   }

@@ -37,7 +37,11 @@ import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
 import TikTokIcon from "@/components/icons/TikTokIcon";
 import { StarRating } from "@/components/StarRating";
-import { copyBusinessLink, getBusinessUrl } from "@/lib/shareUtils";
+import {
+  copyBusinessLink,
+  getBusinessUrl,
+  shareBusinessLink,
+} from "@/lib/shareUtils";
 
 // ========== UTILIDADES ==========
 
@@ -216,12 +220,9 @@ const QuickActionsBar = ({
       </Button>
 
       <Button
-        onClick={() => {
-          // Copiar automáticamente el enlace
-          copyBusinessLink(business.profile_name || business.id, business.name);
-          // Abrir modal QR
-          onOpenQRModal();
-        }}
+        onClick={() =>
+          shareBusinessLink(business.profile_name || business.id, business.name)
+        }
         variant="outline"
         className="flex items-center justify-center gap-2"
       >

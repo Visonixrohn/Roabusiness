@@ -1,1 +1,9 @@
 node_modules
+
+# Android build files (no subir APK ni carpetas nativas)
+android/
+ic_launcher/
+*.apk
+*.aab
+*.keystore
+*.jks

@@ -103,25 +103,29 @@ const Header = () => {
       : [];
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <header
+      className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50"
+      style={{ paddingTop: "env(safe-area-inset-top)" }}
+    >
       <div className="container mx-auto px-2 sm:px-4">
         <div className="flex items-center justify-between h-12 sm:h-14">
           {/* Logo */}
           <Link
             to="/"
             onClick={handleGoHome}
-            className="flex items-center space-x-1.5"
+            className="flex items-center space-x-2"
           >
             <img
-              src="https://cdn-icons-png.flaticon.com/512/2288/2288494.png"
+              src="/icons/icon-192.png"
               alt="RoaBusiness Logo"
-              className="w-8 h-8 object-contain"
+              className="w-8 h-8 object-contain rounded-md"
             />
-            <div className="hidden sm:block">
+            {/* Texto siempre visible; en desktop muestra también el subtítulo */}
+            <div>
               <span className="text-base font-bold text-blue-600">
                 RoaBusiness
               </span>
-              <span className="text-xs text-gray-600 block leading-none">
+              <span className="text-xs text-gray-600 hidden sm:block leading-none">
                 Directory
               </span>
             </div>
@@ -202,8 +206,8 @@ const Header = () => {
             {/* Authentication removed: no login/profile buttons shown */}
           </nav>
 
-          {/* Menú móvil - Botón */}
-          <div className="md:hidden">
+          {/* Menú móvil - Botón (oculto: la navegación va en el BottomBar) */}
+          <div className="hidden">
             <Button
               variant="ghost"
               size="sm"
@@ -217,6 +221,36 @@ const Header = () => {
               )}
             </Button>
           </div>
+
+          {/* Accesos rápidos admin - solo móvil cuando está logueado */}
+          {isAdminLoggedIn && (
+            <div className="flex md:hidden items-center gap-1">
+              <Link
+                to="/editar-negocio"
+                className={cn(
+                  "flex items-center justify-center h-9 w-9 rounded-xl text-xs font-medium transition-colors",
+                  isActive("/editar-negocio")
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600",
+                )}
+                aria-label="Panel admin"
+              >
+                <Settings className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/admin-banners"
+                className={cn(
+                  "flex items-center justify-center h-9 w-9 rounded-xl text-xs font-medium transition-colors",
+                  isActive("/admin-banners")
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600",
+                )}
+                aria-label="Banners"
+              >
+                <LayoutTemplate className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Búsqueda - Móvil con dropdown */}

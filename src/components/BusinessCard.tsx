@@ -25,7 +25,11 @@ import { StarRating } from "@/components/StarRating";
 import { cn } from "@/lib/utils";
 import { useContacts } from "@/hooks/useContacts";
 import { useRatings } from "@/hooks/useRatings";
-import { copyBusinessLink, getBusinessUrl } from "@/lib/shareUtils";
+import {
+  copyBusinessLink,
+  getBusinessUrl,
+  shareBusinessLink,
+} from "@/lib/shareUtils";
 
 interface BusinessCardProps {
   business: Business;
@@ -255,11 +259,10 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
             <Button
               onClick={(e) => {
                 e.stopPropagation();
-                copyBusinessLink(
+                shareBusinessLink(
                   business.profile_name || business.id,
                   business.name,
                 );
-                setShowQRModal(true);
               }}
               variant="outline"
               className="px-2.5 sm:px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-xl h-9 sm:h-10 font-medium transition-all min-w-[2.25rem] sm:min-w-[2.5rem] flex items-center justify-center"
