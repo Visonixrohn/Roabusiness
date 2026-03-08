@@ -296,7 +296,7 @@ const PublicBusinessRegistrationPage = () => {
   };
 
   /* ─── Barra de progreso ─── */
-  const ProgressBar = () => (
+  const renderProgressBar = () => (
     <div className="mb-8">
       <div className="flex items-center justify-between">
         {STEP_INFO.map((step, idx) => {
@@ -353,15 +353,11 @@ const PublicBusinessRegistrationPage = () => {
     "w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-shadow text-sm bg-white";
   const labelClass = "block text-sm font-medium text-gray-700 mb-1.5";
 
-  const SectionHeader = ({
-    icon: Icon,
-    title,
-    subtitle,
-  }: {
-    icon: React.ComponentType<{ className?: string }>;
-    title: string;
-    subtitle?: string;
-  }) => (
+  const renderSectionHeader = (
+    Icon: React.ComponentType<{ className?: string }>,
+    title: string,
+    subtitle?: string,
+  ) => (
     <div className="flex items-start gap-3 mb-6 pb-4 border-b border-gray-100">
       <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-50 flex-shrink-0">
         <Icon className="h-5 w-5 text-blue-600" />
@@ -376,13 +372,9 @@ const PublicBusinessRegistrationPage = () => {
   /* ═══════════════════════════════════════
      PASO 1: Información Básica
   ═══════════════════════════════════════ */
-  const Step1 = () => (
+  const renderStep1 = () => (
     <div className="space-y-5">
-      <SectionHeader
-        icon={Building2}
-        title="Información básica"
-        subtitle="Datos principales que identifican tu negocio"
-      />
+      {renderSectionHeader(Building2, "Información básica", "Datos principales que identifican tu negocio")}
 
       {/* Nombre */}
       <div>
@@ -428,13 +420,9 @@ const PublicBusinessRegistrationPage = () => {
   /* ═══════════════════════════════════════
      PASO 2: Ubicación
   ═══════════════════════════════════════ */
-  const Step2 = () => (
+  const renderStep2 = () => (
     <div className="space-y-5">
-      <SectionHeader
-        icon={MapPin}
-        title="Ubicación"
-        subtitle="¿Dónde está tu negocio?"
-      />
+      {renderSectionHeader(MapPin, "Ubicación", "¿Dónde está tu negocio?")}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Departamento */}
@@ -715,13 +703,9 @@ const PublicBusinessRegistrationPage = () => {
   /* ═══════════════════════════════════════
      PASO 3: Información del negocio
   ═══════════════════════════════════════ */
-  const Step3 = () => (
+  const renderStep3 = () => (
     <div className="space-y-5">
-      <SectionHeader
-        icon={Mail}
-        title="Información del negocio"
-        subtitle="Descripción y datos de contacto"
-      />
+      {renderSectionHeader(Mail, "Información del negocio", "Descripción y datos de contacto")}
 
       {/* Descripción */}
       <div>
@@ -799,13 +783,9 @@ const PublicBusinessRegistrationPage = () => {
   /* ═══════════════════════════════════════
      PASO 4: Presencia Digital
   ═══════════════════════════════════════ */
-  const Step4 = () => (
+  const renderStep4 = () => (
     <div className="space-y-5">
-      <SectionHeader
-        icon={Globe}
-        title="Presencia digital"
-        subtitle="Todos los campos son opcionales"
-      />
+      {renderSectionHeader(Globe, "Presencia digital", "Todos los campos son opcionales")}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Sitio Web */}
@@ -921,13 +901,9 @@ const PublicBusinessRegistrationPage = () => {
   /* ═══════════════════════════════════════
      PASO 5: Imágenes
   ═══════════════════════════════════════ */
-  const Step5 = () => (
+  const renderStep5 = () => (
     <div className="space-y-6">
-      <SectionHeader
-        icon={ImageIcon}
-        title="Imágenes del negocio"
-        subtitle="Las imágenes son opcionales pero recomendadas"
-      />
+      {renderSectionHeader(ImageIcon, "Imágenes del negocio", "Las imágenes son opcionales pero recomendadas")}
 
       {/* Imagen de portada */}
       <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
@@ -987,18 +963,12 @@ const PublicBusinessRegistrationPage = () => {
 
   const renderStep = () => {
     switch (currentStep) {
-      case 1:
-        return <Step1 />;
-      case 2:
-        return <Step2 />;
-      case 3:
-        return <Step3 />;
-      case 4:
-        return <Step4 />;
-      case 5:
-        return <Step5 />;
-      default:
-        return null;
+      case 1: return renderStep1();
+      case 2: return renderStep2();
+      case 3: return renderStep3();
+      case 4: return renderStep4();
+      case 5: return renderStep5();
+      default: return null;
     }
   };
 
@@ -1033,7 +1003,7 @@ const PublicBusinessRegistrationPage = () => {
         </div>
 
         {/* Barra de progreso */}
-        <ProgressBar />
+        {renderProgressBar()}
 
         {/* Tarjeta de formulario */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
