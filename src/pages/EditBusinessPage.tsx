@@ -81,6 +81,8 @@ interface Business {
   subscription_months?: number | null;
   subscription_started_at?: string | null;
   pago?: "ejecutado" | "sin pagar";
+  paypal_order_id?: string | null;
+  paypal_payer_name?: string | null;
   facebook?: string;
   instagram?: string;
   twitter?: string;
@@ -1171,6 +1173,31 @@ const EditBusinessPage = () => {
                         })()}
                       </span>
                     </div>
+
+                    {/* PayPal Info */}
+                    {(business.paypal_order_id ||
+                      business.paypal_payer_name) && (
+                      <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-400">
+                        {business.paypal_order_id && (
+                          <span className="flex items-center gap-1">
+                            <span className="font-semibold text-blue-600">
+                              ID PayPal:
+                            </span>
+                            <span className="font-mono">
+                              {business.paypal_order_id}
+                            </span>
+                          </span>
+                        )}
+                        {business.paypal_payer_name && (
+                          <span className="flex items-center gap-1">
+                            <span className="font-semibold text-blue-600">
+                              Pagador:
+                            </span>
+                            {business.paypal_payer_name}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Acciones */}

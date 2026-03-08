@@ -78,7 +78,7 @@ const FORM_STEP_INFO = [
 
 // PayPal Producción
 const PAYPAL_CLIENT_ID =
-  "AeqYrzrjXREwN2kgLdG6XgWrEq3liUpFa6tclcbDbRma8qwX5MclLBzy-Au6oOg0nk1iCGzJ9HgwYoor";
+  "AQjVTE_oV6OIdDHscyUvDBeEoZRZHja32v3jQ31-HiMJWYa6Vb4JbjyQJupC7YfoIx7MAgpVl-nvJ121";
 const HNL_TO_USD = 0.04;
 
 // Transferencia bancaria
@@ -263,7 +263,11 @@ const PublicBusinessRegistrationPage = () => {
   };
 
   // ─── Construir payload y enviar a DB ────────────────────────────────────
-  const submitBusinessPayPal = async (paypalOrderId: string) => {
+  const submitBusinessPayPal = async (
+    paypalOrderId: string,
+    payerName?: string,
+    payerEmail?: string,
+  ) => {
     setIsSubmitting(true);
     try {
       const base =
@@ -309,12 +313,43 @@ const PublicBusinessRegistrationPage = () => {
         is_public: false,
         pago: "ejecutado",
         paypal_order_id: paypalOrderId,
+        paypal_payer_name: payerName || null,
         subscription_months: selectedPlan!.months,
         subscription_started_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from("businesses").insert([payload]);
+      const { data: inserted, error } = await supabase
+        .from("businesses")
+        .insert([payload])
+        .select("id")
+        .single();
       if (error) throw error;
+
+      // Llamar al webhook de Google Apps Script para enviar factura por email
+      const GAS_WEBHOOK =
+        "https://script.google.com/macros/s/AKfycbyPKjRbqofGvCCdmZJGfMNYG3IFXJ7m7AkPpcHiIUTgYBoUo9oQ82tnD4RBFW1qaiagLg/exec";
+      if (inserted?.id && formData.email) {
+        fetch(GAS_WEBHOOK, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({
+            business_id: inserted.id,
+            paypal_order_id: paypalOrderId,
+            payer_name: payerName ?? "",
+            payer_email: payerEmail ?? formData.email,
+            business_name: formData.name,
+            plan_months: selectedPlan!.months,
+            plan_price: selectedPlan!.price_lempiras,
+            email: formData.email,
+          }),
+        })
+          .then(() =>
+            console.log("[GAS] Datos de factura enviados correctamente"),
+          )
+          .catch(() => {}); // no bloqueante
+      }
+
       setAppStep("paypal-success");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err: any) {
@@ -468,6 +503,24 @@ const PublicBusinessRegistrationPage = () => {
         Continuar
         <ChevronRight className="h-5 w-5" />
       </button>
+
+      <a
+        href="https://wa.me/50488857653?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20c%C3%B3mo%20registrar%20mi%20negocio"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-3 w-full h-12 rounded-2xl bg-green-500 hover:bg-green-600 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+          <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.116 1.517 5.849L.057 23.882l6.204-1.429A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.667-.498-5.2-1.37l-.373-.214-3.862.888.923-3.747-.241-.386A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+        </svg>
+        Consultar por WhatsApp
+      </a>
     </div>
   );
 
@@ -1576,7 +1629,17 @@ const PublicBusinessRegistrationPage = () => {
                       onApprove={async (_data, actions) => {
                         if (!actions.order) return;
                         const order = await actions.order.capture();
-                        await submitBusinessPayPal(order.id ?? "N/A");
+                        const givenName = order.payer?.name?.given_name ?? "";
+                        const surname = order.payer?.name?.surname ?? "";
+                        const payerName =
+                          `${givenName} ${surname}`.trim() || undefined;
+                        const payerEmail =
+                          order.payer?.email_address ?? undefined;
+                        await submitBusinessPayPal(
+                          order.id ?? "N/A",
+                          payerName,
+                          payerEmail,
+                        );
                       }}
                       onError={(err) => {
                         console.error("PayPal error:", err);
