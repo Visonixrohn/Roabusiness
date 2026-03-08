@@ -530,35 +530,28 @@ const PublicBusinessRegistrationPage = () => {
     if (months >= 6) return "Recomendado";
     return null;
   };
-  const mostPopular = plans.reduce(
-    (best, p) => (p.months > (best?.months ?? 0) ? p : best),
-    null as SubscriptionPlan | null,
-  );
 
   const renderPlanScreen = () => (
     <div className="max-w-xl mx-auto px-4 py-8">
       <button
         type="button"
         onClick={() => setAppStep("method")}
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 mb-8"
+        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-yellow-600 mb-8"
       >
         <ArrowLeft className="h-4 w-4" /> Volver
       </button>
 
-      <div className="flex items-center gap-3 mb-6">
-        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-50">
-          <Star className="h-5 w-5 text-blue-600" />
+      {/* Header */}
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 shadow-lg mb-3">
+          <Star className="h-7 w-7 text-white fill-white" />
         </div>
-        <div>
-          <h2 className="text-xl font-extrabold text-gray-900">
-            Elige tu plan
-          </h2>
-          <p className="text-xs text-gray-500">
-            {payMethod === "paypal"
-              ? "Pago en línea con PayPal"
-              : "Pago por transferencia bancaria"}
-          </p>
-        </div>
+        <h2 className="text-2xl font-extrabold text-gray-900">Elige tu plan</h2>
+        <p className="text-sm text-gray-500 mt-1">
+          {payMethod === "paypal"
+            ? "Pago en línea con PayPal"
+            : "Pago por transferencia bancaria"}
+        </p>
       </div>
 
       {plansLoading ? (
@@ -571,68 +564,125 @@ const PublicBusinessRegistrationPage = () => {
           No hay planes disponibles. Contacta al administrador.
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 mt-4">
           {plans.map((plan) => {
             const badge = getBadgeLabel(plan.months);
             const isSelected = selectedPlan?.id === plan.id;
-            const isHighlighted = mostPopular?.id === plan.id;
+            const isGold = plan.months >= 12;
             return (
               <button
                 key={plan.id}
                 type="button"
                 onClick={() => setSelectedPlan(plan)}
-                className={`relative text-left rounded-2xl border-2 p-5 transition-all duration-200 focus:outline-none
+                className={`relative text-left rounded-2xl border-2 transition-all duration-200 focus:outline-none overflow-visible
+                  ${badge ? "pt-5 px-5 pb-5" : "p-5"}
                   ${
                     isSelected
-                      ? "border-blue-500 bg-blue-50 shadow-md"
-                      : isHighlighted
-                        ? "border-blue-200 bg-white hover:border-blue-400 shadow-sm"
-                        : "border-gray-200 bg-white hover:border-blue-300 hover:shadow-sm"
+                      ? "border-green-500 shadow-[0_0_20px_4px_rgba(34,197,94,0.25)]"
+                      : isGold
+                        ? "border-yellow-200 hover:border-yellow-400 hover:shadow-md"
+                        : "border-gray-200 hover:border-yellow-300 hover:shadow-sm"
                   }`}
+                style={
+                  isSelected
+                    ? {
+                        background:
+                          "linear-gradient(135deg, #fef9c3 0%, #fef3c7 60%, #fde68a 100%)",
+                      }
+                    : isGold
+                      ? {
+                          background:
+                            "linear-gradient(135deg, #fffbeb 0%, #fef9c3 100%)",
+                        }
+                      : { background: "#ffffff" }
+                }
               >
+                {/* Destellos decorativos */}
+                {isGold && (
+                  <>
+                    <span
+                      className="absolute -top-4 -right-4 w-16 h-16 rounded-full opacity-20"
+                      style={{
+                        background:
+                          "radial-gradient(circle, #f59e0b, transparent)",
+                      }}
+                    />
+                    <span
+                      className="absolute bottom-0 left-0 w-24 h-12 opacity-10"
+                      style={{
+                        background:
+                          "radial-gradient(ellipse, #d97706, transparent)",
+                      }}
+                    />
+                  </>
+                )}
+
+                {/* Badge */}
                 {badge && (
                   <span
-                    className={`absolute -top-2.5 left-4 text-[11px] font-bold px-3 py-0.5 rounded-full ${isSelected ? "bg-blue-600 text-white" : "bg-amber-400 text-amber-900"}`}
+                    className={`absolute -top-2.5 left-4 text-[11px] font-bold px-3 py-0.5 rounded-full shadow
+                    ${
+                      isSelected
+                        ? "bg-yellow-500 text-white"
+                        : "bg-gradient-to-r from-yellow-400 to-amber-500 text-white"
+                    }`}
                   >
-                    {badge}
+                    ✦ {badge}
                   </span>
                 )}
-                <div className="flex items-start justify-between">
+
+                <div className="flex items-start justify-between gap-2">
+                  {/* Ícono + nombre */}
                   <div className="flex items-center gap-3">
                     <div
-                      className={`flex items-center justify-center w-10 h-10 rounded-xl ${isSelected ? "bg-blue-600" : "bg-gray-100"}`}
+                      className={`flex items-center justify-center w-11 h-11 rounded-xl shadow-sm flex-shrink-0
+                      ${
+                        isSelected
+                          ? "bg-gradient-to-br from-yellow-400 to-amber-500"
+                          : isGold
+                            ? "bg-gradient-to-br from-yellow-300 to-amber-400"
+                            : "bg-gray-100"
+                      }`}
                     >
                       <Clock
-                        className={`h-5 w-5 ${isSelected ? "text-white" : "text-gray-500"}`}
+                        className={`h-5 w-5 ${isGold || isSelected ? "text-white" : "text-gray-500"}`}
                       />
                     </div>
                     <div>
-                      <p className="font-bold text-gray-900 text-base leading-tight">
+                      <p
+                        className={`font-extrabold text-base leading-tight ${isSelected ? "text-amber-900" : "text-gray-900"}`}
+                      >
                         {plan.months === 1 ? "1 mes" : `${plan.months} meses`}
                       </p>
                       {plan.description && (
-                        <p className="text-xs text-gray-500 mt-0.5 leading-snug">
+                        <p
+                          className={`text-xs mt-0.5 leading-snug ${isSelected ? "text-amber-700" : "text-gray-500"}`}
+                        >
                           {plan.description}
                         </p>
                       )}
                     </div>
                   </div>
-                  <div className="text-right ml-2 flex-shrink-0">
-                    <p className="text-lg font-extrabold text-gray-900">
+
+                  {/* Precio */}
+                  <div className="text-right flex-shrink-0">
+                    <p
+                      className={`text-xl font-black leading-none ${isSelected ? "text-amber-800" : isGold ? "text-amber-700" : "text-gray-900"}`}
+                    >
                       L {plan.price_lempiras.toLocaleString("es-HN")}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      L{" "}
-                      {Math.round(
-                        plan.price_lempiras / plan.months,
-                      ).toLocaleString("es-HN")}
-                      /mes
                     </p>
                   </div>
                 </div>
+
+                {/* Check seleccionado */}
                 {isSelected && (
-                  <div className="absolute top-3 right-3 flex items-center justify-center w-6 h-6 rounded-full bg-blue-600">
-                    <Check className="h-3.5 w-3.5 text-white" />
+                  <div className="absolute top-3 right-3 flex items-center gap-1">
+                    <span className="text-[10px] font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
+                      Seleccionado
+                    </span>
+                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 shadow">
+                      <Check className="h-3.5 w-3.5 text-white" />
+                    </div>
                   </div>
                 )}
               </button>
@@ -653,7 +703,15 @@ const PublicBusinessRegistrationPage = () => {
             setAppStep(payMethod === "paypal" ? "form" : "transfer-info");
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
-          className="w-full h-14 rounded-2xl bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold text-base flex items-center justify-center gap-2 shadow-md transition-colors"
+          className="w-full h-14 rounded-2xl disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed font-bold text-base flex items-center justify-center gap-2 shadow-md transition-all"
+          style={
+            selectedPlan
+              ? {
+                  background: "linear-gradient(135deg, #f59e0b, #d97706)",
+                  color: "#fff",
+                }
+              : undefined
+          }
         >
           {selectedPlan
             ? payMethod === "paypal"
