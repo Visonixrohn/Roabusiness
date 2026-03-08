@@ -34,6 +34,8 @@ import BannerAdminPage from "@/pages/BannerAdminPage";
 import ScrollToTop from "@/components/ScrollToTop";
 import MobileBottomBar from "@/components/MobileBottomBar";
 import NegociosCercaPage from "@/pages/NegociosCercaPage";
+import PublicBusinessRegistrationPage from "@/pages/PublicBusinessRegistrationPage";
+import PaymentSubscriptionPage from "@/pages/PaymentSubscriptionPage";
 
 import "./App.css";
 import { useEffect, useRef } from "react";
@@ -174,6 +176,14 @@ function App() {
                 />
                 <Route path="/recent-posts" element={<RecentPostsPage />} />
                 <Route path="/negocios-cerca" element={<NegociosCercaPage />} />
+                <Route
+                  path="/registro-negocio"
+                  element={<PublicBusinessRegistrationPage />}
+                />
+                <Route
+                  path="/pago-suscripcion"
+                  element={<PaymentSubscriptionPage />}
+                />
                 <Route
                   path="/google-callback"
                   element={<GoogleCallbackPage />}

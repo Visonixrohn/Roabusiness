@@ -232,7 +232,7 @@ export default function MobileBottomBar() {
               );
             })}
 
-          {/* Botón central "Cerca de ti" */}
+            {/* Botón central "Cerca de ti" */}
             <button
               onClick={() => setPanelOpen((prev) => !prev)}
               aria-expanded={panelOpen}

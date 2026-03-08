@@ -1,38 +1,41 @@
-import { useState } from "react";
-import { PlusCircle } from "lucide-react";
-import RegisterBusinessModal from "@/components/RegisterBusinessModal";
+import { Link } from "react-router-dom";
+import { Building2, ArrowRight } from "lucide-react";
 
 const IslandsSection = () => {
-  const [showRegisterModal, setShowRegisterModal] = useState(false);
-
   return (
-    <section className="py-5 bg-gradient-to-b from-blue-50 ">
+    <section className="py-10 bg-gradient-to-b from-blue-50">
       <div className="container mx-auto px-3 max-w-7xl">
-        {/* Título y subtítulo para el contexto de la sección */}
-
-        {/* Botón de registro */}
-        <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 mt-12 sm:mt-16 px-4">
-          <button
-            onClick={() => setShowRegisterModal(true)}
-            className="group relative bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 sm:px-8 md:px-10 py-3 sm:py-3.5 md:py-4 rounded-full shadow-lg flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base md:text-lg font-semibold overflow-hidden
-                       focus:outline-none focus-visible:ring-4 focus-visible:ring-green-400 focus-visible:ring-offset-2 transition-all duration-300 ease-in-out
-                       transform hover:scale-105 active:scale-95 active:shadow-none hover:from-green-600 hover:to-emerald-700 w-full sm:w-auto"
-            aria-label="Registrar negocio"
-            type="button"
-          >
-            <PlusCircle className="h-5 w-5 sm:h-5 sm:w-5 md:h-6 md:w-6 text-white transition-transform duration-500 group-hover:rotate-90" />{" "}
-            {/* Animación al pasar el mouse */}
-            <span className="truncate">Registrar Negocio</span>
-            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-white opacity-20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out"></span>{" "}
-            {/* Subrayado animado */}
-          </button>
+        {/* Bloque CTA de registro */}
+        <div className="flex flex-col items-center gap-6 mt-12 sm:mt-16 px-4">
+          {/* Card de invitación */}
+          <div className="w-full max-w-xl bg-white border border-blue-100 rounded-2xl shadow-md px-6 py-7 flex flex-col items-center gap-4 text-center">
+            <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-green-600 shadow-lg">
+              <Building2 className="h-7 w-7 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">
+                ¿Quieres registrar tu negocio?
+              </h3>
+              <p className="text-sm text-gray-500 mt-1 leading-relaxed">
+                Registra tu negocio en el directorio más importante de la región
+                y conecta con miles de visitantes y residentes.
+              </p>
+            </div>
+            <Link
+              to="/registro-negocio"
+              className="group inline-flex items-center gap-2.5 bg-green-600 hover:bg-blue-700 active:bg-blue-800 text-white
+                         px-7 py-3 rounded-xl font-semibold text-sm shadow-md
+                         transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400 focus-visible:ring-offset-2
+                         w-full sm:w-auto justify-center"
+              aria-label="Registrar mi negocio"
+            >
+              <Building2 className="h-4 w-4 flex-shrink-0" />
+              <span>Registrar</span>
+              <ArrowRight className="h-4 w-4 flex-shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
+            </Link>
+          </div>
         </div>
       </div>
-
-      <RegisterBusinessModal
-        isOpen={showRegisterModal}
-        onClose={() => setShowRegisterModal(false)}
-      />
 
       <style>{`
         @keyframes fadeInUp {
