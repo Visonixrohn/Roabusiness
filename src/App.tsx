@@ -21,6 +21,7 @@ import BusinessSettingsPage from "@/pages/BusinessSettingsPage";
 import EditBusinessPage from "@/pages/EditBusinessPage";
 import PrivacyPolicyPage from "@/pages/PrivacyPolicyPage";
 import TermsOfUsePage from "@/pages/TermsOfUsePage";
+import ChildSafetyPage from "@/pages/ChildSafetyPage";
 import UserFullSettingsPage from "@/pages/UserFullSettingsPage";
 import SetNewPasswordPage from "@/pages/SetNewPasswordPage";
 import RecentPostsPage from "@/pages/RecentPostsPage";
@@ -166,6 +167,7 @@ function App() {
                 <Route path="/contacto" element={<ContactPage />} />
                 <Route path="/privacidad" element={<PrivacyPolicyPage />} />
                 <Route path="/terminos" element={<TermsOfUsePage />} />
+                <Route path="/seguridad-infantil" element={<ChildSafetyPage />} />
                 <Route
                   path="/user/full-settings"
                   element={<UserFullSettingsPage />}
