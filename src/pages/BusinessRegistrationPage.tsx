@@ -607,7 +607,9 @@ const BusinessRegistrationPage = () => {
                 {/* Departamento / Estado */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {formData.pais === "Honduras" ? "Departamento *" : "Estado / Departamento *"}
+                    {formData.pais === "Honduras"
+                      ? "Departamento *"
+                      : "Estado / Departamento *"}
                   </label>
                   {formData.pais === "Honduras" ? (
                     <select
@@ -629,7 +631,9 @@ const BusinessRegistrationPage = () => {
                     <input
                       type="text"
                       value={formData.departamento}
-                      onChange={(e) => handleInputChange("departamento", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("departamento", e.target.value)
+                      }
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
                       placeholder="Ej: Ciudad de México, Buenos Aires..."
                     />
@@ -639,7 +643,9 @@ const BusinessRegistrationPage = () => {
                 {/* Municipio / Ciudad */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {formData.pais === "Honduras" ? "Municipio *" : "Ciudad / Municipio *"}
+                    {formData.pais === "Honduras"
+                      ? "Municipio *"
+                      : "Ciudad / Municipio *"}
                   </label>
                   {formData.pais === "Honduras" ? (
                     <select
@@ -662,7 +668,9 @@ const BusinessRegistrationPage = () => {
                     <input
                       type="text"
                       value={formData.municipio}
-                      onChange={(e) => handleInputChange("municipio", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("municipio", e.target.value)
+                      }
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
                       placeholder="Ej: Bogotá, Guadalajara, Lima..."
                     />

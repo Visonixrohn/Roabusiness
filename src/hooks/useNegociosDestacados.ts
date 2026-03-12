@@ -4,8 +4,6 @@ import { Business } from "@/types/business";
 import { isSubscriptionActive } from "@/lib/subscription";
 
 interface NegocioDestacado extends Business {
-  contador_contactos: number;
-  ultimo_contacto: string | null;
   average_rating: number;
   total_ratings: number;
 }
@@ -20,50 +18,60 @@ export const useNegociosDestacados = (limit: number = 6, pais?: string) => {
       try {
         setLoading(true);
 
-        // Traemos más registros para poder filtrar por suscripción activa en cliente
-        let query = supabase
-          .from("vista_negocios_destacados")
+        // 1) Traer todos los negocios públicos con suscripción activa
+        const { data: bizData, error: bizError } = await supabase
+          .from("businesses")
           .select("*")
           .eq("is_public", true)
-          .order("total_ratings", { ascending: false })
-          .order("average_rating", { ascending: false })
-          .limit(limit * 8);
+          .limit(200);
 
-        // Filtrar por país si se proporciona
-        if (pais) {
-          query = query.eq("pais", pais);
+        if (bizError) throw bizError;
+
+        let lista: any[] = (bizData || []).filter((b) => isSubscriptionActive(b));
+
+        // 2) Filtrar por país (si hay datos de país en DB y hay resultados)
+        if (pais && lista.length > 0) {
+          const tienePais = lista.some((b) => b.pais !== undefined && b.pais !== null);
+          if (tienePais) {
+            const porPais = lista.filter((b) => b.pais === pais);
+            if (porPais.length > 0) lista = porPais;
+          }
         }
 
-        let { data, error } = await query;
+        // 3) Traer calificaciones para calcular rating real
+        const ids = lista.map((b) => b.id);
+        let calMap: Record<string, { total: number; sum: number }> = {};
 
-        if (error) throw error;
+        if (ids.length > 0) {
+          const { data: calData } = await supabase
+            .from("calificaciones")
+            .select("business_id, rating")
+            .in("business_id", ids);
 
-        // Fallback: si no hay resultados con filtro de país, buscar sin filtro
-        if (pais && (!data || data.length === 0)) {
-          const fallback = await supabase
-            .from("vista_negocios_destacados")
-            .select("*")
-            .eq("is_public", true)
-            .order("total_ratings", { ascending: false })
-            .order("average_rating", { ascending: false })
-            .limit(limit * 8);
-          if (!fallback.error) data = fallback.data;
+          (calData || []).forEach((c: any) => {
+            if (!calMap[c.business_id]) calMap[c.business_id] = { total: 0, sum: 0 };
+            calMap[c.business_id].total += 1;
+            calMap[c.business_id].sum += c.rating || 0;
+          });
         }
 
-        // Filtrar por suscripción activa y ordenar:
-        // 1. Mayor número de valoraciones (total_ratings DESC)
-        // 2. Mayor estrellas (average_rating DESC)
-        const filtrados = (data || ([] as NegocioDestacado[]))
-          .filter((b) => isSubscriptionActive(b))
-          .sort((a, b) => {
-            const totalRatingsDiff =
-              (b.total_ratings || 0) - (a.total_ratings || 0);
-            if (totalRatingsDiff !== 0) return totalRatingsDiff;
-            return (b.average_rating || 0) - (a.average_rating || 0);
+        // 4) Ordenar: más valoraciones primero, luego mejor rating
+        const resultado = lista
+          .map((b) => {
+            const cal = calMap[b.id] || { total: 0, sum: 0 };
+            return {
+              ...b,
+              total_ratings: cal.total,
+              average_rating: cal.total > 0 ? Math.round((cal.sum / cal.total) * 10) / 10 : 0,
+            };
           })
-          .slice(0, limit);
+          .sort((a, b) => {
+            if (b.total_ratings !== a.total_ratings) return b.total_ratings - a.total_ratings;
+            return b.average_rating - a.average_rating;
+          })
+          .slice(0, limit) as NegocioDestacado[];
 
-        setDestacados(filtrados);
+        setDestacados(resultado);
         setError(null);
       } catch (err) {
         console.error("Error al cargar negocios destacados:", err);

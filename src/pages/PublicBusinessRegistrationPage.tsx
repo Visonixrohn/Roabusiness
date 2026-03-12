@@ -179,7 +179,12 @@ const PublicBusinessRegistrationPage = () => {
       if (islandCenters[value]) setMapCenter(islandCenters[value]);
     }
     if (field === "pais") {
-      setFormData((prev) => ({ ...prev, pais: value, departamento: "", municipio: "" }));
+      setFormData((prev) => ({
+        ...prev,
+        pais: value,
+        departamento: "",
+        municipio: "",
+      }));
       setMunicipios([]);
     }
   };
@@ -835,7 +840,10 @@ const PublicBusinessRegistrationPage = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className={labelClass}>
-            {formData.pais === "Honduras" ? "Departamento" : "Estado / Departamento"} <span className="text-red-500">*</span>
+            {formData.pais === "Honduras"
+              ? "Departamento"
+              : "Estado / Departamento"}{" "}
+            <span className="text-red-500">*</span>
           </label>
           {formData.pais === "Honduras" ? (
             <select
@@ -862,7 +870,8 @@ const PublicBusinessRegistrationPage = () => {
         </div>
         <div>
           <label className={labelClass}>
-            {formData.pais === "Honduras" ? "Municipio" : "Ciudad / Municipio"} <span className="text-red-500">*</span>
+            {formData.pais === "Honduras" ? "Municipio" : "Ciudad / Municipio"}{" "}
+            <span className="text-red-500">*</span>
           </label>
           {formData.pais === "Honduras" ? (
             <select
