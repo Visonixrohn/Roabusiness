@@ -249,24 +249,32 @@ const HomePage = () => {
       <SectionShell className="pb-8 md:pb-12">
         <div className="rounded-[32px] border border-slate-200/70 bg-white/85 backdrop-blur-xl shadow-[0_10px_40px_rgba(15,23,42,0.08)] overflow-hidden">
           <div className="px-6 pt-8 md:px-10 md:pt-10">
-            <div className="max-w-3xl">
-              <div className="inline-flex items-center rounded-full bg-amber-50 border border-amber-200 px-4 py-2 text-sm font-medium text-amber-700">
-                Selección especial
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div className="max-w-3xl">
+                <div className="inline-flex items-center rounded-full bg-amber-50 border border-amber-200 px-4 py-2 text-sm font-medium text-amber-700">
+                  Selección especial
+                </div>
+
+                <h2 className="mt-4 text-3xl md:text-5xl font-bold tracking-tight text-slate-900">
+                  Negocios Destacados
+                </h2>
+
+                <p className="mt-4 text-base md:text-lg text-slate-600 leading-8">
+                  Una selección de negocios mejor calificados y más recomendados
+                  por la comunidad.
+                </p>
+
+                <div className="mt-6 flex items-center gap-2">
+                  <span className="inline-block h-1.5 w-16 rounded-full bg-emerald-500" />
+                  <span className="inline-block h-1.5 w-10 rounded-full bg-emerald-300" />
+                  <span className="inline-block h-1.5 w-6 rounded-full bg-emerald-200" />
+                </div>
               </div>
 
-              <h2 className="mt-4 text-3xl md:text-5xl font-bold tracking-tight text-slate-900">
-                Negocios Destacados
-              </h2>
-
-              <p className="mt-4 text-base md:text-lg text-slate-600 leading-8">
-                Una selección de negocios mejor calificados y más recomendados
-                por la comunidad.
-              </p>
-
-              <div className="mt-6 flex items-center gap-2">
-                <span className="inline-block h-1.5 w-16 rounded-full bg-emerald-500" />
-                <span className="inline-block h-1.5 w-10 rounded-full bg-emerald-300" />
-                <span className="inline-block h-1.5 w-6 rounded-full bg-emerald-200" />
+              {/* Selector de país para filtrar destacados */}
+              <div className="sm:pt-2 min-w-[200px]">
+                <p className="text-xs font-medium text-slate-500 mb-1.5">Filtrar por país</p>
+                <CountrySelector compact className="w-full" />
               </div>
             </div>
           </div>

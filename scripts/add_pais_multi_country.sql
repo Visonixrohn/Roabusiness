@@ -19,7 +19,7 @@ CREATE INDEX IF NOT EXISTS idx_businesses_pais ON businesses(pais);
 CREATE INDEX IF NOT EXISTS idx_businesses_pais_public
   ON businesses(pais, is_public);
 
--- 5. Actualizar la vista de negocios destacados para incluir pais
+-- 5. Actualizar la vista de negocios destacados para incluir pais y ratings
 -- (Primero eliminamos la vista existente y la recreamos)
 DROP VIEW IF EXISTS vista_negocios_destacados;
 
@@ -37,7 +37,8 @@ LEFT JOIN (
   FROM calificaciones
   GROUP BY business_id
 ) r ON r.business_id = b.id
-WHERE b.featured = true;
+WHERE b.is_public = true;
+-- NOTA: No filtramos por featured=true porque el filtro se hace en la app
 
 -- 6. Verificar resultado
 SELECT pais, COUNT(*) AS total
