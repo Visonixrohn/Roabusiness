@@ -45,6 +45,7 @@ import {
   getMunicipiosByDepartamento,
 } from "@/data/hondurasLocations";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import CountrySelector from "@/components/CountrySelector";
 
 function parseGoogleMapsUrl(url: string): { lat: number; lng: number } | null {
   try {
@@ -126,6 +127,7 @@ const PublicBusinessRegistrationPage = () => {
     name: "",
     profile_name: "",
     categories: [] as string[],
+    pais: "Honduras",
     departamento: "",
     municipio: "",
     colonia: "",
@@ -175,6 +177,10 @@ const PublicBusinessRegistrationPage = () => {
       setMunicipios(getMunicipiosByDepartamento(value));
       setFormData((prev) => ({ ...prev, municipio: "", departamento: value }));
       if (islandCenters[value]) setMapCenter(islandCenters[value]);
+    }
+    if (field === "pais") {
+      setFormData((prev) => ({ ...prev, pais: value, departamento: "", municipio: "" }));
+      setMunicipios([]);
     }
   };
 
@@ -285,6 +291,7 @@ const PublicBusinessRegistrationPage = () => {
         profile_name: profile_name || null,
         category: formData.categories[0] || "",
         categories: formData.categories,
+        pais: formData.pais || "Honduras",
         departamento: formData.departamento,
         municipio: formData.municipio,
         colonia: formData.colonia || null,
@@ -813,41 +820,73 @@ const PublicBusinessRegistrationPage = () => {
   const renderStep2 = () => (
     <div className="space-y-5">
       {renderSectionHeader(MapPin, "Ubicación", "¿Dónde está tu negocio?")}
+
+      {/* País — full width */}
+      <div>
+        <label className={labelClass}>
+          País <span className="text-red-500">*</span>
+        </label>
+        <CountrySelector
+          value={formData.pais}
+          onChange={(v) => handleChange("pais", v)}
+        />
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className={labelClass}>
-            Departamento <span className="text-red-500">*</span>
+            {formData.pais === "Honduras" ? "Departamento" : "Estado / Departamento"} <span className="text-red-500">*</span>
           </label>
-          <select
-            value={formData.departamento}
-            onChange={(e) => handleChange("departamento", e.target.value)}
-            className={inputClass}
-          >
-            <option value="">Selecciona un departamento</option>
-            {departamentos.map((dep) => (
-              <option key={dep} value={dep}>
-                {dep}
-              </option>
-            ))}
-          </select>
+          {formData.pais === "Honduras" ? (
+            <select
+              value={formData.departamento}
+              onChange={(e) => handleChange("departamento", e.target.value)}
+              className={inputClass}
+            >
+              <option value="">Selecciona un departamento</option>
+              {departamentos.map((dep) => (
+                <option key={dep} value={dep}>
+                  {dep}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type="text"
+              value={formData.departamento}
+              onChange={(e) => handleChange("departamento", e.target.value)}
+              className={inputClass}
+              placeholder="Ej: Ciudad de México, Buenos Aires..."
+            />
+          )}
         </div>
         <div>
           <label className={labelClass}>
-            Municipio <span className="text-red-500">*</span>
+            {formData.pais === "Honduras" ? "Municipio" : "Ciudad / Municipio"} <span className="text-red-500">*</span>
           </label>
-          <select
-            value={formData.municipio}
-            onChange={(e) => handleChange("municipio", e.target.value)}
-            className={inputClass}
-            disabled={!formData.departamento}
-          >
-            <option value="">Selecciona un municipio</option>
-            {municipios.map((mun) => (
-              <option key={mun} value={mun}>
-                {mun}
-              </option>
-            ))}
-          </select>
+          {formData.pais === "Honduras" ? (
+            <select
+              value={formData.municipio}
+              onChange={(e) => handleChange("municipio", e.target.value)}
+              className={inputClass}
+              disabled={!formData.departamento}
+            >
+              <option value="">Selecciona un municipio</option>
+              {municipios.map((mun) => (
+                <option key={mun} value={mun}>
+                  {mun}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type="text"
+              value={formData.municipio}
+              onChange={(e) => handleChange("municipio", e.target.value)}
+              className={inputClass}
+              placeholder="Ej: Bogotá, Guadalajara, Lima..."
+            />
+          )}
         </div>
       </div>
       <div>
