@@ -34,9 +34,21 @@ export const useNegociosDestacados = (limit: number = 6, pais?: string) => {
           query = query.eq("pais", pais);
         }
 
-        const { data, error } = await query;
+        let { data, error } = await query;
 
         if (error) throw error;
+
+        // Fallback: si no hay resultados con filtro de país, buscar sin filtro
+        if (pais && (!data || data.length === 0)) {
+          const fallback = await supabase
+            .from("vista_negocios_destacados")
+            .select("*")
+            .eq("is_public", true)
+            .order("total_ratings", { ascending: false })
+            .order("average_rating", { ascending: false })
+            .limit(limit * 8);
+          if (!fallback.error) data = fallback.data;
+        }
 
         // Filtrar por suscripción activa y ordenar:
         // 1. Mayor número de valoraciones (total_ratings DESC)
