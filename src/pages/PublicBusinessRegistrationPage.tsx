@@ -28,6 +28,7 @@ import {
   Loader2,
   CheckCircle2,
   ChevronRight,
+  LocateFixed,
 } from "lucide-react";
 import TikTokIcon from "@/components/icons/TikTokIcon";
 import { Button } from "@/components/ui/button";
@@ -114,6 +115,33 @@ const PublicBusinessRegistrationPage = () => {
   const [municipios, setMunicipios] = useState<string[]>([]);
   const [mapType, setMapType] = useState<"roadmap" | "hybrid">("roadmap");
   const [locationMode, setLocationMode] = useState<"map" | "url">("map");
+  const [gpsLoading, setGpsLoading] = useState(false);
+
+  const handleGpsLocate = () => {
+    if (!navigator.geolocation) {
+      toast.error("Tu dispositivo no soporta geolocalización");
+      return;
+    }
+    setGpsLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        setFormData((prev) => ({ ...prev, latitude: lat, longitude: lng }));
+        setMapCenter({ lat, lng });
+        setGpsLoading(false);
+        toast.success("¡Ubicación detectada!");
+      },
+      (err) => {
+        setGpsLoading(false);
+        if (err.code === err.PERMISSION_DENIED)
+          toast.error("Permiso de ubicación denegado. Actívalo en tu navegador.");
+        else
+          toast.error("No se pudo obtener tu ubicación. Intenta de nuevo.");
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
   const [mapCenter, setMapCenter] = useState(GOOGLE_MAPS_CONFIG.defaultCenter);
   const [urlInput, setUrlInput] = useState("");
 
@@ -957,6 +985,22 @@ const PublicBusinessRegistrationPage = () => {
               Haz clic en el mapa para marcar la ubicación exacta.
             </p>
             <div className="flex flex-wrap gap-2 mb-3">
+              {/* Botón GPS */}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="rounded-lg border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                onClick={handleGpsLocate}
+                disabled={gpsLoading}
+              >
+                {gpsLoading ? (
+                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                ) : (
+                  <LocateFixed className="h-4 w-4 mr-1.5" />
+                )}
+                {gpsLoading ? "Detectando..." : "Mi ubicación"}
+              </Button>
               <Button
                 type="button"
                 variant="outline"
