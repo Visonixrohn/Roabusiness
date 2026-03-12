@@ -1573,7 +1573,7 @@ const FinancialDashboard = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Precio (L) *
+                  Precio ($) *
                 </label>
                 <input
                   type="number"

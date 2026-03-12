@@ -579,7 +579,6 @@ const PublicBusinessRegistrationPage = () => {
 
   const renderPlanScreen = () => (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50/40">
-
       {/* ── Barra superior ── */}
       <div className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 py-3">
         <button
@@ -614,7 +613,11 @@ const PublicBusinessRegistrationPage = () => {
 
         {/* Trust badges */}
         <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
-          {["Sin contratos", "Cancela cuando quieras", "Activación inmediata"].map((t) => (
+          {[
+            "Sin contratos",
+            
+            "Activación Verificada",
+          ].map((t) => (
             <span
               key={t}
               className="inline-flex items-center gap-1 text-[11px] font-semibold bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full border border-white/30"
@@ -627,7 +630,6 @@ const PublicBusinessRegistrationPage = () => {
 
       {/* ── Cards ── */}
       <div className="max-w-lg mx-auto px-4 -mt-6 pb-32">
-
         {plansLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
             <Loader2 className="h-8 w-8 animate-spin text-amber-400" />
@@ -652,24 +654,35 @@ const PublicBusinessRegistrationPage = () => {
                   type="button"
                   onClick={() => setSelectedPlan(plan)}
                   className={`relative w-full text-left rounded-3xl border-2 overflow-hidden transition-all duration-200 focus:outline-none
-                    ${isSelected
-                      ? "border-amber-400 shadow-[0_8px_32px_rgba(245,158,11,0.30)] scale-[1.01]"
-                      : isGold
-                        ? "border-yellow-200 hover:border-amber-300 hover:shadow-lg"
-                        : isMid
-                          ? "border-blue-100 hover:border-blue-300 hover:shadow-md"
-                          : "border-gray-200 hover:border-gray-300 hover:shadow-sm"}`}
+                    ${
+                      isSelected
+                        ? "border-amber-400 shadow-[0_8px_32px_rgba(245,158,11,0.30)] scale-[1.01]"
+                        : isGold
+                          ? "border-yellow-200 hover:border-amber-300 hover:shadow-lg"
+                          : isMid
+                            ? "border-blue-100 hover:border-blue-300 hover:shadow-md"
+                            : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                    }`}
                 >
                   {/* Fondo de tarjeta */}
                   <div
                     className="absolute inset-0"
                     style={
                       isSelected
-                        ? { background: "linear-gradient(135deg,#fffbeb 0%,#fef3c7 50%,#fde68a 100%)" }
+                        ? {
+                            background:
+                              "linear-gradient(135deg,#fffbeb 0%,#fef3c7 50%,#fde68a 100%)",
+                          }
                         : isGold
-                          ? { background: "linear-gradient(135deg,#fffdf5 0%,#fef9c3 100%)" }
+                          ? {
+                              background:
+                                "linear-gradient(135deg,#fffdf5 0%,#fef9c3 100%)",
+                            }
                           : isMid
-                            ? { background: "linear-gradient(135deg,#f8faff 0%,#eff6ff 100%)" }
+                            ? {
+                                background:
+                                  "linear-gradient(135deg,#f8faff 0%,#eff6ff 100%)",
+                              }
                             : { background: "#ffffff" }
                     }
                   />
@@ -677,23 +690,36 @@ const PublicBusinessRegistrationPage = () => {
                   {/* Destellos gold */}
                   {isGold && (
                     <>
-                      <span className="absolute -top-8 -right-8 w-28 h-28 rounded-full opacity-15"
-                        style={{ background: "radial-gradient(circle,#f59e0b,transparent)" }} />
-                      <span className="absolute bottom-0 left-0 w-36 h-16 opacity-10"
-                        style={{ background: "radial-gradient(ellipse,#d97706,transparent)" }} />
+                      <span
+                        className="absolute -top-8 -right-8 w-28 h-28 rounded-full opacity-15"
+                        style={{
+                          background:
+                            "radial-gradient(circle,#f59e0b,transparent)",
+                        }}
+                      />
+                      <span
+                        className="absolute bottom-0 left-0 w-36 h-16 opacity-10"
+                        style={{
+                          background:
+                            "radial-gradient(ellipse,#d97706,transparent)",
+                        }}
+                      />
                     </>
                   )}
 
                   {/* Contenido */}
                   <div className="relative p-5">
-
                     {/* Badge superior */}
                     {badge && (
                       <div className="mb-3">
-                        <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-3 py-1 rounded-full
-                          ${isGold
-                            ? "bg-gradient-to-r from-amber-400 to-orange-400 text-white shadow-sm"
-                            : "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm"}`}>
+                        <span
+                          className={`inline-flex items-center gap-1 text-[11px] font-bold px-3 py-1 rounded-full
+                          ${
+                            isGold
+                              ? "bg-gradient-to-r from-amber-400 to-orange-400 text-white shadow-sm"
+                              : "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm"
+                          }`}
+                        >
                           ✦ {badge}
                         </span>
                       </div>
@@ -702,30 +728,44 @@ const PublicBusinessRegistrationPage = () => {
                     <div className="flex items-center justify-between gap-4">
                       {/* Lado izquierdo: duración + descripción */}
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className={`flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-2xl shadow-sm
-                          ${isSelected
-                            ? "bg-gradient-to-br from-amber-400 to-yellow-500"
-                            : isGold
-                              ? "bg-gradient-to-br from-yellow-300 to-amber-400"
-                              : isMid
-                                ? "bg-gradient-to-br from-blue-400 to-blue-500"
-                                : "bg-gradient-to-br from-gray-100 to-gray-200"}`}>
-                          <Clock className={`h-5 w-5 ${isSelected || isGold || isMid ? "text-white" : "text-gray-500"}`} />
+                        <div
+                          className={`flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-2xl shadow-sm
+                          ${
+                            isSelected
+                              ? "bg-gradient-to-br from-amber-400 to-yellow-500"
+                              : isGold
+                                ? "bg-gradient-to-br from-yellow-300 to-amber-400"
+                                : isMid
+                                  ? "bg-gradient-to-br from-blue-400 to-blue-500"
+                                  : "bg-gradient-to-br from-gray-100 to-gray-200"
+                          }`}
+                        >
+                          <Clock
+                            className={`h-5 w-5 ${isSelected || isGold || isMid ? "text-white" : "text-gray-500"}`}
+                          />
                         </div>
                         <div className="min-w-0">
-                          <p className={`text-lg font-black leading-tight truncate
-                            ${isSelected ? "text-amber-900" : isGold ? "text-amber-800" : isMid ? "text-blue-900" : "text-gray-900"}`}>
-                            {plan.months === 1 ? "1 mes" : `${plan.months} meses`}
+                          <p
+                            className={`text-lg font-black leading-tight truncate
+                            ${isSelected ? "text-amber-900" : isGold ? "text-amber-800" : isMid ? "text-blue-900" : "text-gray-900"}`}
+                          >
+                            {plan.months === 1
+                              ? "1 mes"
+                              : `${plan.months} meses`}
                           </p>
                           {plan.description && (
-                            <p className={`text-xs mt-0.5 leading-snug truncate
-                              ${isSelected ? "text-amber-700" : "text-gray-500"}`}>
+                            <p
+                              className={`text-xs mt-0.5 leading-snug truncate
+                              ${isSelected ? "text-amber-700" : "text-gray-500"}`}
+                            >
                               {plan.description}
                             </p>
                           )}
                           {pricePerMonth && (
-                            <p className={`text-[11px] font-semibold mt-0.5
-                              ${isSelected ? "text-amber-600" : "text-gray-400"}`}>
+                            <p
+                              className={`text-[11px] font-semibold mt-0.5
+                              ${isSelected ? "text-amber-600" : "text-gray-400"}`}
+                            >
                               ≈ {pricePerMonth}
                             </p>
                           )}
@@ -734,10 +774,16 @@ const PublicBusinessRegistrationPage = () => {
 
                       {/* Lado derecho: precio */}
                       <div className="text-right flex-shrink-0">
-                        <p className={`text-[11px] font-semibold uppercase tracking-wide mb-0.5
-                          ${isSelected ? "text-amber-600" : "text-gray-400"}`}>Precio</p>
-                        <p className={`text-2xl font-black leading-none
-                          ${isSelected ? "text-amber-800" : isGold ? "text-amber-700" : isMid ? "text-blue-700" : "text-gray-900"}`}>
+                        <p
+                          className={`text-[11px] font-semibold uppercase tracking-wide mb-0.5
+                          ${isSelected ? "text-amber-600" : "text-gray-400"}`}
+                        >
+                          Precio
+                        </p>
+                        <p
+                          className={`text-2xl font-black leading-none
+                          ${isSelected ? "text-amber-800" : isGold ? "text-amber-700" : isMid ? "text-blue-700" : "text-gray-900"}`}
+                        >
                           $ {plan.price_lempiras.toLocaleString("en-US")}
                         </p>
                       </div>
@@ -749,7 +795,9 @@ const PublicBusinessRegistrationPage = () => {
                         <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-500 flex-shrink-0">
                           <Check className="h-3 w-3 text-white" />
                         </div>
-                        <span className="text-xs font-bold text-green-700">Plan seleccionado</span>
+                        <span className="text-xs font-bold text-green-700">
+                          Plan seleccionado
+                        </span>
                         <span className="ml-auto text-[10px] font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
                           ✓ Activo
                         </span>
@@ -771,7 +819,9 @@ const PublicBusinessRegistrationPage = () => {
               <p className="text-center text-xs text-gray-500 mb-2">
                 Plan seleccionado:{" "}
                 <span className="font-bold text-amber-700">
-                  {selectedPlan.months === 1 ? "1 mes" : `${selectedPlan.months} meses`}
+                  {selectedPlan.months === 1
+                    ? "1 mes"
+                    : `${selectedPlan.months} meses`}
                   {" · "}$ {selectedPlan.price_lempiras.toLocaleString("en-US")}
                 </span>
               </p>
