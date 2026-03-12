@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react";
 import {
   Search,
-  Filter,
   MapPin,
   Grid,
-  Map,
   SlidersHorizontal,
-  Layout,
   ListFilter,
+  Sparkles,
+  ChevronRight,
+  X,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -18,8 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import BannerCarousel from "@/components/BannerCarousel";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Combobox } from "@/components/ui/combobox";
 import businessCategories from "@/data/businessCategories";
 import {
@@ -28,6 +27,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
+const SectionCard = ({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  return (
+    <section
+      className={`rounded-[28px] border border-slate-200/70 bg-white/90 backdrop-blur-xl shadow-[0_10px_40px_rgba(15,23,42,0.08)] ${className}`}
+    >
+      {children}
+    </section>
+  );
+};
 
 const DirectoryPage = () => {
   const {
@@ -45,7 +60,6 @@ const DirectoryPage = () => {
     totalBusinesses,
   } = useBusinesses();
 
-  // Nota: `useRecentPosts` eliminado para simplificar la página de directorio
   const [viewMode, setViewMode] = useState<"grid" | "map" | "list">("grid");
   const [showFiltersModal, setShowFiltersModal] = useState(false);
   const [modalFilters, setModalFilters] = useState({
@@ -103,7 +117,7 @@ const DirectoryPage = () => {
     { value: "$", label: "Económico ($)" },
     { value: "$$", label: "Moderado ($$)" },
     { value: "$$$", label: "Caro ($$$)" },
-    { value: "$$$$", label: "Muy Caro ($$$$)" },
+    { value: "$$$$", label: "Muy caro ($$$$)" },
   ];
 
   const hasActiveFilters =
@@ -198,15 +212,21 @@ const DirectoryPage = () => {
 
   if (businessError) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.08),transparent_25%),linear-gradient(to_bottom,#f8fafc,#ffffff)]">
         <Header />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Error al cargar
+        <div className="flex items-center justify-center min-h-[60vh] px-4">
+          <div className="max-w-md text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50">
+              <X className="h-6 w-6 text-red-500" />
+            </div>
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900 mb-2">
+              Error al cargar el directorio
             </h2>
-            <p className="text-gray-600">{businessError}</p>
-            <Button onClick={() => window.location.reload()} className="mt-4">
+            <p className="text-slate-600">{businessError}</p>
+            <Button
+              onClick={() => window.location.reload()}
+              className="mt-5 rounded-2xl bg-slate-900 hover:bg-slate-800"
+            >
               Reintentar
             </Button>
           </div>
@@ -216,432 +236,524 @@ const DirectoryPage = () => {
     );
   }
 
+  const renderActiveFilterBadge = (
+    label: string,
+    value: string,
+    onClear: () => void,
+  ) => (
+    <Badge
+      variant="secondary"
+      className="gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-slate-700"
+    >
+      <span className="font-medium">{label}:</span> {value}
+      <button onClick={onClear} className="hover:text-red-600">
+        ×
+      </button>
+    </Badge>
+  );
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.08),transparent_25%),linear-gradient(to_bottom,#f8fafc,#ffffff)]">
       <Header />
 
-      <div className="container mx-auto px-4 py-6">
-        <BannerCarousel />
-        {/* Header del directorio */}
-        <Tabs defaultValue="businesses" className="space-y-6">
-          <TabsContent value="businesses">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    Directorio de Negocios
-                  </h1>
+      <div className="mx-auto w-full max-w-7xl px-4 md:px-6 py-6 md:py-10 space-y-8">
+        <SectionCard className="overflow-hidden">
+          <div className="relative px-6 py-8 md:px-10 md:py-12">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.12),transparent_26%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.08),transparent_24%)]" />
+
+            <div className="relative grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
+              <div>
+                <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
+                  Explora negocios locales en Honduras
                 </div>
-                <div className="flex gap-2 mt-4 lg:mt-0">
-                  <Button
-                    variant={viewMode === "grid" ? "default" : "outline"}
-                    onClick={() => setViewMode("grid")}
-                    className={
-                      viewMode === "grid" ? "bg-blue-600 text-white" : ""
-                    }
-                  >
-                    <Grid className="h-4 w-4 mr-1" /> Grid
-                  </Button>
-                  <Button
-                    variant={viewMode === "list" ? "default" : "outline"}
-                    onClick={() => setViewMode("list")}
-                    className={
-                      viewMode === "list" ? "bg-blue-600 text-white" : ""
-                    }
-                  >
-                    <ListFilter className="h-4 w-4 mr-1" /> Lista
-                  </Button>
+
+                <h1 className="mt-5 text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
+                  Directorio de negocios
+                  <span className="block bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent">
+                    local, útil y fácil de explorar
+                  </span>
+                </h1>
+
+                <p className="mt-5 max-w-2xl text-base md:text-lg leading-8 text-slate-600">
+                  Encuentra restaurantes, tiendas, hoteles, servicios y mucho
+                  más. Busca por nombre, categoría o ubicación y descubre
+                  negocios en distintas zonas de Honduras.
+                </p>
+
+                <div className="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                    <p className="text-sm text-slate-500">Resultados</p>
+                    <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+                      {filteredCount}
+                    </p>
+                    <p className="text-sm text-slate-500">negocios visibles</p>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                    <p className="text-sm text-slate-500">Total publicado</p>
+                    <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+                      {totalBusinesses}
+                    </p>
+                    <p className="text-sm text-slate-500">en el directorio</p>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                    <p className="text-sm text-slate-500">Categorías</p>
+                    <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+                      {categoriasInline.length}
+                    </p>
+                    <p className="text-sm text-slate-500">para explorar</p>
+                  </div>
                 </div>
               </div>
 
-              {/* Búsqueda y filtros */}
-              <div className="space-y-4">
-                {/* Búsqueda principal */}
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                    <Search className="h-4 w-4 text-gray-400" />
-                  </div>
-                  <Input
-                    type="text"
-                    placeholder="Buscar negocios, restaurantes, hoteles..."
-                    value={filters.query}
-                    onChange={(e) => updateFilters({ query: e.target.value })}
-                    className="pl-10 py-3 text-base"
-                  />
+              <div className="relative">
+                <div className="rounded-[28px] overflow-hidden border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.10)]">
+                  <BannerCarousel />
                 </div>
+              </div>
+            </div>
+          </div>
+        </SectionCard>
 
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-gray-700">
-                    Filtrar por categoría
+        <SectionCard className="p-5 md:p-6 overflow-visible">
+          <div className="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-5 mb-5">
+            <div>
+              <div className="inline-flex items-center gap-2 text-emerald-600 mb-2">
+                <Sparkles className="h-4 w-4" />
+                <span className="text-sm font-medium">Búsqueda inteligente</span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
+                Encuentra el negocio ideal
+              </h2>
+              <p className="mt-2 text-slate-600">
+                Busca por nombre o filtra por categoría, departamento, municipio
+                y sector.
+              </p>
+            </div>
+
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                variant={viewMode === "grid" ? "default" : "outline"}
+                onClick={() => setViewMode("grid")}
+                className={
+                  viewMode === "grid"
+                    ? "rounded-2xl bg-slate-900 text-white hover:bg-slate-800"
+                    : "rounded-2xl"
+                }
+              >
+                <Grid className="h-4 w-4 mr-2" />
+                Grid
+              </Button>
+
+              <Button
+                variant={viewMode === "list" ? "default" : "outline"}
+                onClick={() => setViewMode("list")}
+                className={
+                  viewMode === "list"
+                    ? "rounded-2xl bg-slate-900 text-white hover:bg-slate-800"
+                    : "rounded-2xl"
+                }
+              >
+                <ListFilter className="h-4 w-4 mr-2" />
+                Lista
+              </Button>
+
+              <Button
+                variant={viewMode === "map" ? "default" : "outline"}
+                onClick={() => setViewMode("map")}
+                className={
+                  viewMode === "map"
+                    ? "rounded-2xl bg-slate-900 text-white hover:bg-slate-800"
+                    : "rounded-2xl"
+                }
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                Mapa
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_0.75fr_auto] gap-4 items-end overflow-visible">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-4">
+                <Search className="h-4 w-4 text-slate-400" />
+              </div>
+              <Input
+                type="text"
+                placeholder="Buscar negocios, restaurantes, hoteles, servicios..."
+                value={filters.query}
+                onChange={(e) => updateFilters({ query: e.target.value })}
+                className="h-12 rounded-2xl border-slate-200 pl-11 text-base shadow-sm"
+              />
+            </div>
+
+            <div className="relative">
+              <Combobox
+                value={filters.category}
+                onInputChange={setInlineCategoryInput}
+                onChange={(value) => {
+                  updateFilters({ category: value });
+                  setInlineCategoryInput(value);
+                }}
+                options={categoriasInline.filter((category) =>
+                  category
+                    .toLowerCase()
+                    .includes(inlineCategoryInput.toLowerCase()),
+                )}
+                placeholder="Selecciona una categoría"
+                inputValue={inlineCategoryInput || filters.category}
+                clearable
+              />
+            </div>
+
+            <Button
+              variant="outline"
+              onClick={openFiltersModal}
+              className="h-12 rounded-2xl border-slate-200 bg-white hover:bg-slate-50"
+            >
+              <SlidersHorizontal className="h-4 w-4 mr-2" />
+              Filtros {hasActiveFilters ? "activos" : ""}
+            </Button>
+          </div>
+
+          {hasActiveFilters && (
+            <div className="mt-5 flex flex-wrap gap-2">
+              {filters.query &&
+                renderActiveFilterBadge("Búsqueda", `"${filters.query}"`, () =>
+                  updateFilters({ query: "" }),
+                )}
+
+              {filters.departamento &&
+                renderActiveFilterBadge("Departamento", filters.departamento, () =>
+                  updateFilters({ departamento: "" }),
+                )}
+
+              {filters.municipio &&
+                renderActiveFilterBadge("Municipio", filters.municipio, () =>
+                  updateFilters({ municipio: "" }),
+                )}
+
+              {filters.colonia &&
+                renderActiveFilterBadge("Sector", filters.colonia, () =>
+                  updateFilters({ colonia: "" }),
+                )}
+
+              {filters.category &&
+                renderActiveFilterBadge("Categoría", filters.category, () =>
+                  updateFilters({ category: "" }),
+                )}
+
+              {filters.priceRange &&
+                renderActiveFilterBadge(
+                  "Precio",
+                  priceRanges.find((p) => p.value === filters.priceRange)?.label ||
+                    filters.priceRange,
+                  () => updateFilters({ priceRange: "" }),
+                )}
+
+              <Button
+                variant="ghost"
+                onClick={clearFilters}
+                className="rounded-full text-slate-600 hover:text-red-600"
+              >
+                Limpiar todo
+              </Button>
+            </div>
+          )}
+        </SectionCard>
+
+        <Dialog open={showFiltersModal} onOpenChange={setShowFiltersModal}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0 rounded-[28px] border-0 shadow-2xl">
+            <DialogHeader className="px-6 pt-6 pb-4 border-b bg-white">
+              <DialogTitle className="text-2xl font-bold tracking-tight text-slate-900">
+                Filtrar resultados
+              </DialogTitle>
+              <p className="text-sm text-slate-500">
+                Refina la búsqueda por ubicación y categoría.
+              </p>
+            </DialogHeader>
+
+            <div className="px-6 py-5 space-y-4 bg-slate-50/70 overflow-visible">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-visible">
+                <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
+                  <p className="text-sm font-medium text-slate-700">
+                    Departamento
                   </p>
                   <Combobox
-                    value={filters.category}
-                    onInputChange={setInlineCategoryInput}
+                    value={modalFilters.departamento}
+                    onInputChange={setDepartamentoInput}
                     onChange={(value) => {
-                      updateFilters({ category: value });
-                      setInlineCategoryInput(value);
+                      setModalFilters((prev) => ({
+                        ...prev,
+                        departamento: value,
+                        municipio: "",
+                        colonia: "",
+                        category: "",
+                      }));
+                      setDepartamentoInput(value);
+                      setMunicipioInput("");
+                      setColoniaInput("");
+                      setCategoryInput("");
+                      setClearQueryOnApply(true);
                     }}
-                    options={categoriasInline.filter((category) =>
-                      category
+                    options={departamentos.filter((departamento) =>
+                      departamento
                         .toLowerCase()
-                        .includes(inlineCategoryInput.toLowerCase()),
+                        .includes(departamentoInput.toLowerCase()),
                     )}
-                    placeholder="Selecciona una categoría"
-                    inputValue={inlineCategoryInput || filters.category}
+                    placeholder="Departamento"
+                    inputValue={departamentoInput || modalFilters.departamento}
                     clearable
                   />
                 </div>
 
-                {/* Botón de filtros (móvil y desktop) */}
-                <div>
-                  <Button
-                    variant="outline"
-                    onClick={openFiltersModal}
-                    className="w-full lg:w-auto"
-                  >
-                    <SlidersHorizontal className="h-4 w-4 mr-2" />
-                    Filtros {hasActiveFilters && "(activos)"}
-                  </Button>
+                <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
+                  <p className="text-sm font-medium text-slate-700">Municipio</p>
+                  <Combobox
+                    value={modalFilters.municipio}
+                    onInputChange={setMunicipioInput}
+                    onChange={(value) => {
+                      setModalFilters((prev) => ({
+                        ...prev,
+                        municipio: value,
+                        colonia: "",
+                        category: "",
+                      }));
+                      setMunicipioInput(value);
+                      setColoniaInput("");
+                      setCategoryInput("");
+                    }}
+                    options={municipiosModalFiltrados.filter((municipio) =>
+                      municipio
+                        .toLowerCase()
+                        .includes(municipioInput.toLowerCase()),
+                    )}
+                    placeholder={
+                      modalFilters.departamento
+                        ? "Municipio"
+                        : "Primero selecciona departamento"
+                    }
+                    inputValue={municipioInput || modalFilters.municipio}
+                    clearable
+                    disabled={!modalFilters.departamento}
+                  />
                 </div>
 
-                <Dialog
-                  open={showFiltersModal}
-                  onOpenChange={setShowFiltersModal}
-                >
-                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 rounded-2xl border-0 shadow-2xl">
-                    <DialogHeader className="px-6 pt-6 pb-4 border-b bg-white">
-                      <DialogTitle className="text-xl font-bold text-gray-900">
-                        Filtrar resultados
-                      </DialogTitle>
-                      <p className="text-sm text-gray-500">
-                        Selecciona criterios y pulsa "Filtrar" para aplicar.
-                      </p>
-                    </DialogHeader>
-
-                    <div className="px-6 py-5 space-y-4 bg-gray-50/60">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2 bg-white border border-gray-200 rounded-xl p-3">
-                          <p className="text-sm font-medium text-gray-700">
-                            Departamento
-                          </p>
-                          <Combobox
-                            value={modalFilters.departamento}
-                            onInputChange={setDepartamentoInput}
-                            onChange={(value) => {
-                              setModalFilters((prev) => ({
-                                ...prev,
-                                departamento: value,
-                                municipio: "",
-                                colonia: "",
-                                category: "",
-                              }));
-                              setDepartamentoInput(value);
-                              setMunicipioInput("");
-                              setColoniaInput("");
-                              setCategoryInput("");
-                              setClearQueryOnApply(true);
-                            }}
-                            options={departamentos.filter((departamento) =>
-                              departamento
-                                .toLowerCase()
-                                .includes(departamentoInput.toLowerCase()),
-                            )}
-                            placeholder="Departamento"
-                            inputValue={
-                              departamentoInput || modalFilters.departamento
-                            }
-                            clearable
-                          />
-                        </div>
-
-                        <div className="space-y-2 bg-white border border-gray-200 rounded-xl p-3">
-                          <p className="text-sm font-medium text-gray-700">
-                            Municipio
-                          </p>
-                          <Combobox
-                            value={modalFilters.municipio}
-                            onInputChange={setMunicipioInput}
-                            onChange={(value) => {
-                              setModalFilters((prev) => ({
-                                ...prev,
-                                municipio: value,
-                                colonia: "",
-                                category: "",
-                              }));
-                              setMunicipioInput(value);
-                              setColoniaInput("");
-                              setCategoryInput("");
-                            }}
-                            options={municipiosModalFiltrados.filter(
-                              (municipio) =>
-                                municipio
-                                  .toLowerCase()
-                                  .includes(municipioInput.toLowerCase()),
-                            )}
-                            placeholder={
-                              modalFilters.departamento
-                                ? "Municipio"
-                                : "Primero selecciona departamento"
-                            }
-                            inputValue={
-                              municipioInput || modalFilters.municipio
-                            }
-                            clearable
-                            disabled={!modalFilters.departamento}
-                          />
-                        </div>
-
-                        <div className="space-y-2 bg-white border border-gray-200 rounded-xl p-3">
-                          <p className="text-sm font-medium text-gray-700">
-                            Colonia / Sector
-                          </p>
-                          <Combobox
-                            value={modalFilters.colonia}
-                            onInputChange={setColoniaInput}
-                            onChange={(value) => {
-                              setModalFilters((prev) => ({
-                                ...prev,
-                                colonia: value,
-                                category: "",
-                              }));
-                              setColoniaInput(value);
-                              setCategoryInput("");
-                            }}
-                            options={coloniasModalFiltradas.filter((colonia) =>
-                              colonia
-                                .toLowerCase()
-                                .includes(coloniaInput.toLowerCase()),
-                            )}
-                            placeholder={
-                              modalFilters.departamento ||
-                              modalFilters.municipio
-                                ? "Colonia / Sector"
-                                : "Primero selecciona ubicación"
-                            }
-                            inputValue={coloniaInput || modalFilters.colonia}
-                            clearable
-                            disabled={
-                              !modalFilters.departamento &&
-                              !modalFilters.municipio
-                            }
-                          />
-                        </div>
-
-                        <div className="space-y-2 bg-white border border-gray-200 rounded-xl p-3">
-                          <p className="text-sm font-medium text-gray-700">
-                            Categoría
-                          </p>
-                          <Combobox
-                            value={modalFilters.category}
-                            onInputChange={setCategoryInput}
-                            onChange={(value) => {
-                              setModalFilters((prev) => ({
-                                ...prev,
-                                category: value,
-                              }));
-                              setCategoryInput(value);
-                            }}
-                            options={categoriasModalFiltradas.filter(
-                              (category) =>
-                                category
-                                  .toLowerCase()
-                                  .includes(categoryInput.toLowerCase()),
-                            )}
-                            placeholder="Categoría"
-                            inputValue={categoryInput || modalFilters.category}
-                            clearable
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="px-6 py-4 border-t bg-white flex flex-col sm:flex-row gap-2 sm:justify-between">
-                      <Button
-                        variant="outline"
-                        onClick={handleClearModalFilters}
-                        className="text-red-600 border-red-200 hover:bg-red-50"
-                      >
-                        Limpiar
-                      </Button>
-                      <div className="flex gap-2 sm:justify-end">
-                        <Button
-                          variant="outline"
-                          onClick={() => setShowFiltersModal(false)}
-                        >
-                          Cancelar
-                        </Button>
-                        <Button onClick={handleApplyModalFilters}>
-                          Filtrar
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-
-                {/* Filtros activos */}
-                {hasActiveFilters && (
-                  <div className="flex flex-wrap gap-2">
-                    {filters.query && (
-                      <Badge variant="secondary" className="gap-1">
-                        Búsqueda: "{filters.query}"
-                        <button
-                          onClick={() => updateFilters({ query: "" })}
-                          className="ml-1 hover:text-red-600"
-                        >
-                          ×
-                        </button>
-                      </Badge>
+                <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
+                  <p className="text-sm font-medium text-slate-700">
+                    Colonia / Sector
+                  </p>
+                  <Combobox
+                    value={modalFilters.colonia}
+                    onInputChange={setColoniaInput}
+                    onChange={(value) => {
+                      setModalFilters((prev) => ({
+                        ...prev,
+                        colonia: value,
+                        category: "",
+                      }));
+                      setColoniaInput(value);
+                      setCategoryInput("");
+                    }}
+                    options={coloniasModalFiltradas.filter((colonia) =>
+                      colonia
+                        .toLowerCase()
+                        .includes(coloniaInput.toLowerCase()),
                     )}
-                    {filters.departamento && (
-                      <Badge variant="secondary" className="gap-1">
-                        Departamento: {filters.departamento}
-                        <button
-                          onClick={() => updateFilters({ departamento: "" })}
-                          className="ml-1 hover:text-red-600"
-                        >
-                          ×
-                        </button>
-                      </Badge>
+                    placeholder={
+                      modalFilters.departamento || modalFilters.municipio
+                        ? "Colonia / Sector"
+                        : "Primero selecciona ubicación"
+                    }
+                    inputValue={coloniaInput || modalFilters.colonia}
+                    clearable
+                    disabled={
+                      !modalFilters.departamento && !modalFilters.municipio
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
+                  <p className="text-sm font-medium text-slate-700">Categoría</p>
+                  <Combobox
+                    value={modalFilters.category}
+                    onInputChange={setCategoryInput}
+                    onChange={(value) => {
+                      setModalFilters((prev) => ({
+                        ...prev,
+                        category: value,
+                      }));
+                      setCategoryInput(value);
+                    }}
+                    options={categoriasModalFiltradas.filter((category) =>
+                      category
+                        .toLowerCase()
+                        .includes(categoryInput.toLowerCase()),
                     )}
-                    {filters.municipio && (
-                      <Badge variant="secondary" className="gap-1">
-                        Municipio: {filters.municipio}
-                        <button
-                          onClick={() => updateFilters({ municipio: "" })}
-                          className="ml-1 hover:text-red-600"
-                        >
-                          ×
-                        </button>
-                      </Badge>
-                    )}
-                    {filters.colonia && (
-                      <Badge variant="secondary" className="gap-1">
-                        Colonia: {filters.colonia}
-                        <button
-                          onClick={() => updateFilters({ colonia: "" })}
-                          className="ml-1 hover:text-red-600"
-                        >
-                          ×
-                        </button>
-                      </Badge>
-                    )}
-                    {filters.category && (
-                      <Badge variant="secondary" className="gap-1">
-                        Categoría: {filters.category}
-                        <button
-                          onClick={() => updateFilters({ category: "" })}
-                          className="ml-1 hover:text-red-600"
-                        >
-                          ×
-                        </button>
-                      </Badge>
-                    )}
-                    {filters.priceRange && (
-                      <Badge variant="secondary" className="gap-1">
-                        Precio:{" "}
-                        {
-                          priceRanges.find(
-                            (p) => p.value === filters.priceRange,
-                          )?.label
-                        }
-                        <button
-                          onClick={() => updateFilters({ priceRange: "" })}
-                          className="ml-1 hover:text-red-600"
-                        >
-                          ×
-                        </button>
-                      </Badge>
-                    )}
-                  </div>
-                )}
+                    placeholder="Categoría"
+                    inputValue={categoryInput || modalFilters.category}
+                    clearable
+                  />
+                </div>
               </div>
-
-              <Separator className="my-4" />
             </div>
 
-            {/* Contenido principal */}
+            <div className="px-6 py-4 border-t bg-white flex flex-col sm:flex-row gap-2 sm:justify-between">
+              <Button
+                variant="outline"
+                onClick={handleClearModalFilters}
+                className="rounded-2xl text-red-600 border-red-200 hover:bg-red-50"
+              >
+                Limpiar
+              </Button>
+
+              <div className="flex gap-2 sm:justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowFiltersModal(false)}
+                  className="rounded-2xl"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleApplyModalFilters}
+                  className="rounded-2xl bg-slate-900 hover:bg-slate-800"
+                >
+                  Aplicar filtros
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-1">
+          <div>
+            <h3 className="text-2xl font-bold tracking-tight text-slate-900">
+              {filteredCount} resultados encontrados
+            </h3>
+            <p className="text-slate-600 mt-1">
+              Explora negocios locales por categoría y ubicación.
+            </p>
+          </div>
+
+          {hasActiveFilters && (
+            <Button
+              variant="outline"
+              onClick={clearFilters}
+              className="rounded-2xl border-slate-200 bg-white hover:bg-slate-50"
+            >
+              Limpiar filtros
+            </Button>
+          )}
+        </div>
+
+        <Tabs defaultValue="businesses" className="space-y-0">
+          <TabsContent value="businesses" className="mt-0">
             {loadingBusinesses ? (
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {[...Array(9)].map((_, i) => (
                   <div
                     key={i}
-                    className="bg-white rounded-lg p-6 animate-pulse"
+                    className="rounded-[24px] border border-slate-200 bg-white p-4 md:p-5 animate-pulse"
                   >
-                    <div className="h-48 bg-gray-300 rounded-lg mb-4"></div>
-                    <div className="h-4 bg-gray-300 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-300 rounded w-2/3 mb-4"></div>
-                    <div className="h-3 bg-gray-300 rounded mb-1"></div>
-                    <div className="h-3 bg-gray-300 rounded w-1/2"></div>
+                    <div className="h-44 bg-slate-200 rounded-2xl mb-4" />
+                    <div className="h-4 bg-slate-200 rounded mb-2" />
+                    <div className="h-4 bg-slate-200 rounded w-2/3 mb-4" />
+                    <div className="h-3 bg-slate-200 rounded mb-1" />
+                    <div className="h-3 bg-slate-200 rounded w-1/2" />
                   </div>
                 ))}
               </div>
-            ) : (
-              <>
-                {viewMode === "grid" ? (
-                  <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {businesses.map((business) => (
-                      <BusinessCard key={business.id} business={business} />
-                    ))}
+            ) : filteredCount === 0 ? (
+              <SectionCard className="p-10 md:p-14">
+                <div className="max-w-md mx-auto text-center">
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
+                    <MapPin className="h-6 w-6 text-slate-500" />
                   </div>
-                ) : viewMode === "list" ? (
-                  <div className="flex flex-col gap-4">
-                    {businesses.map((business) => (
-                      <div
-                        key={business.id}
-                        className="bg-white rounded-lg shadow-sm p-4 flex flex-col md:flex-row md:items-center md:gap-6"
-                      >
-                        <div className="flex-1">
-                          <h3 className="text-xl font-bold text-blue-800 mb-1">
+                  <h3 className="text-xl font-bold tracking-tight text-slate-900 mb-2">
+                    No se encontraron negocios
+                  </h3>
+                  <p className="text-slate-600 mb-5">
+                    Intenta ajustar tu búsqueda o cambiar los filtros para ver
+                    más resultados.
+                  </p>
+                  <Button
+                    onClick={clearFilters}
+                    className="rounded-2xl bg-slate-900 hover:bg-slate-800"
+                  >
+                    Limpiar todos los filtros
+                  </Button>
+                </div>
+              </SectionCard>
+            ) : viewMode === "grid" ? (
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {businesses.map((business) => (
+                  <BusinessCard key={business.id} business={business} />
+                ))}
+              </div>
+            ) : viewMode === "list" ? (
+              <div className="flex flex-col gap-4">
+                {businesses.map((business) => (
+                  <SectionCard
+                    key={business.id}
+                    className="p-4 md:p-5 transition-shadow hover:shadow-[0_18px_45px_rgba(15,23,42,0.10)]"
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center md:gap-6">
+                      <div className="flex-1">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <h3 className="text-xl font-bold tracking-tight text-slate-900">
                             {business.name}
                           </h3>
-                          <p className="text-gray-600 mb-1">
-                            {business.category} • {business.island}
-                          </p>
-                          <p className="text-gray-500 text-sm mb-2">
-                            {business.location}
-                          </p>
-                          <p className="text-gray-700 text-sm line-clamp-2">
-                            {business.description}
-                          </p>
+                          {business.category && (
+                            <Badge className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50">
+                              {business.category}
+                            </Badge>
+                          )}
                         </div>
-                        <Button asChild className="mt-2 md:mt-0">
-                          <a
-                            href={`/negocio/@${business.profile_name || business.id}`}
-                          >
-                            Ver Perfil
-                          </a>
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <MapView businesses={businesses} />
-                  </div>
-                )}
 
-                {filteredCount === 0 && !loadingBusinesses && (
-                  <div className="text-center py-12">
-                    <div className="max-w-md mx-auto">
-                      <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        No se encontraron negocios
-                      </h3>
-                      <p className="text-gray-600 mb-4">
-                        Intenta ajustar tus filtros o realizar una búsqueda
-                        diferente.
-                      </p>
-                      <Button onClick={clearFilters}>
-                        Limpiar todos los filtros
+                        <p className="text-slate-600 mb-1">
+                          {business.municipio || business.location}
+                          {business.departamento
+                            ? ` • ${business.departamento}`
+                            : business.island
+                              ? ` • ${business.island}`
+                              : ""}
+                        </p>
+
+                        {business.colonia && (
+                          <p className="text-sm text-slate-500 mb-2">
+                            Sector: {business.colonia}
+                          </p>
+                        )}
+
+                        <p className="text-sm leading-6 text-slate-600 line-clamp-2">
+                          {business.description}
+                        </p>
+                      </div>
+
+                      <Button
+                        asChild
+                        className="mt-4 md:mt-0 rounded-2xl bg-slate-900 hover:bg-slate-800"
+                      >
+                        <a href={`/negocio/@${business.profile_name || business.id}`}>
+                          Ver perfil
+                          <ChevronRight className="ml-2 h-4 w-4" />
+                        </a>
                       </Button>
                     </div>
-                  </div>
-                )}
-              </>
+                  </SectionCard>
+                ))}
+              </div>
+            ) : (
+              <SectionCard className="overflow-hidden p-2">
+                <div className="overflow-hidden rounded-[22px]">
+                  <MapView businesses={businesses} />
+                </div>
+              </SectionCard>
             )}
           </TabsContent>
-
-          {/* Se eliminó la pestaña de Publicaciones y su contenido */}
         </Tabs>
       </div>
 

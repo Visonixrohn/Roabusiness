@@ -116,7 +116,10 @@ const HeroSection = ({
           {business.departamento || business.island}
         </Badge>
 
-        {(business.categories?.length ? business.categories : [business.category])
+        {(business.categories?.length
+          ? business.categories
+          : [business.category]
+        )
           .filter(Boolean)
           .slice(0, 2)
           .map((cat) => (
@@ -328,18 +331,20 @@ const ContactInfoSection = ({
           <Phone className="h-4 w-4 text-slate-500 mt-1" />
           <div className="flex flex-wrap gap-2">
             {contactData?.phone ? (
-              contactData.phone.split(/[,;]+/).map((tel: string, idx: number) => {
-                const trimmedTel = tel.trim();
-                return trimmedTel ? (
-                  <a
-                    key={idx}
-                    href={`tel:${trimmedTel}`}
-                    className="rounded-full bg-white px-3 py-1.5 text-sm text-slate-800 border border-slate-200 hover:border-emerald-300 hover:text-emerald-700 transition"
-                  >
-                    {trimmedTel}
-                  </a>
-                ) : null;
-              })
+              contactData.phone
+                .split(/[,;]+/)
+                .map((tel: string, idx: number) => {
+                  const trimmedTel = tel.trim();
+                  return trimmedTel ? (
+                    <a
+                      key={idx}
+                      href={`tel:${trimmedTel}`}
+                      className="rounded-full bg-white px-3 py-1.5 text-sm text-slate-800 border border-slate-200 hover:border-emerald-300 hover:text-emerald-700 transition"
+                    >
+                      {trimmedTel}
+                    </a>
+                  ) : null;
+                })
             ) : (
               <span className="text-sm italic text-slate-400">
                 {t("business.notAvailable")}
@@ -428,7 +433,9 @@ const SocialMediaLinks = ({ business }: SocialMediaLinksProps) => {
                 <p className="text-xs text-slate-500">Visita nuestro perfil</p>
               </div>
             </div>
-            <span className="text-sm text-slate-400 group-hover:text-slate-700">↗</span>
+            <span className="text-sm text-slate-400 group-hover:text-slate-700">
+              ↗
+            </span>
           </a>
         )}
 
@@ -444,11 +451,15 @@ const SocialMediaLinks = ({ business }: SocialMediaLinksProps) => {
                 <Instagram className="h-5 w-5 text-pink-500" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-900">Instagram</p>
+                <p className="text-sm font-semibold text-slate-900">
+                  Instagram
+                </p>
                 <p className="text-xs text-slate-500">Fotos y novedades</p>
               </div>
             </div>
-            <span className="text-sm text-slate-400 group-hover:text-slate-700">↗</span>
+            <span className="text-sm text-slate-400 group-hover:text-slate-700">
+              ↗
+            </span>
           </a>
         )}
 
@@ -464,11 +475,15 @@ const SocialMediaLinks = ({ business }: SocialMediaLinksProps) => {
                 <Twitter className="h-5 w-5 text-slate-900" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-900">X (Twitter)</p>
+                <p className="text-sm font-semibold text-slate-900">
+                  X (Twitter)
+                </p>
                 <p className="text-xs text-slate-500">Noticias y actividad</p>
               </div>
             </div>
-            <span className="text-sm text-slate-400 group-hover:text-slate-700">↗</span>
+            <span className="text-sm text-slate-400 group-hover:text-slate-700">
+              ↗
+            </span>
           </a>
         )}
 
@@ -488,7 +503,9 @@ const SocialMediaLinks = ({ business }: SocialMediaLinksProps) => {
                 <p className="text-xs text-slate-500">Videos y contenido</p>
               </div>
             </div>
-            <span className="text-sm text-slate-400 group-hover:text-slate-700">↗</span>
+            <span className="text-sm text-slate-400 group-hover:text-slate-700">
+              ↗
+            </span>
           </a>
         )}
       </div>
@@ -647,8 +664,15 @@ const ALL_POSITIVE = new Set(RATING_TAGS.positive);
 const ALL_NEGATIVE = new Set(RATING_TAGS.negative);
 
 const RatingsSection = ({ businessId }: RatingsSectionProps) => {
-  const { average, totalRatings, deviceRating, deviceTags, tagStats, rate, loading } =
-    useRatings(businessId);
+  const {
+    average,
+    totalRatings,
+    deviceRating,
+    deviceTags,
+    tagStats,
+    rate,
+    loading,
+  } = useRatings(businessId);
   const [isRating, setIsRating] = useState(false);
   const [pendingRating, setPendingRating] = useState<number | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -685,7 +709,9 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
     setIsRating(true);
     const success = await rate(pendingRating, selectedTags);
     if (success) {
-      toast.success(deviceRating ? "¡Opinión actualizada!" : "¡Gracias por tu opinión!");
+      toast.success(
+        deviceRating ? "¡Opinión actualizada!" : "¡Gracias por tu opinión!",
+      );
       setStep("done");
     } else {
       toast.error("No se pudo guardar la calificación");
@@ -725,11 +751,19 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
           <div>
             <p className="text-sm text-slate-500">Calificación promedio</p>
             <div className="mt-2">
-              <StarRating value={average || 0} readOnly size={22} showValue={false} className="justify-start" />
+              <StarRating
+                value={average || 0}
+                readOnly
+                size={22}
+                showValue={false}
+                className="justify-start"
+              />
             </div>
           </div>
           <div className="text-right">
-            <p className="text-3xl font-bold text-slate-900">{average ? average.toFixed(1) : "—"}</p>
+            <p className="text-3xl font-bold text-slate-900">
+              {average ? average.toFixed(1) : "—"}
+            </p>
             <p className="text-xs text-slate-500">
               {totalRatings > 0
                 ? `${totalRatings} ${totalRatings === 1 ? "valoración" : "valoraciones"}`
@@ -752,8 +786,8 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
                     isPos
                       ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                       : isNeg
-                      ? "bg-red-50 text-red-700 border-red-200"
-                      : "bg-slate-50 text-slate-600 border-slate-200"
+                        ? "bg-red-50 text-red-700 border-red-200"
+                        : "bg-slate-50 text-slate-600 border-slate-200"
                   }`}
                 >
                   <span>{tag}</span>
@@ -769,7 +803,9 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
       {step === "stars" && (
         <div>
           <p className="mb-3 text-sm text-slate-600 font-medium">
-            {pendingRating ? "Cambia tu calificación:" : "¿Cuántas estrellas merece?"}
+            {pendingRating
+              ? "Cambia tu calificación:"
+              : "¿Cuántas estrellas merece?"}
           </p>
           <StarRating
             value={pendingRating || 0}
@@ -803,18 +839,28 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
 
           {/* Estrellas pequeñas seleccionadas */}
           <div className="flex items-center gap-1.5 mb-4 bg-amber-50 rounded-xl px-3 py-2 w-fit">
-            <StarRating value={pendingRating} readOnly size={16} showValue={false} />
-            <span className="text-xs text-amber-700 font-semibold ml-1">{pendingRating}/5</span>
+            <StarRating
+              value={pendingRating}
+              readOnly
+              size={16}
+              showValue={false}
+            />
+            <span className="text-xs text-amber-700 font-semibold ml-1">
+              {pendingRating}/5
+            </span>
           </div>
 
           {/* Tags positivas */}
           <div className="mb-3">
-            <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-2">Positivas</p>
+            <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-2">
+              Positivas
+            </p>
             <div className="flex flex-wrap gap-2">
               {RATING_TAGS.positive.map((tag) => {
                 const isSelected = selectedTags.includes(tag);
                 const hasNeg = selectedTags.some((t) => ALL_NEGATIVE.has(t));
-                const disabled = !isSelected && (selectedTags.length >= 3 || hasNeg);
+                const disabled =
+                  !isSelected && (selectedTags.length >= 3 || hasNeg);
                 return (
                   <button
                     key={tag}
@@ -824,8 +870,8 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
                       isSelected
                         ? "bg-emerald-500 text-white border-emerald-500 shadow-sm"
                         : disabled
-                        ? "bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed"
-                        : "bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50"
+                          ? "bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed"
+                          : "bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50"
                     }`}
                   >
                     {tag}
@@ -837,7 +883,9 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
 
           {/* Tags neutras */}
           <div className="mb-3">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Neutras</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              Neutras
+            </p>
             <div className="flex flex-wrap gap-2">
               {RATING_TAGS.neutral.map((tag) => {
                 const isSelected = selectedTags.includes(tag);
@@ -851,8 +899,8 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
                       isSelected
                         ? "bg-slate-600 text-white border-slate-600 shadow-sm"
                         : disabled
-                        ? "bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed"
-                        : "bg-white text-slate-600 border-slate-300 hover:bg-slate-50"
+                          ? "bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed"
+                          : "bg-white text-slate-600 border-slate-300 hover:bg-slate-50"
                     }`}
                   >
                     {tag}
@@ -864,12 +912,15 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
 
           {/* Tags negativas */}
           <div className="mb-5">
-            <p className="text-xs font-semibold text-red-500 uppercase tracking-wider mb-2">Negativas</p>
+            <p className="text-xs font-semibold text-red-500 uppercase tracking-wider mb-2">
+              Negativas
+            </p>
             <div className="flex flex-wrap gap-2">
               {RATING_TAGS.negative.map((tag) => {
                 const isSelected = selectedTags.includes(tag);
                 const hasPos = selectedTags.some((t) => ALL_POSITIVE.has(t));
-                const disabled = !isSelected && (selectedTags.length >= 3 || hasPos);
+                const disabled =
+                  !isSelected && (selectedTags.length >= 3 || hasPos);
                 return (
                   <button
                     key={tag}
@@ -879,8 +930,8 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
                       isSelected
                         ? "bg-red-500 text-white border-red-500 shadow-sm"
                         : disabled
-                        ? "bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed"
-                        : "bg-white text-red-600 border-red-300 hover:bg-red-50"
+                          ? "bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed"
+                          : "bg-white text-red-600 border-red-300 hover:bg-red-50"
                     }`}
                   >
                     {tag}
@@ -916,8 +967,15 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
             </button>
           </div>
           <div className="flex items-center gap-1.5 mb-2">
-            <StarRating value={deviceRating} readOnly size={16} showValue={false} />
-            <span className="text-xs text-emerald-700 font-medium">{deviceRating}/5</span>
+            <StarRating
+              value={deviceRating}
+              readOnly
+              size={16}
+              showValue={false}
+            />
+            <span className="text-xs text-emerald-700 font-medium">
+              {deviceRating}/5
+            </span>
           </div>
           {deviceTags && deviceTags.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
@@ -928,8 +986,8 @@ const RatingsSection = ({ businessId }: RatingsSectionProps) => {
                     ALL_POSITIVE.has(tag)
                       ? "bg-emerald-200 text-emerald-800"
                       : ALL_NEGATIVE.has(tag)
-                      ? "bg-red-100 text-red-700"
-                      : "bg-slate-200 text-slate-700"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-slate-200 text-slate-700"
                   }`}
                 >
                   {tag}
@@ -1026,7 +1084,11 @@ const OGPreviewCard = ({
           {business.logo && business.coverImage && (
             <div className="absolute bottom-3 left-3">
               <div className="w-12 h-12 rounded-2xl border-2 border-white shadow-lg overflow-hidden bg-white">
-                <img src={business.logo} alt="" className="w-full h-full object-cover" />
+                <img
+                  src={business.logo}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           )}
@@ -1206,14 +1268,21 @@ const TikTokCreatorEmbed = ({ url }: { url: string }) => {
       </div>
 
       {error && (
-        <a href={url} target="_blank" rel="noopener noreferrer" className="block group">
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block group"
+        >
           <div className="flex flex-col items-center justify-center gap-4 py-10 px-6 bg-gradient-to-br from-slate-900 to-black group-hover:from-slate-800 transition-colors">
             <div className="w-16 h-16 rounded-2xl bg-[#fe2c55] flex items-center justify-center shadow-lg">
               <TikTokIcon className="h-8 w-8 text-white" />
             </div>
             <div className="text-center">
               <p className="font-bold text-white">@{username}</p>
-              <p className="text-sm text-slate-400 mt-1">Ver videos en TikTok</p>
+              <p className="text-sm text-slate-400 mt-1">
+                Ver videos en TikTok
+              </p>
             </div>
             <span className="px-5 py-2 rounded-full bg-[#fe2c55] text-white text-sm font-bold">
               Abrir en TikTok
@@ -1246,7 +1315,10 @@ const TikTokCreatorEmbed = ({ url }: { url: string }) => {
               <div className="w-24 h-8 bg-slate-800 rounded-full mt-2" />
               <div className="grid grid-cols-3 gap-2 w-full mt-2">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="aspect-square bg-slate-800 rounded-lg" />
+                  <div
+                    key={i}
+                    className="aspect-square bg-slate-800 rounded-lg"
+                  />
                 ))}
               </div>
             </div>
@@ -1306,15 +1378,24 @@ const SocialEmbedSection = ({ business }: SocialEmbedSectionProps) => {
         }`}
       >
         {business.facebook && (
-          <FacebookPageEmbed url={business.facebook} business={previewBusiness} />
+          <FacebookPageEmbed
+            url={business.facebook}
+            business={previewBusiness}
+          />
         )}
 
         {business.twitter && (
-          <TwitterTimelineEmbed url={business.twitter} business={previewBusiness} />
+          <TwitterTimelineEmbed
+            url={business.twitter}
+            business={previewBusiness}
+          />
         )}
 
         {business.instagram && (
-          <InstagramProfileCard url={business.instagram} business={previewBusiness} />
+          <InstagramProfileCard
+            url={business.instagram}
+            business={previewBusiness}
+          />
         )}
 
         {business.tiktok && <TikTokCreatorEmbed url={business.tiktok} />}

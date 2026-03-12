@@ -257,7 +257,6 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
               <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
               Ver perfil
             </Button>
-       
           </div>
         </div>
       </div>

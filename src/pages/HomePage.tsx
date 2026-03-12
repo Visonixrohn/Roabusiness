@@ -89,7 +89,7 @@ const HomePage = () => {
           <div className="relative grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-10 items-center px-6 py-10 md:px-10 md:py-14">
             <div>
               <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
-                Descubre lo mejor de Roatán
+                Descubre lo mejores negocios
               </div>
 
               <h1 className="mt-5 text-4xl md:text-6xl font-bold tracking-tight leading-tight text-slate-900">
