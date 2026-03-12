@@ -3,6 +3,7 @@
  * Muestra el país actual detectado por GPS y permite cambiarlo manualmente.
  * Se usa tanto en el Directorio como en los formularios de negocio.
  */
+import React from "react";
 import { Globe, MapPin, Loader2, RefreshCw } from "lucide-react";
 import { PAISES_LATAM } from "@/data/countries";
 import { useCountryContext } from "@/contexts/CountryContext";
