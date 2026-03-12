@@ -27,7 +27,10 @@ const SectionShell = ({
 
 const HomePage = () => {
   const { country } = useCountryContext();
-  const { destacados, loading: loadingDestacados } = useNegociosDestacados(6, country);
+  const { destacados, loading: loadingDestacados } = useNegociosDestacados(
+    6,
+    country,
+  );
   const { businesses, followersMap } = useBusinesses();
 
   const publicBusinesses = businesses.filter((b) => b.is_public !== false);

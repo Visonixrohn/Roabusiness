@@ -1,8 +1,4 @@
-import {
-  createContext,
-  useContext,
-  ReactNode,
-} from "react";
+import { createContext, useContext, ReactNode } from "react";
 import { useCountry, CountryDetectStatus } from "@/hooks/useCountry";
 
 interface CountryContextType {
@@ -28,6 +24,7 @@ export const CountryProvider = ({ children }: { children: ReactNode }) => {
 
 export const useCountryContext = (): CountryContextType => {
   const ctx = useContext(CountryContext);
-  if (!ctx) throw new Error("useCountryContext debe usarse dentro de CountryProvider");
+  if (!ctx)
+    throw new Error("useCountryContext debe usarse dentro de CountryProvider");
   return ctx;
 };

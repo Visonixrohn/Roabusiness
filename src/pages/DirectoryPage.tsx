@@ -280,7 +280,7 @@ const DirectoryPage = () => {
             <div className="relative grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
               <div>
                 <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
-                  Explorar negocios 
+                  Explorar negocios
                 </div>
 
                 <h1 className="mt-5 text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
@@ -312,8 +312,6 @@ const DirectoryPage = () => {
                     </p>
                     <p className="text-sm text-slate-500">en el directorio</p>
                   </div>
-
-                  
                 </div>
               </div>
 
@@ -331,7 +329,9 @@ const DirectoryPage = () => {
             <div>
               <div className="inline-flex items-center gap-2 text-emerald-600 mb-2">
                 <Sparkles className="h-4 w-4" />
-                <span className="text-sm font-medium">Búsqueda inteligente</span>
+                <span className="text-sm font-medium">
+                  Búsqueda inteligente
+                </span>
               </div>
               <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
                 Encuentra el negocio ideal
@@ -431,11 +431,23 @@ const DirectoryPage = () => {
               >
                 <option value="">Todos los países</option>
                 {PAISES_LATAM.map((p) => (
-                  <option key={p} value={p}>{p}</option>
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
                 ))}
               </select>
-              <svg className="absolute right-3 h-4 w-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              <svg
+                className="absolute right-3 h-4 w-4 text-gray-400 pointer-events-none"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </div>
 
@@ -457,8 +469,10 @@ const DirectoryPage = () => {
                 )}
 
               {filters.departamento &&
-                renderActiveFilterBadge("Departamento", filters.departamento, () =>
-                  updateFilters({ departamento: "" }),
+                renderActiveFilterBadge(
+                  "Departamento",
+                  filters.departamento,
+                  () => updateFilters({ departamento: "" }),
                 )}
 
               {filters.municipio &&
@@ -479,8 +493,8 @@ const DirectoryPage = () => {
               {filters.priceRange &&
                 renderActiveFilterBadge(
                   "Precio",
-                  priceRanges.find((p) => p.value === filters.priceRange)?.label ||
-                    filters.priceRange,
+                  priceRanges.find((p) => p.value === filters.priceRange)
+                    ?.label || filters.priceRange,
                   () => updateFilters({ priceRange: "" }),
                 )}
 
@@ -546,7 +560,9 @@ const DirectoryPage = () => {
                 </div>
 
                 <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
-                  <p className="text-sm font-medium text-slate-700">Municipio</p>
+                  <p className="text-sm font-medium text-slate-700">
+                    Municipio
+                  </p>
                   <Combobox
                     value={modalFilters.municipio}
                     onInputChange={setMunicipioInput}
@@ -612,7 +628,9 @@ const DirectoryPage = () => {
                 </div>
 
                 <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
-                  <p className="text-sm font-medium text-slate-700">Categoría</p>
+                  <p className="text-sm font-medium text-slate-700">
+                    Categoría
+                  </p>
                   <Combobox
                     value={modalFilters.category}
                     onInputChange={setCategoryInput}
@@ -773,7 +791,9 @@ const DirectoryPage = () => {
                         asChild
                         className="mt-4 md:mt-0 rounded-2xl bg-slate-900 hover:bg-slate-800"
                       >
-                        <a href={`/negocio/@${business.profile_name || business.id}`}>
+                        <a
+                          href={`/negocio/@${business.profile_name || business.id}`}
+                        >
                           Ver perfil
                           <ChevronRight className="ml-2 h-4 w-4" />
                         </a>

@@ -61,7 +61,9 @@ async function reverseGeocode(lat: number, lng: number): Promise<string> {
 
 export function useCountry() {
   const [status, setStatus] = useState<CountryDetectStatus>("idle");
-  const [country, setCountry] = useState<string>(() => loadCache() || "Honduras");
+  const [country, setCountry] = useState<string>(
+    () => loadCache() || "Honduras",
+  );
 
   /** Solicita la ubicación y detecta el país */
   const detectCountry = useCallback(() => {

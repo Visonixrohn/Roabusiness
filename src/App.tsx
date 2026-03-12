@@ -112,122 +112,131 @@ function App() {
   return (
     <AuthProvider>
       <CountryProvider>
-      <InteractionsProvider>
-        <LoadScript
-          googleMapsApiKey={GOOGLE_MAPS_CONFIG.apiKey}
-          libraries={libraries}
-          loadingElement={
-            <div className="flex items-center justify-center min-h-screen">
-              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-            </div>
-          }
-        >
-          <Router>
-            <ScrollToTop />
-            <div className="min-h-screen bg-gray-50 pb-16 md:pb-0">
-              {/* Top bar móvil eliminado */}
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                {/* Redirección de URL antigua de Google */}
-                <Route
-                  path="/sobre-las-islas"
-                  element={<Navigate to="/" replace />}
-                />
-                <Route path="/directorio" element={<DirectoryPage />} />
-                <Route
-                  path="/negocio/@:profileName"
-                  element={<BusinessProfilePage />}
-                />
-                <Route path="/negocio/:id" element={<BusinessProfilePage />} />
-                <Route
-                  path="/negocio/:id/configuracion"
-                  element={<BusinessSettingsPage />}
-                />
-                <Route
-                  path="/registrar-negocio"
-                  element={
-                    <AdminRouteGuard>
-                      <BusinessRegistrationPage />
-                    </AdminRouteGuard>
-                  }
-                />
-                <Route
-                  path="/editar-negocio"
-                  element={
-                    <AdminRouteGuard>
-                      <EditBusinessPage />
-                    </AdminRouteGuard>
-                  }
-                />
-                <Route path="/admin-login" element={<AdminLoginPage />} />
-                <Route
-                  path="/registrar-usuario"
-                  element={<UserRegistrationPage />}
-                />
-                <Route path="/dashboard" element={<BusinessDashboard />} />
+        <InteractionsProvider>
+          <LoadScript
+            googleMapsApiKey={GOOGLE_MAPS_CONFIG.apiKey}
+            libraries={libraries}
+            loadingElement={
+              <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+              </div>
+            }
+          >
+            <Router>
+              <ScrollToTop />
+              <div className="min-h-screen bg-gray-50 pb-16 md:pb-0">
+                {/* Top bar móvil eliminado */}
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  {/* Redirección de URL antigua de Google */}
+                  <Route
+                    path="/sobre-las-islas"
+                    element={<Navigate to="/" replace />}
+                  />
+                  <Route path="/directorio" element={<DirectoryPage />} />
+                  <Route
+                    path="/negocio/@:profileName"
+                    element={<BusinessProfilePage />}
+                  />
+                  <Route
+                    path="/negocio/:id"
+                    element={<BusinessProfilePage />}
+                  />
+                  <Route
+                    path="/negocio/:id/configuracion"
+                    element={<BusinessSettingsPage />}
+                  />
+                  <Route
+                    path="/registrar-negocio"
+                    element={
+                      <AdminRouteGuard>
+                        <BusinessRegistrationPage />
+                      </AdminRouteGuard>
+                    }
+                  />
+                  <Route
+                    path="/editar-negocio"
+                    element={
+                      <AdminRouteGuard>
+                        <EditBusinessPage />
+                      </AdminRouteGuard>
+                    }
+                  />
+                  <Route path="/admin-login" element={<AdminLoginPage />} />
+                  <Route
+                    path="/registrar-usuario"
+                    element={<UserRegistrationPage />}
+                  />
+                  <Route path="/dashboard" element={<BusinessDashboard />} />
 
-                <Route path="/contacto" element={<ContactPage />} />
-                <Route path="/privacidad" element={<PrivacyPolicyPage />} />
-                <Route path="/terminos" element={<TermsOfUsePage />} />
-                <Route path="/seguridad-infantil" element={<ChildSafetyPage />} />
-                <Route
-                  path="/user/full-settings"
-                  element={<UserFullSettingsPage />}
+                  <Route path="/contacto" element={<ContactPage />} />
+                  <Route path="/privacidad" element={<PrivacyPolicyPage />} />
+                  <Route path="/terminos" element={<TermsOfUsePage />} />
+                  <Route
+                    path="/seguridad-infantil"
+                    element={<ChildSafetyPage />}
+                  />
+                  <Route
+                    path="/user/full-settings"
+                    element={<UserFullSettingsPage />}
+                  />
+                  <Route
+                    path="/set-new-password"
+                    element={<SetNewPasswordPage />}
+                  />
+                  <Route path="/recent-posts" element={<RecentPostsPage />} />
+                  <Route
+                    path="/negocios-cerca"
+                    element={<NegociosCercaPage />}
+                  />
+                  <Route
+                    path="/registro-negocio"
+                    element={<PublicBusinessRegistrationPage />}
+                  />
+                  <Route
+                    path="/pago-suscripcion"
+                    element={<PaymentSubscriptionPage />}
+                  />
+                  <Route
+                    path="/google-callback"
+                    element={<GoogleCallbackPage />}
+                  />
+                  <Route path="/user/profile" element={<UserProfilePage />} />
+                  <Route path="/user/settings" element={<UserSettingsPage />} />
+                  <Route
+                    path="/financial"
+                    element={
+                      <AdminRouteGuard>
+                        <FinancialDashboard />
+                      </AdminRouteGuard>
+                    }
+                  />
+                  <Route
+                    path="/admin-banners"
+                    element={
+                      <AdminRouteGuard>
+                        <BannerAdminPage />
+                      </AdminRouteGuard>
+                    }
+                  />
+                </Routes>
+                <Toaster
+                  position="top-right"
+                  toastOptions={{
+                    duration: 3000,
+                    style: {
+                      background: "#1e40af",
+                      color: "#ffffff",
+                    },
+                  }}
                 />
-                <Route
-                  path="/set-new-password"
-                  element={<SetNewPasswordPage />}
-                />
-                <Route path="/recent-posts" element={<RecentPostsPage />} />
-                <Route path="/negocios-cerca" element={<NegociosCercaPage />} />
-                <Route
-                  path="/registro-negocio"
-                  element={<PublicBusinessRegistrationPage />}
-                />
-                <Route
-                  path="/pago-suscripcion"
-                  element={<PaymentSubscriptionPage />}
-                />
-                <Route
-                  path="/google-callback"
-                  element={<GoogleCallbackPage />}
-                />
-                <Route path="/user/profile" element={<UserProfilePage />} />
-                <Route path="/user/settings" element={<UserSettingsPage />} />
-                <Route
-                  path="/financial"
-                  element={
-                    <AdminRouteGuard>
-                      <FinancialDashboard />
-                    </AdminRouteGuard>
-                  }
-                />
-                <Route
-                  path="/admin-banners"
-                  element={
-                    <AdminRouteGuard>
-                      <BannerAdminPage />
-                    </AdminRouteGuard>
-                  }
-                />
-              </Routes>
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  duration: 3000,
-                  style: {
-                    background: "#1e40af",
-                    color: "#ffffff",
-                  },
-                }}
-              />
 
-              {/* Barra inferior móvil */}
-              <MobileBottomBar />
-            </div>
-          </Router>
-        </LoadScript>
-      </InteractionsProvider>
+                {/* Barra inferior móvil */}
+                <MobileBottomBar />
+              </div>
+            </Router>
+          </LoadScript>
+        </InteractionsProvider>
       </CountryProvider>
     </AuthProvider>
   );

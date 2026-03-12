@@ -581,58 +581,92 @@ const BusinessRegistrationPage = () => {
                     </p>
                   )}
                 </div>
+              </div>
 
+              {/* País — full width, siempre visible */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  País *
+                </label>
+                <CountrySelector
+                  value={formData.pais}
+                  onChange={(v) => {
+                    handleInputChange("pais", v);
+                    // Limpiar depto/municipio al cambiar de país
+                    setFormData((prev) => ({
+                      ...prev,
+                      pais: v,
+                      departamento: "",
+                      municipio: "",
+                    }));
+                  }}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Departamento / Estado */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Departamento *
+                    {formData.pais === "Honduras" ? "Departamento *" : "Estado / Departamento *"}
                   </label>
-                  <select
-                    value={formData.departamento}
-                    onChange={(e) =>
-                      handleInputChange("departamento", e.target.value)
-                    }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md bg-white"
-                    required
-                  >
-                    <option value="">Selecciona un departamento</option>
-                    {departamentos.map((dep) => (
-                      <option key={dep} value={dep}>
-                        {dep}
-                      </option>
-                    ))}
-                  </select>
+                  {formData.pais === "Honduras" ? (
+                    <select
+                      value={formData.departamento}
+                      onChange={(e) => {
+                        handleInputChange("departamento", e.target.value);
+                      }}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md bg-white"
+                      required
+                    >
+                      <option value="">Selecciona un departamento</option>
+                      {departamentos.map((dep) => (
+                        <option key={dep} value={dep}>
+                          {dep}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      value={formData.departamento}
+                      onChange={(e) => handleInputChange("departamento", e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
+                      placeholder="Ej: Ciudad de México, Buenos Aires..."
+                    />
+                  )}
                 </div>
 
+                {/* Municipio / Ciudad */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    País *
+                    {formData.pais === "Honduras" ? "Municipio *" : "Ciudad / Municipio *"}
                   </label>
-                  <CountrySelector
-                    value={formData.pais}
-                    onChange={(v) => handleInputChange("pais", v)}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Municipio *
-                  </label>
-                  <select
-                    value={formData.municipio}
-                    onChange={(e) =>
-                      handleInputChange("municipio", e.target.value)
-                    }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md bg-white"
-                    required
-                    disabled={!formData.departamento}
-                  >
-                    <option value="">Selecciona un municipio</option>
-                    {municipios.map((mun) => (
-                      <option key={mun} value={mun}>
-                        {mun}
-                      </option>
-                    ))}
-                  </select>
+                  {formData.pais === "Honduras" ? (
+                    <select
+                      value={formData.municipio}
+                      onChange={(e) =>
+                        handleInputChange("municipio", e.target.value)
+                      }
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md bg-white"
+                      required
+                      disabled={!formData.departamento}
+                    >
+                      <option value="">Selecciona un municipio</option>
+                      {municipios.map((mun) => (
+                        <option key={mun} value={mun}>
+                          {mun}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      value={formData.municipio}
+                      onChange={(e) => handleInputChange("municipio", e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-500 focus:border-transparent transition-shadow duration-300 shadow-sm hover:shadow-md"
+                      placeholder="Ej: Bogotá, Guadalajara, Lima..."
+                    />
+                  )}
                 </div>
 
                 <div>
