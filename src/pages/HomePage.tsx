@@ -10,6 +10,8 @@ import { useEffect, useState } from "react";
 import IslandsSection from "@/components/Islansection";
 import BannerCarousel from "@/components/BannerCarousel";
 import AboutPage from "./AboutPage";
+import { useCountryContext } from "@/contexts/CountryContext";
+import CountrySelector from "@/components/CountrySelector";
 
 const SectionShell = ({
   children,
@@ -24,7 +26,8 @@ const SectionShell = ({
 );
 
 const HomePage = () => {
-  const { destacados, loading: loadingDestacados } = useNegociosDestacados(6);
+  const { country } = useCountryContext();
+  const { destacados, loading: loadingDestacados } = useNegociosDestacados(6, country);
   const { businesses, followersMap } = useBusinesses();
 
   const publicBusinesses = businesses.filter((b) => b.is_public !== false);
@@ -88,8 +91,12 @@ const HomePage = () => {
 
           <div className="relative grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-10 items-center px-6 py-10 md:px-10 md:py-14">
             <div>
-              <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
-                Descubre lo mejores negocios
+              <div className="flex flex-wrap items-center gap-3 mb-0">
+                <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
+                  Descubre lo mejores negocios
+                </div>
+                {/* Selector de país en el HERO */}
+                <CountrySelector compact className="w-44" />
               </div>
 
               <h1 className="mt-5 text-4xl md:text-6xl font-bold tracking-tight leading-tight text-slate-900">

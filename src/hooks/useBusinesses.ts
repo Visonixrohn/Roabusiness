@@ -26,6 +26,7 @@ export const useBusinesses = () => {
     municipio: "",
     colonia: "",
     priceRange: "",
+    pais: "",
   });
 
   // Cargar negocios desde Supabase
@@ -220,6 +221,9 @@ export const useBusinesses = () => {
         !filters.colonia || col.includes(normalizeText(filters.colonia));
       const matchesPrice =
         !filters.priceRange || b.priceRange === filters.priceRange;
+      const matchesPais =
+        !filters.pais ||
+        normalizeText(b.pais || "Honduras") === normalizeText(filters.pais);
 
       return (
         matchesQuery &&
@@ -227,7 +231,8 @@ export const useBusinesses = () => {
         matchesDepartamento &&
         matchesMunicipio &&
         matchesColonia &&
-        matchesPrice
+        matchesPrice &&
+        matchesPais
       );
     });
   }, [businessData, filters]);
@@ -299,6 +304,7 @@ export const useBusinesses = () => {
       municipio: "",
       colonia: "",
       priceRange: "",
+      pais: "",
     });
   };
 

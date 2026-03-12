@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
+import { useCountryContext } from "@/contexts/CountryContext";
+import CountrySelector from "@/components/CountrySelector";
 import {
   ArrowLeft,
   Upload,
@@ -44,6 +46,8 @@ interface FormData {
   departamento: string;
   municipio: string;
   colonia: string;
+  /** País donde opera el negocio */
+  pais: string;
   latitude: number | null;
   longitude: number | null;
   description: string;
@@ -98,6 +102,7 @@ function parseGoogleMapsUrl(url: string): { lat: number; lng: number } | null {
 
 const BusinessRegistrationPage = () => {
   const navigate = useNavigate();
+  const { country: detectedCountry } = useCountryContext();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newAmenity, setNewAmenity] = useState("");
@@ -112,6 +117,7 @@ const BusinessRegistrationPage = () => {
     departamento: "",
     municipio: "",
     colonia: "",
+    pais: detectedCountry || "Honduras",
     latitude: null,
     longitude: null,
     description: "",
@@ -284,6 +290,7 @@ const BusinessRegistrationPage = () => {
         departamento: formData.departamento,
         municipio: formData.municipio,
         colonia: formData.colonia || null,
+        pais: formData.pais || "Honduras",
         description: formData.description,
         latitude: formData.latitude,
         longitude: formData.longitude,
@@ -324,6 +331,7 @@ const BusinessRegistrationPage = () => {
         departamento: formData.departamento,
         municipio: formData.municipio,
         colonia: formData.colonia || null,
+        pais: formData.pais || "Honduras",
         description: formData.description,
         latitude: formData.latitude,
         longitude: formData.longitude,
@@ -341,7 +349,6 @@ const BusinessRegistrationPage = () => {
           tripadvisor: formData.tripadvisor,
           google_maps_url: formData.google_maps_url,
         },
-        // Redes sociales como columnas individuales
         facebook: formData.facebook || null,
         instagram: formData.instagram || null,
         twitter: formData.twitter || null,
@@ -594,6 +601,16 @@ const BusinessRegistrationPage = () => {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    País *
+                  </label>
+                  <CountrySelector
+                    value={formData.pais}
+                    onChange={(v) => handleInputChange("pais", v)}
+                  />
                 </div>
 
                 <div>

@@ -9,6 +9,7 @@ import { LoadScript } from "@react-google-maps/api";
 import { GOOGLE_MAPS_CONFIG } from "@/config/googleMaps";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { InteractionsProvider } from "@/contexts/InteractionsContext";
+import { CountryProvider } from "@/contexts/CountryContext";
 import HomePage from "@/pages/HomePage";
 import AboutPage from "@/pages/AboutPage";
 import ContactPage from "@/pages/ContactPage";
@@ -110,6 +111,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <CountryProvider>
       <InteractionsProvider>
         <LoadScript
           googleMapsApiKey={GOOGLE_MAPS_CONFIG.apiKey}
@@ -226,6 +228,7 @@ function App() {
           </Router>
         </LoadScript>
       </InteractionsProvider>
+      </CountryProvider>
     </AuthProvider>
   );
 }

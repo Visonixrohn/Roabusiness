@@ -10,7 +10,7 @@ interface NegocioDestacado extends Business {
   total_ratings: number;
 }
 
-export const useNegociosDestacados = (limit: number = 6) => {
+export const useNegociosDestacados = (limit: number = 6, pais?: string) => {
   const [destacados, setDestacados] = useState<NegocioDestacado[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,13 +21,20 @@ export const useNegociosDestacados = (limit: number = 6) => {
         setLoading(true);
 
         // Traemos más registros para poder filtrar por suscripción activa en cliente
-        const { data, error } = await supabase
+        let query = supabase
           .from("vista_negocios_destacados")
           .select("*")
           .eq("is_public", true)
-          .order("total_ratings", { ascending: false }) // Primero: cantidad de valoraciones
-          .order("average_rating", { ascending: false }) // Segundo: promedio de estrellas
-          .limit(limit * 8); // margen amplio para filtrar suscripciones vencidas
+          .order("total_ratings", { ascending: false })
+          .order("average_rating", { ascending: false })
+          .limit(limit * 8);
+
+        // Filtrar por país si se proporciona
+        if (pais) {
+          query = query.eq("pais", pais);
+        }
+
+        const { data, error } = await query;
 
         if (error) throw error;
 
@@ -55,7 +62,7 @@ export const useNegociosDestacados = (limit: number = 6) => {
     };
 
     fetchDestacados();
-  }, [limit]);
+  }, [limit, pais]);
 
   return { destacados, loading, error };
 };

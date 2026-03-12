@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   Search,
   MapPin,
@@ -20,7 +20,10 @@ import BannerCarousel from "@/components/BannerCarousel";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Combobox } from "@/components/ui/combobox";
+import { Globe } from "lucide-react";
 import businessCategories from "@/data/businessCategories";
+import { PAISES_LATAM } from "@/data/countries";
+import { useCountryContext } from "@/contexts/CountryContext";
 import {
   Dialog,
   DialogContent,
@@ -59,6 +62,17 @@ const DirectoryPage = () => {
     filteredCount,
     totalBusinesses,
   } = useBusinesses();
+
+  const { country: detectedCountry, setManualCountry } = useCountryContext();
+
+  // Aplicar el país detectado como filtro al montar la página
+  useEffect(() => {
+    if (detectedCountry) {
+      updateFilters({ pais: detectedCountry });
+    }
+    // Solo al montar (no en cada cambio de detectedCountry para no pisar filtros manuales)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [viewMode, setViewMode] = useState<"grid" | "map" | "list">("grid");
   const [showFiltersModal, setShowFiltersModal] = useState(false);
@@ -126,7 +140,8 @@ const DirectoryPage = () => {
     filters.departamento ||
     filters.municipio ||
     filters.colonia ||
-    filters.priceRange;
+    filters.priceRange ||
+    filters.pais;
 
   const municipiosModalFiltrados = useMemo(() => {
     if (!modalFilters.departamento) return municipios;
@@ -265,7 +280,7 @@ const DirectoryPage = () => {
             <div className="relative grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
               <div>
                 <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
-                  Explora negocios locales en Honduras
+                  Explorar negocios 
                 </div>
 
                 <h1 className="mt-5 text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
@@ -278,7 +293,7 @@ const DirectoryPage = () => {
                 <p className="mt-5 max-w-2xl text-base md:text-lg leading-8 text-slate-600">
                   Encuentra restaurantes, tiendas, hoteles, servicios y mucho
                   más. Busca por nombre, categoría o ubicación y descubre
-                  negocios en distintas zonas de Honduras.
+                  negocios en distintas zonas.
                 </p>
 
                 <div className="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -298,13 +313,7 @@ const DirectoryPage = () => {
                     <p className="text-sm text-slate-500">en el directorio</p>
                   </div>
 
-                  <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
-                    <p className="text-sm text-slate-500">Categorías</p>
-                    <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
-                      {categoriasInline.length}
-                    </p>
-                    <p className="text-sm text-slate-500">para explorar</p>
-                  </div>
+                  
                 </div>
               </div>
 
@@ -375,7 +384,7 @@ const DirectoryPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_0.75fr_auto] gap-4 items-end overflow-visible">
+          <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_0.6fr_0.6fr_auto] gap-4 items-end overflow-visible">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 flex items-center pl-4">
                 <Search className="h-4 w-4 text-slate-400" />
@@ -406,6 +415,28 @@ const DirectoryPage = () => {
                 inputValue={inlineCategoryInput || filters.category}
                 clearable
               />
+            </div>
+
+            {/* Selector de país */}
+            <div className="relative flex items-center gap-1.5">
+              <Globe className="absolute left-3 h-4 w-4 text-teal-500 pointer-events-none z-10" />
+              <select
+                value={filters.pais || ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  updateFilters({ pais: val });
+                  if (val) setManualCountry(val);
+                }}
+                className="w-full h-12 pl-9 pr-4 rounded-2xl border border-slate-200 bg-white text-sm text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-400 appearance-none cursor-pointer"
+              >
+                <option value="">Todos los países</option>
+                {PAISES_LATAM.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+              <svg className="absolute right-3 h-4 w-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
             </div>
 
             <Button
@@ -451,6 +482,11 @@ const DirectoryPage = () => {
                   priceRanges.find((p) => p.value === filters.priceRange)?.label ||
                     filters.priceRange,
                   () => updateFilters({ priceRange: "" }),
+                )}
+
+              {filters.pais &&
+                renderActiveFilterBadge("País", filters.pais, () =>
+                  updateFilters({ pais: "" }),
                 )}
 
               <Button

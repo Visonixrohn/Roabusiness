@@ -52,6 +52,8 @@ export interface Business {
   tiktok?: string;
   tripadvisor?: string;
   google_maps_url?: string;
+  /** País donde opera el negocio (default: "Honduras") */
+  pais?: string;
 }
 
 export interface BusinessData {
@@ -68,6 +70,8 @@ export interface SearchFilters {
   municipio: string;
   colonia: string;
   priceRange: string;
+  /** Filtrar por país */
+  pais: string;
 }
 
 export interface ModalData {

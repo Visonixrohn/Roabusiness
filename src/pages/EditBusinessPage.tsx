@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import MultiCategorySelect from "@/components/MultiCategorySelect";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
+import CountrySelector from "@/components/CountrySelector";
 import {
   ArrowLeft,
   Edit,
@@ -143,6 +144,7 @@ interface EditFormData {
   subscriptionMonths: number;
   pago: "ejecutado" | "sin pagar";
   graceDays: number;
+  pais: string;
 }
 
 /** Extrae lat/lng de una URL de Google Maps pegada por el usuario */
@@ -204,6 +206,7 @@ const EditBusinessPage = () => {
     subscriptionMonths: 1,
     pago: "sin pagar",
     graceDays: 7,
+    pais: "Honduras",
   });
   const [newAmenity, setNewAmenity] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -371,6 +374,7 @@ const EditBusinessPage = () => {
           : 1,
       pago: business.pago || "sin pagar",
       graceDays: 7,
+      pais: (business as any).pais || "Honduras",
     });
 
     // Cargar municipios del departamento seleccionado
@@ -434,6 +438,7 @@ const EditBusinessPage = () => {
         departamento: editForm.departamento,
         municipio: editForm.municipio,
         colonia: editForm.colonia || null,
+        pais: editForm.pais || "Honduras",
         latitude: editForm.latitude,
         longitude: editForm.longitude,
         subscription_months: editForm.subscriptionMonths,
@@ -475,6 +480,7 @@ const EditBusinessPage = () => {
         departamento: editForm.departamento,
         municipio: editForm.municipio,
         colonia: editForm.colonia || null,
+        pais: editForm.pais || "Honduras",
         latitude: editForm.latitude,
         longitude: editForm.longitude,
         subscription_months: editForm.subscriptionMonths,
@@ -577,6 +583,7 @@ const EditBusinessPage = () => {
       subscriptionMonths: 1,
       pago: "sin pagar",
       graceDays: 7,
+      pais: "Honduras",
     });
     setMapCenter(islandCenters["Roatán"]);
     setShowRegisterModal(true);
@@ -1417,6 +1424,17 @@ const EditBusinessPage = () => {
                   />
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    País *
+                  </label>
+                  <CountrySelector
+                    value={editForm.pais || "Honduras"}
+                    onChange={(v) => setEditForm({ ...editForm, pais: v })}
+                    compact
+                  />
+                </div>
+
                 <div className="md:col-span-2">
                   {/* Encabezado con badges de estado */}
                   <div className="flex items-center gap-3 mb-3">
@@ -1972,7 +1990,7 @@ const EditBusinessPage = () => {
         isOpen={showRegisterModal}
         onClose={() => setShowRegisterModal(false)}
         editForm={editForm}
-        setEditForm={setEditForm}
+        setEditForm={(form: EditFormData) => setEditForm(form)}
         municipios={municipios}
         setMunicipios={setMunicipios}
         getMunicipiosByDepartamento={getMunicipiosByDepartamento}
