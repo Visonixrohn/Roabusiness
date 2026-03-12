@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import MultiCategorySelect from "@/components/MultiCategorySelect";
+import CountrySelector from "@/components/CountrySelector";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ImageUpload from "@/components/ImageUpload";
@@ -24,6 +25,7 @@ interface EditFormData {
   departamento: string;
   municipio: string;
   colonia: string;
+  pais?: string;
   latitude: number | null;
   longitude: number | null;
   description: string;
@@ -201,6 +203,16 @@ const RegisterBusinessModalAdmin: React.FC<Props> = ({
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                País *
+              </label>
+              <CountrySelector
+                value={editForm.pais || "Honduras"}
+                onChange={(v) => setEditForm({ ...editForm, pais: v })}
+              />
             </div>
 
             <div>

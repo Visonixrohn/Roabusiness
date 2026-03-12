@@ -26,10 +26,8 @@ DROP VIEW IF EXISTS vista_negocios_destacados;
 CREATE VIEW vista_negocios_destacados AS
 SELECT
   b.*,
-  COALESCE(r.average_rating, 0)  AS average_rating,
-  COALESCE(r.total_ratings, 0)   AS total_ratings,
-  COALESCE(c.contador_contactos, 0) AS contador_contactos,
-  c.ultimo_contacto
+  COALESCE(r.average_rating, 0) AS average_rating,
+  COALESCE(r.total_ratings, 0)  AS total_ratings
 FROM businesses b
 LEFT JOIN (
   SELECT
@@ -39,14 +37,6 @@ LEFT JOIN (
   FROM calificaciones
   GROUP BY business_id
 ) r ON r.business_id = b.id
-LEFT JOIN (
-  SELECT
-    business_id,
-    COUNT(*)   AS contador_contactos,
-    MAX(timestamp) AS ultimo_contacto
-  FROM contact_interactions
-  GROUP BY business_id
-) c ON c.business_id = b.id
 WHERE b.featured = true;
 
 -- 6. Verificar resultado
