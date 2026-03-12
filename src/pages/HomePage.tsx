@@ -300,6 +300,21 @@ const HomePage = () => {
                   </div>
                 ))}
               </div>
+            ) : featuredBusinesses.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="text-5xl mb-4">🌎</div>
+                <h3 className="text-xl font-semibold text-slate-700 mb-2">
+                  Aún no hay negocios en {country}
+                </h3>
+                <p className="text-slate-500 text-sm max-w-sm">
+                  Sé el primero en registrar tu negocio en este país y llega a miles de clientes.
+                </p>
+                <Link to="/registro-negocio" className="mt-6">
+                  <Button size="lg" className="h-11 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white px-6">
+                    Registrar mi negocio
+                  </Button>
+                </Link>
+              </div>
             ) : (
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {featuredBusinesses.map((business) => (

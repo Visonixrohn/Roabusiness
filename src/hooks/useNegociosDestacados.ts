@@ -29,13 +29,9 @@ export const useNegociosDestacados = (limit: number = 6, pais?: string) => {
 
         let lista: any[] = (bizData || []).filter((b) => isSubscriptionActive(b));
 
-        // 2) Filtrar por país (si hay datos de país en DB y hay resultados)
-        if (pais && lista.length > 0) {
-          const tienePais = lista.some((b) => b.pais !== undefined && b.pais !== null);
-          if (tienePais) {
-            const porPais = lista.filter((b) => b.pais === pais);
-            if (porPais.length > 0) lista = porPais;
-          }
+        // 2) Filtrar SIEMPRE por país cuando se proporciona
+        if (pais) {
+          lista = lista.filter((b) => (b.pais || "Honduras") === pais);
         }
 
         // 3) Traer calificaciones para calcular rating real
