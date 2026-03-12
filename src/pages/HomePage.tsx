@@ -273,7 +273,9 @@ const HomePage = () => {
 
               {/* Selector de país para filtrar destacados */}
               <div className="sm:pt-2 min-w-[200px]">
-                <p className="text-xs font-medium text-slate-500 mb-1.5">Filtrar por país</p>
+                <p className="text-xs font-medium text-slate-500 mb-1.5">
+                  Filtrar por país
+                </p>
                 <CountrySelector compact className="w-full" />
               </div>
             </div>
@@ -307,10 +309,14 @@ const HomePage = () => {
                   Aún no hay negocios en {country}
                 </h3>
                 <p className="text-slate-500 text-sm max-w-sm">
-                  Sé el primero en registrar tu negocio en este país y llega a miles de clientes.
+                  Sé el primero en registrar tu negocio en este país y llega a
+                  miles de clientes.
                 </p>
                 <Link to="/registro-negocio" className="mt-6">
-                  <Button size="lg" className="h-11 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white px-6">
+                  <Button
+                    size="lg"
+                    className="h-11 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white px-6"
+                  >
                     Registrar mi negocio
                   </Button>
                 </Link>

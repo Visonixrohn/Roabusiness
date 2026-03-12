@@ -259,7 +259,7 @@ const FinancialDashboard = () => {
   };
 
   const formatCurrency = (amount: number) => {
-    return `L ${amount.toFixed(2)}`;
+    return `$ ${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   const formatDate = (dateString: string) => {

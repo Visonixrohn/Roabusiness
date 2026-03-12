@@ -367,13 +367,13 @@ const PaymentSubscriptionPage = () => {
 
                       <div className="text-right ml-2 flex-shrink-0">
                         <p className="text-lg font-extrabold text-gray-900">
-                          L {plan.price_lempiras.toLocaleString("es-HN")}
+                          $ {plan.price_lempiras.toLocaleString("en-US")}
                         </p>
                         <p className="text-xs text-gray-400">
-                          L{" "}
+                          ${" "}
                           {Math.round(
                             plan.price_lempiras / plan.months,
-                          ).toLocaleString("es-HN")}
+                          ).toLocaleString("en-US")}
                           /mes
                         </p>
                       </div>

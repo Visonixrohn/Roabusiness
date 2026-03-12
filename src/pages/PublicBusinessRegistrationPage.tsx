@@ -135,11 +135,12 @@ const PublicBusinessRegistrationPage = () => {
       (err) => {
         setGpsLoading(false);
         if (err.code === err.PERMISSION_DENIED)
-          toast.error("Permiso de ubicación denegado. Actívalo en tu navegador.");
-        else
-          toast.error("No se pudo obtener tu ubicación. Intenta de nuevo.");
+          toast.error(
+            "Permiso de ubicación denegado. Actívalo en tu navegador.",
+          );
+        else toast.error("No se pudo obtener tu ubicación. Intenta de nuevo.");
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true, timeout: 10000 },
     );
   };
   const [mapCenter, setMapCenter] = useState(GOOGLE_MAPS_CONFIG.defaultCenter);
@@ -416,7 +417,7 @@ const PublicBusinessRegistrationPage = () => {
       ``,
       `🏢 *Negocio:* ${transferName}`,
       `📦 *Plan:* ${selectedPlan.months === 1 ? "1 mes" : `${selectedPlan.months} meses`}`,
-      `💵 *Monto:* L ${selectedPlan.price_lempiras.toLocaleString("es-HN")}`,
+      `💵 *Monto:* $ ${selectedPlan.price_lempiras.toLocaleString("en-US")}`,
       ``,
       `📌 Pago enviado por transferencia bancaria – pendiente de comprobante.`,
       ``,
@@ -571,195 +572,240 @@ const PublicBusinessRegistrationPage = () => {
     return null;
   };
 
+  const getPricePerMonth = (plan: SubscriptionPlan) =>
+    plan.months > 1
+      ? `$ ${Math.round(plan.price_lempiras / plan.months).toLocaleString("en-US")}/mes`
+      : null;
+
   const renderPlanScreen = () => (
-    <div className="max-w-xl mx-auto px-4 py-8">
-      <button
-        type="button"
-        onClick={() => setAppStep("method")}
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-yellow-600 mb-8"
-      >
-        <ArrowLeft className="h-4 w-4" /> Volver
-      </button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50/40">
 
-      {/* Header */}
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 shadow-lg mb-3">
-          <Star className="h-7 w-7 text-white fill-white" />
-        </div>
-        <h2 className="text-2xl font-extrabold text-gray-900">Elige tu plan</h2>
-        <p className="text-sm text-gray-500 mt-1">
-          {payMethod === "paypal"
-            ? "Pago en línea con PayPal"
-            : "Pago por transferencia bancaria"}
-        </p>
-      </div>
-
-      {plansLoading ? (
-        <div className="flex items-center justify-center py-16 gap-3 text-gray-400">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span className="text-sm">Cargando planes...</span>
-        </div>
-      ) : plans.length === 0 ? (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center text-sm text-amber-700">
-          No hay planes disponibles. Contacta al administrador.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 mt-4">
-          {plans.map((plan) => {
-            const badge = getBadgeLabel(plan.months);
-            const isSelected = selectedPlan?.id === plan.id;
-            const isGold = plan.months >= 12;
-            return (
-              <button
-                key={plan.id}
-                type="button"
-                onClick={() => setSelectedPlan(plan)}
-                className={`relative text-left rounded-2xl border-2 transition-all duration-200 focus:outline-none overflow-visible
-                  ${badge ? "pt-5 px-5 pb-5" : "p-5"}
-                  ${
-                    isSelected
-                      ? "border-green-500 shadow-[0_0_20px_4px_rgba(34,197,94,0.25)]"
-                      : isGold
-                        ? "border-yellow-200 hover:border-yellow-400 hover:shadow-md"
-                        : "border-gray-200 hover:border-yellow-300 hover:shadow-sm"
-                  }`}
-                style={
-                  isSelected
-                    ? {
-                        background:
-                          "linear-gradient(135deg, #fef9c3 0%, #fef3c7 60%, #fde68a 100%)",
-                      }
-                    : isGold
-                      ? {
-                          background:
-                            "linear-gradient(135deg, #fffbeb 0%, #fef9c3 100%)",
-                        }
-                      : { background: "#ffffff" }
-                }
-              >
-                {/* Destellos decorativos */}
-                {isGold && (
-                  <>
-                    <span
-                      className="absolute -top-4 -right-4 w-16 h-16 rounded-full opacity-20"
-                      style={{
-                        background:
-                          "radial-gradient(circle, #f59e0b, transparent)",
-                      }}
-                    />
-                    <span
-                      className="absolute bottom-0 left-0 w-24 h-12 opacity-10"
-                      style={{
-                        background:
-                          "radial-gradient(ellipse, #d97706, transparent)",
-                      }}
-                    />
-                  </>
-                )}
-
-                {/* Badge */}
-                {badge && (
-                  <span
-                    className={`absolute -top-2.5 left-4 text-[11px] font-bold px-3 py-0.5 rounded-full shadow
-                    ${
-                      isSelected
-                        ? "bg-yellow-500 text-white"
-                        : "bg-gradient-to-r from-yellow-400 to-amber-500 text-white"
-                    }`}
-                  >
-                    ✦ {badge}
-                  </span>
-                )}
-
-                <div className="flex items-start justify-between gap-2">
-                  {/* Ícono + nombre */}
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`flex items-center justify-center w-11 h-11 rounded-xl shadow-sm flex-shrink-0
-                      ${
-                        isSelected
-                          ? "bg-gradient-to-br from-yellow-400 to-amber-500"
-                          : isGold
-                            ? "bg-gradient-to-br from-yellow-300 to-amber-400"
-                            : "bg-gray-100"
-                      }`}
-                    >
-                      <Clock
-                        className={`h-5 w-5 ${isGold || isSelected ? "text-white" : "text-gray-500"}`}
-                      />
-                    </div>
-                    <div>
-                      <p
-                        className={`font-extrabold text-base leading-tight ${isSelected ? "text-amber-900" : "text-gray-900"}`}
-                      >
-                        {plan.months === 1 ? "1 mes" : `${plan.months} meses`}
-                      </p>
-                      {plan.description && (
-                        <p
-                          className={`text-xs mt-0.5 leading-snug ${isSelected ? "text-amber-700" : "text-gray-500"}`}
-                        >
-                          {plan.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Precio */}
-                  <div className="text-right flex-shrink-0">
-                    <p
-                      className={`text-xl font-black leading-none ${isSelected ? "text-amber-800" : isGold ? "text-amber-700" : "text-gray-900"}`}
-                    >
-                      L {plan.price_lempiras.toLocaleString("es-HN")}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Check seleccionado */}
-                {isSelected && (
-                  <div className="absolute top-3 right-3 flex items-center gap-1">
-                    <span className="text-[10px] font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
-                      Seleccionado
-                    </span>
-                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 shadow">
-                      <Check className="h-3.5 w-3.5 text-white" />
-                    </div>
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {!plansLoading && (
+      {/* ── Barra superior ── */}
+      <div className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 py-3">
         <button
           type="button"
-          disabled={!selectedPlan}
-          onClick={() => {
-            if (!selectedPlan) {
-              toast.error("Selecciona un plan");
-              return;
-            }
-            setAppStep(payMethod === "paypal" ? "form" : "transfer-info");
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }}
-          className="w-full h-14 rounded-2xl disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed font-bold text-base flex items-center justify-center gap-2 shadow-md transition-all"
-          style={
-            selectedPlan
-              ? {
-                  background: "linear-gradient(135deg, #f59e0b, #d97706)",
-                  color: "#fff",
-                }
-              : undefined
-          }
+          onClick={() => setAppStep("method")}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-amber-600 transition-colors"
         >
-          {selectedPlan
-            ? payMethod === "paypal"
-              ? "Continuar – Llenar datos del negocio"
-              : "Continuar – Ver datos de pago"
-            : "Selecciona un plan para continuar"}
-          {selectedPlan && <ChevronRight className="h-5 w-5" />}
+          <ArrowLeft className="h-4 w-4" /> Volver
         </button>
+      </div>
+
+      {/* ── Hero banner ── */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-amber-400 via-yellow-400 to-orange-400 px-6 pt-10 pb-14 text-center">
+        {/* Círculos decorativos de fondo */}
+        <span className="absolute -top-10 -left-10 w-48 h-48 rounded-full bg-white/10" />
+        <span className="absolute -bottom-12 -right-8 w-56 h-56 rounded-full bg-orange-600/10" />
+        <span className="absolute top-4 right-8 w-20 h-20 rounded-full bg-yellow-200/30" />
+
+        {/* Icono */}
+        <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/25 backdrop-blur-sm shadow-lg mb-4 ring-2 ring-white/40">
+          <Star className="h-8 w-8 text-white fill-white drop-shadow" />
+        </div>
+
+        <h2 className="text-3xl font-black text-white tracking-tight drop-shadow-sm">
+          Elige tu plan
+        </h2>
+        <p className="text-sm font-medium text-yellow-100 mt-1.5">
+          {payMethod === "paypal"
+            ? "💳 Pago en línea con PayPal"
+            : "🏦 Pago por transferencia bancaria"}
+        </p>
+
+        {/* Trust badges */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
+          {["Sin contratos", "Cancela cuando quieras", "Activación inmediata"].map((t) => (
+            <span
+              key={t}
+              className="inline-flex items-center gap-1 text-[11px] font-semibold bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full border border-white/30"
+            >
+              <Check className="h-3 w-3" /> {t}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Cards ── */}
+      <div className="max-w-lg mx-auto px-4 -mt-6 pb-32">
+
+        {plansLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
+            <Loader2 className="h-8 w-8 animate-spin text-amber-400" />
+            <span className="text-sm font-medium">Cargando planes...</span>
+          </div>
+        ) : plans.length === 0 ? (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center text-sm text-amber-700 shadow-sm">
+            No hay planes disponibles. Contacta al administrador.
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {plans.map((plan) => {
+              const badge = getBadgeLabel(plan.months);
+              const pricePerMonth = getPricePerMonth(plan);
+              const isSelected = selectedPlan?.id === plan.id;
+              const isGold = plan.months >= 12;
+              const isMid = plan.months >= 6 && plan.months < 12;
+
+              return (
+                <button
+                  key={plan.id}
+                  type="button"
+                  onClick={() => setSelectedPlan(plan)}
+                  className={`relative w-full text-left rounded-3xl border-2 overflow-hidden transition-all duration-200 focus:outline-none
+                    ${isSelected
+                      ? "border-amber-400 shadow-[0_8px_32px_rgba(245,158,11,0.30)] scale-[1.01]"
+                      : isGold
+                        ? "border-yellow-200 hover:border-amber-300 hover:shadow-lg"
+                        : isMid
+                          ? "border-blue-100 hover:border-blue-300 hover:shadow-md"
+                          : "border-gray-200 hover:border-gray-300 hover:shadow-sm"}`}
+                >
+                  {/* Fondo de tarjeta */}
+                  <div
+                    className="absolute inset-0"
+                    style={
+                      isSelected
+                        ? { background: "linear-gradient(135deg,#fffbeb 0%,#fef3c7 50%,#fde68a 100%)" }
+                        : isGold
+                          ? { background: "linear-gradient(135deg,#fffdf5 0%,#fef9c3 100%)" }
+                          : isMid
+                            ? { background: "linear-gradient(135deg,#f8faff 0%,#eff6ff 100%)" }
+                            : { background: "#ffffff" }
+                    }
+                  />
+
+                  {/* Destellos gold */}
+                  {isGold && (
+                    <>
+                      <span className="absolute -top-8 -right-8 w-28 h-28 rounded-full opacity-15"
+                        style={{ background: "radial-gradient(circle,#f59e0b,transparent)" }} />
+                      <span className="absolute bottom-0 left-0 w-36 h-16 opacity-10"
+                        style={{ background: "radial-gradient(ellipse,#d97706,transparent)" }} />
+                    </>
+                  )}
+
+                  {/* Contenido */}
+                  <div className="relative p-5">
+
+                    {/* Badge superior */}
+                    {badge && (
+                      <div className="mb-3">
+                        <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-3 py-1 rounded-full
+                          ${isGold
+                            ? "bg-gradient-to-r from-amber-400 to-orange-400 text-white shadow-sm"
+                            : "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm"}`}>
+                          ✦ {badge}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between gap-4">
+                      {/* Lado izquierdo: duración + descripción */}
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-2xl shadow-sm
+                          ${isSelected
+                            ? "bg-gradient-to-br from-amber-400 to-yellow-500"
+                            : isGold
+                              ? "bg-gradient-to-br from-yellow-300 to-amber-400"
+                              : isMid
+                                ? "bg-gradient-to-br from-blue-400 to-blue-500"
+                                : "bg-gradient-to-br from-gray-100 to-gray-200"}`}>
+                          <Clock className={`h-5 w-5 ${isSelected || isGold || isMid ? "text-white" : "text-gray-500"}`} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className={`text-lg font-black leading-tight truncate
+                            ${isSelected ? "text-amber-900" : isGold ? "text-amber-800" : isMid ? "text-blue-900" : "text-gray-900"}`}>
+                            {plan.months === 1 ? "1 mes" : `${plan.months} meses`}
+                          </p>
+                          {plan.description && (
+                            <p className={`text-xs mt-0.5 leading-snug truncate
+                              ${isSelected ? "text-amber-700" : "text-gray-500"}`}>
+                              {plan.description}
+                            </p>
+                          )}
+                          {pricePerMonth && (
+                            <p className={`text-[11px] font-semibold mt-0.5
+                              ${isSelected ? "text-amber-600" : "text-gray-400"}`}>
+                              ≈ {pricePerMonth}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Lado derecho: precio */}
+                      <div className="text-right flex-shrink-0">
+                        <p className={`text-[11px] font-semibold uppercase tracking-wide mb-0.5
+                          ${isSelected ? "text-amber-600" : "text-gray-400"}`}>Precio</p>
+                        <p className={`text-2xl font-black leading-none
+                          ${isSelected ? "text-amber-800" : isGold ? "text-amber-700" : isMid ? "text-blue-700" : "text-gray-900"}`}>
+                          $ {plan.price_lempiras.toLocaleString("en-US")}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Indicador seleccionado (aparece abajo en la card) */}
+                    {isSelected && (
+                      <div className="mt-4 flex items-center gap-2 border-t border-amber-200 pt-3">
+                        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-500 flex-shrink-0">
+                          <Check className="h-3 w-3 text-white" />
+                        </div>
+                        <span className="text-xs font-bold text-green-700">Plan seleccionado</span>
+                        <span className="ml-auto text-[10px] font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                          ✓ Activo
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ── CTA flotante ── */}
+      {!plansLoading && (
+        <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-gray-100 px-4 py-4 shadow-[0_-8px_24px_rgba(0,0,0,0.08)]">
+          <div className="max-w-lg mx-auto">
+            {selectedPlan && (
+              <p className="text-center text-xs text-gray-500 mb-2">
+                Plan seleccionado:{" "}
+                <span className="font-bold text-amber-700">
+                  {selectedPlan.months === 1 ? "1 mes" : `${selectedPlan.months} meses`}
+                  {" · "}$ {selectedPlan.price_lempiras.toLocaleString("en-US")}
+                </span>
+              </p>
+            )}
+            <button
+              type="button"
+              disabled={!selectedPlan}
+              onClick={() => {
+                if (!selectedPlan) {
+                  toast.error("Selecciona un plan");
+                  return;
+                }
+                setAppStep(payMethod === "paypal" ? "form" : "transfer-info");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="w-full h-14 rounded-2xl disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed font-bold text-base flex items-center justify-center gap-2 shadow-md transition-all"
+              style={
+                selectedPlan
+                  ? {
+                      background: "linear-gradient(135deg, #f59e0b, #d97706)",
+                      color: "#fff",
+                    }
+                  : undefined
+              }
+            >
+              {selectedPlan
+                ? payMethod === "paypal"
+                  ? "Continuar – Llenar datos del negocio"
+                  : "Continuar – Ver datos de pago"
+                : "Selecciona un plan para continuar"}
+              {selectedPlan && <ChevronRight className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -1451,7 +1497,7 @@ const PublicBusinessRegistrationPage = () => {
             </span>
           </div>
           <span className="text-sm font-bold text-blue-800">
-            L {selectedPlan.price_lempiras.toLocaleString("es-HN")}
+            $ {selectedPlan.price_lempiras.toLocaleString("en-US")}
           </span>
         </div>
       )}
@@ -1497,7 +1543,7 @@ const PublicBusinessRegistrationPage = () => {
   /* ═══════════════════ PANTALLA: Pago PayPal ══════════════════════════════ */
   const renderPayPalScreen = () => {
     if (!selectedPlan) return null;
-    const usdAmount = (selectedPlan.price_lempiras * HNL_TO_USD).toFixed(2);
+    const usdAmount = selectedPlan.price_lempiras.toFixed(2);
     const planLabel =
       selectedPlan.months === 1 ? "1 mes" : `${selectedPlan.months} meses`;
     const cleanPhone = formData.phones[0]?.replace(/\D/g, "") || "";
@@ -1537,8 +1583,8 @@ const PublicBusinessRegistrationPage = () => {
                 Confirmar pago
               </h2>
               <p className="text-sm text-gray-500">
-                Plan {planLabel} · L{" "}
-                {selectedPlan.price_lempiras.toLocaleString("es-HN")}
+                Plan {planLabel} · ${" "}
+                {selectedPlan.price_lempiras.toLocaleString("en-US")}
               </p>
             </div>
           </div>
@@ -1593,7 +1639,7 @@ const PublicBusinessRegistrationPage = () => {
                       Monto (HNL)
                     </span>
                     <span className="text-sm font-semibold text-gray-900">
-                      L {selectedPlan.price_lempiras.toLocaleString("es-HN")}
+                      $ {selectedPlan.price_lempiras.toLocaleString("en-US")}
                     </span>
                   </div>
                   <div className="flex items-center justify-between pt-2">
@@ -1673,7 +1719,7 @@ const PublicBusinessRegistrationPage = () => {
                       USD {usdAmount}
                     </p>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      L {selectedPlan.price_lempiras.toLocaleString("es-HN")} ·{" "}
+                      $ {selectedPlan.price_lempiras.toLocaleString("en-US")} ·{" "}
                       {planLabel}
                     </p>
                   </div>
@@ -1930,7 +1976,7 @@ const PublicBusinessRegistrationPage = () => {
               </div>
             </div>
             <p className="text-xl font-extrabold text-blue-800">
-              L {selectedPlan.price_lempiras.toLocaleString("es-HN")}
+              $ {selectedPlan.price_lempiras.toLocaleString("en-US")}
             </p>
           </div>
         </div>

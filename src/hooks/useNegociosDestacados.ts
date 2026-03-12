@@ -27,7 +27,9 @@ export const useNegociosDestacados = (limit: number = 6, pais?: string) => {
 
         if (bizError) throw bizError;
 
-        let lista: any[] = (bizData || []).filter((b) => isSubscriptionActive(b));
+        let lista: any[] = (bizData || []).filter((b) =>
+          isSubscriptionActive(b),
+        );
 
         // 2) Filtrar SIEMPRE por país cuando se proporciona
         if (pais) {
@@ -45,7 +47,8 @@ export const useNegociosDestacados = (limit: number = 6, pais?: string) => {
             .in("business_id", ids);
 
           (calData || []).forEach((c: any) => {
-            if (!calMap[c.business_id]) calMap[c.business_id] = { total: 0, sum: 0 };
+            if (!calMap[c.business_id])
+              calMap[c.business_id] = { total: 0, sum: 0 };
             calMap[c.business_id].total += 1;
             calMap[c.business_id].sum += c.rating || 0;
           });
@@ -58,11 +61,13 @@ export const useNegociosDestacados = (limit: number = 6, pais?: string) => {
             return {
               ...b,
               total_ratings: cal.total,
-              average_rating: cal.total > 0 ? Math.round((cal.sum / cal.total) * 10) / 10 : 0,
+              average_rating:
+                cal.total > 0 ? Math.round((cal.sum / cal.total) * 10) / 10 : 0,
             };
           })
           .sort((a, b) => {
-            if (b.total_ratings !== a.total_ratings) return b.total_ratings - a.total_ratings;
+            if (b.total_ratings !== a.total_ratings)
+              return b.total_ratings - a.total_ratings;
             return b.average_rating - a.average_rating;
           })
           .slice(0, limit) as NegocioDestacado[];
