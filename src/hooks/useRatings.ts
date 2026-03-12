@@ -15,6 +15,8 @@ export function useRatings(businessId: string) {
   const [average, setAverage] = useState<number | null>(null);
   const [totalRatings, setTotalRatings] = useState<number>(0);
   const [deviceRating, setDeviceRating] = useState<number | null>(null);
+  const [deviceTags, setDeviceTags] = useState<string[]>([]);
+  const [tagStats, setTagStats] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deviceId] = useState<string>(() => getDeviceId());
@@ -29,10 +31,10 @@ export function useRatings(businessId: string) {
     setError(null);
 
     try {
-      // Obtener todas las calificaciones del negocio
+      // Obtener todas las calificaciones del negocio (incluye tags)
       const { data: ratingsData, error: ratingsError } = await supabase
         .from("calificaciones")
-        .select("rating")
+        .select("rating, tags")
         .eq("business_id", businessId);
 
       if (ratingsError) {
@@ -48,15 +50,27 @@ export function useRatings(businessId: string) {
         );
         setAverage(Math.round((sum / ratingsData.length) * 10) / 10);
         setTotalRatings(ratingsData.length);
+
+        // Calcular estadísticas de tags
+        const stats: Record<string, number> = {};
+        ratingsData.forEach((r) => {
+          if (Array.isArray(r.tags)) {
+            r.tags.forEach((tag: string) => {
+              stats[tag] = (stats[tag] || 0) + 1;
+            });
+          }
+        });
+        setTagStats(stats);
       } else {
         setAverage(null);
         setTotalRatings(0);
+        setTagStats({});
       }
 
-      // Obtener calificación del dispositivo actual
+      // Obtener calificación del dispositivo actual (incluye tags)
       const { data: deviceData, error: deviceError } = await supabase
         .from("calificaciones")
-        .select("rating")
+        .select("rating, tags")
         .eq("business_id", businessId)
         .eq("device_id", deviceId)
         .maybeSingle();
@@ -69,6 +83,7 @@ export function useRatings(businessId: string) {
       }
 
       setDeviceRating(deviceData?.rating ?? null);
+      setDeviceTags(deviceData?.tags ?? []);
     } catch (err: any) {
       console.error("Error al cargar calificaciones:", err);
       setError(err.message || "Error desconocido");
@@ -82,7 +97,7 @@ export function useRatings(businessId: string) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [businessId, deviceId]);
 
-  async function rate(rating: number) {
+  async function rate(rating: number, tags: string[] = []) {
     if (!businessId || rating < 1 || rating > 5) {
       setError("Calificación inválida");
       return false;
@@ -95,7 +110,7 @@ export function useRatings(businessId: string) {
       // Verificar si ya existe calificación en localStorage
       const hasRated = hasRatedBusiness(businessId);
 
-      // Upsert calificación (actualiza si existe, inserta si no)
+      // Upsert calificación con tags (actualiza si existe, inserta si no)
       const { error: upsertError } = await supabase
         .from("calificaciones")
         .upsert(
@@ -103,6 +118,7 @@ export function useRatings(businessId: string) {
             business_id: businessId,
             device_id: deviceId,
             rating,
+            tags,
             updated_at: new Date().toISOString(),
           },
           {
@@ -164,6 +180,8 @@ export function useRatings(businessId: string) {
     average,
     totalRatings,
     deviceRating,
+    deviceTags,
+    tagStats,
     loading,
     error,
     rate,

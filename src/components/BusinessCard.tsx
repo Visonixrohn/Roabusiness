@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Star,
   MapPin,
@@ -13,6 +14,7 @@ import {
   Users,
   TrendingUp,
   Share2,
+  User,
 } from "lucide-react";
 import TikTokIcon from "@/components/icons/TikTokIcon";
 import { Business } from "@/types/business";
@@ -42,6 +44,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
   followers,
   variant = "default",
 }) => {
+  const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [showGalleryModal, setShowGalleryModal] = useState(false);
@@ -83,9 +86,7 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
           "transform hover:-translate-y-1",
         )}
         onClick={() => {
-          if (!showContactModal) {
-            setShowContactModal(true);
-          }
+          navigate(`/negocio/${business.profile_name || business.id}`);
         }}
       >
         {/* Imagen de portada con aspect ratio fijo */}
@@ -249,27 +250,14 @@ const BusinessCard: React.FC<BusinessCardProps> = ({
             <Button
               onClick={(e) => {
                 e.stopPropagation();
-                setShowContactModal(true);
+                navigate(`/negocio/${business.profile_name || business.id}`);
               }}
               className="flex-1 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-xl h-9 sm:h-10 font-medium shadow-md hover:shadow-lg transition-all text-xs sm:text-sm px-2 sm:px-4"
             >
-              <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2" />
-              <span className="hidden sm:inline ml-1.5 sm:ml-0">Contactar</span>
+              <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
+              Ver perfil
             </Button>
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                shareBusinessLink(
-                  business.profile_name || business.id,
-                  business.name,
-                );
-              }}
-              variant="outline"
-              className="px-2.5 sm:px-4 border-2 border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 rounded-xl h-9 sm:h-10 font-medium transition-all min-w-[2.25rem] sm:min-w-[2.5rem] flex items-center justify-center"
-              aria-label="Compartir enlace del negocio"
-            >
-              <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            </Button>
+       
           </div>
         </div>
       </div>
