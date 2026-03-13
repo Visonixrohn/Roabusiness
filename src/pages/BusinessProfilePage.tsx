@@ -17,6 +17,7 @@ import {
   MapPin,
   MessageCircle,
   Share2,
+  QrCode,
   Image as ImageIcon,
   Navigation,
   Satellite,
@@ -263,7 +264,7 @@ const QuickActionsBar = ({
         onClick={onOpenQRModal}
         className="h-12 rounded-2xl border-slate-200 bg-white hover:bg-slate-50"
       >
-        <Globe className="mr-2 h-4 w-4" />
+        <QrCode className="mr-2 h-4 w-4" />
         QR
       </Button>
     </div>
@@ -1210,7 +1211,20 @@ const TikTokCreatorEmbed = ({ url }: { url: string }) => {
   const matchNoAt = url.match(/tiktok\.com\/([^@?#][^/?#]*)/);
   const username = matchAt?.[1] ?? matchNoAt?.[1] ?? "";
 
+  // Detectar si estamos en WebView nativo (Capacitor APK/AAB)
+  const isNativeWebView = (() => {
+    try {
+      const { Capacitor } = (window as any);
+      if (Capacitor?.isNativePlatform?.()) return true;
+    } catch { /* ignore */ }
+    // Fallback: detectar WebView por user agent
+    const ua = navigator.userAgent || "";
+    return /wv|WebView/i.test(ua) && /Android/i.test(ua);
+  })();
+
   useEffect(() => {
+    // En WebView nativo, no intentar cargar el embed (no funciona)
+    if (isNativeWebView) return;
     if (!username || !containerRef.current) return;
 
     setShowSkeleton(true);
@@ -1232,25 +1246,72 @@ const TikTokCreatorEmbed = ({ url }: { url: string }) => {
       if (win.tiktok?.embed?.render) {
         win.tiktok.embed.render();
       }
-      setTimeout(() => setShowSkeleton(false), 2000);
+      // Verificar si el embed realmente renderizó después de un timeout
+      setTimeout(() => {
+        setShowSkeleton(false);
+        // Si el embed no renderizó (iframe no aparece), marcar error
+        const iframes = containerRef.current?.querySelectorAll("iframe");
+        if (!iframes || iframes.length === 0) {
+          setError(true);
+        }
+      }, 4000);
     };
 
     const existingScript = document.getElementById("__tiktok-embed-js");
     if (existingScript) {
-      processEmbed();
-    } else {
-      const script = document.createElement("script");
-      script.id = "__tiktok-embed-js";
-      script.src = "https://www.tiktok.com/embed.js";
-      script.async = true;
-      document.body.appendChild(script);
-      script.onload = processEmbed;
-      script.onerror = () => {
-        setError(true);
-        setShowSkeleton(false);
-      };
+      // Remover script viejo y recargar para que procese el nuevo blockquote
+      existingScript.remove();
+      delete (window as any).tiktok;
     }
-  }, [username]);
+    const script = document.createElement("script");
+    script.id = "__tiktok-embed-js";
+    script.src = "https://www.tiktok.com/embed.js";
+    script.async = true;
+    document.body.appendChild(script);
+    script.onload = processEmbed;
+    script.onerror = () => {
+      setError(true);
+      setShowSkeleton(false);
+    };
+  }, [username, isNativeWebView]);
+
+  /** Abre TikTok en el navegador externo (funciona en APK/AAB) */
+  const openExternal = () => {
+    const tiktokUrl = `https://www.tiktok.com/@${username}`;
+    // En WebView intenta abrir con deeplink, fallback a browser
+    window.open(tiktokUrl, "_system") || window.open(tiktokUrl, "_blank");
+  };
+
+  // Fallback card para WebView nativo (APK/AAB)
+  const renderFallbackCard = () => (
+    <a
+      href={`https://www.tiktok.com/@${username}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={(e) => {
+        if (isNativeWebView) {
+          e.preventDefault();
+          openExternal();
+        }
+      }}
+      className="block group"
+    >
+      <div className="flex flex-col items-center justify-center gap-4 py-10 px-6 bg-gradient-to-br from-slate-900 to-black group-hover:from-slate-800 transition-colors">
+        <div className="w-16 h-16 rounded-2xl bg-[#fe2c55] flex items-center justify-center shadow-lg">
+          <TikTokIcon className="h-8 w-8 text-white" />
+        </div>
+        <div className="text-center">
+          <p className="font-bold text-white">@{username}</p>
+          <p className="text-sm text-slate-400 mt-1">
+            Ver videos en TikTok
+          </p>
+        </div>
+        <span className="px-5 py-2 rounded-full bg-[#fe2c55] text-white text-sm font-bold">
+          Abrir en TikTok
+        </span>
+      </div>
+    </a>
+  );
 
   return (
     <div className="bg-white rounded-[26px] border border-slate-200 shadow-[0_10px_30px_rgba(15,23,42,0.06)] overflow-hidden">
@@ -1261,37 +1322,25 @@ const TikTokCreatorEmbed = ({ url }: { url: string }) => {
           href={url}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={(e) => {
+            if (isNativeWebView) {
+              e.preventDefault();
+              openExternal();
+            }
+          }}
           className="text-xs text-slate-300 hover:text-white font-medium flex-shrink-0 transition-colors"
         >
           Abrir →
         </a>
       </div>
 
-      {error && (
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block group"
-        >
-          <div className="flex flex-col items-center justify-center gap-4 py-10 px-6 bg-gradient-to-br from-slate-900 to-black group-hover:from-slate-800 transition-colors">
-            <div className="w-16 h-16 rounded-2xl bg-[#fe2c55] flex items-center justify-center shadow-lg">
-              <TikTokIcon className="h-8 w-8 text-white" />
-            </div>
-            <div className="text-center">
-              <p className="font-bold text-white">@{username}</p>
-              <p className="text-sm text-slate-400 mt-1">
-                Ver videos en TikTok
-              </p>
-            </div>
-            <span className="px-5 py-2 rounded-full bg-[#fe2c55] text-white text-sm font-bold">
-              Abrir en TikTok
-            </span>
-          </div>
-        </a>
-      )}
+      {/* En WebView nativo siempre mostrar fallback */}
+      {isNativeWebView && renderFallbackCard()}
 
-      {!error && (
+      {/* En PWA: mostrar embed o fallback si hay error */}
+      {!isNativeWebView && error && renderFallbackCard()}
+
+      {!isNativeWebView && !error && (
         <div className="relative">
           {showSkeleton && (
             <div className="absolute inset-0 z-10 flex flex-col items-center gap-4 px-6 py-8 animate-pulse bg-slate-950 pointer-events-none">

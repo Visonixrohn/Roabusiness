@@ -1,7 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useBusinesses } from "@/hooks/useBusinesses";
 import { haversineKm } from "@/utils/geoDistance";
 import { Business } from "@/types/business";
+import { Capacitor } from "@capacitor/core";
+import { Geolocation as CapGeolocation } from "@capacitor/geolocation";
 
 export type GeoState =
   | { status: "idle" }
@@ -40,6 +42,59 @@ export function useNearbyBusinesses(
     if (geo.status === "loading" || geo.status === "ready") return;
     setGeo({ status: "loading" });
 
+    const onSuccess = (lat: number, lng: number) => {
+      setGeo({ status: "ready", lat, lng });
+    };
+
+    const onError = (code: number, message: string) => {
+      // code 1 = PERMISSION_DENIED en la spec web
+      if (code === 1) {
+        setGeo({ status: "denied" });
+      } else {
+        setGeo({ status: "error", message });
+      }
+    };
+
+    // En plataforma nativa (Capacitor): usar plugin nativo para pedir permisos
+    if (Capacitor.isNativePlatform()) {
+      (async () => {
+        try {
+          // Verificar estado actual de permisos
+          let permStatus = await CapGeolocation.checkPermissions();
+
+          // Si no se ha pedido, solicitar
+          if (permStatus.location === "prompt" || permStatus.location === "prompt-with-rationale") {
+            permStatus = await CapGeolocation.requestPermissions({ permissions: ["location"] });
+          }
+
+          // Si fue denegado explícitamente
+          if (permStatus.location === "denied") {
+            setGeo({ status: "denied" });
+            return;
+          }
+
+          // Obtener posición con plugin nativo
+          const position = await CapGeolocation.getCurrentPosition({
+            enableHighAccuracy: false,
+            timeout: 15000,
+            maximumAge: 60000,
+          });
+
+          onSuccess(position.coords.latitude, position.coords.longitude);
+        } catch (err: any) {
+          // Manejar errores del plugin nativo
+          const msg = err?.message || "Error obteniendo ubicación";
+          if (msg.toLowerCase().includes("denied") || msg.toLowerCase().includes("permission")) {
+            setGeo({ status: "denied" });
+          } else {
+            onError(2, msg);
+          }
+        }
+      })();
+      return;
+    }
+
+    // En web/PWA: usar navigator.geolocation con reintentos
     if (!navigator.geolocation) {
       setGeo({
         status: "error",
@@ -48,23 +103,29 @@ export function useNearbyBusinesses(
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setGeo({
-          status: "ready",
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-        });
-      },
-      (err) => {
-        if (err.code === err.PERMISSION_DENIED) {
-          setGeo({ status: "denied" });
-        } else {
-          setGeo({ status: "error", message: err.message });
-        }
-      },
-      { timeout: 10_000, maximumAge: 60_000 },
-    );
+    let retries = 0;
+    const maxRetries = 2;
+
+    const attemptLocation = () => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          onSuccess(pos.coords.latitude, pos.coords.longitude);
+        },
+        (err) => {
+          // En Android WebView, el primer intento a veces falla con PERMISSION_DENIED
+          // aunque el permiso se acaba de conceder. Reintentamos.
+          if (err.code === err.PERMISSION_DENIED && retries < maxRetries) {
+            retries++;
+            setTimeout(attemptLocation, 500);
+            return;
+          }
+          onError(err.code, err.message);
+        },
+        { timeout: 15000, maximumAge: 60000, enableHighAccuracy: false },
+      );
+    };
+
+    attemptLocation();
   }, [geo.status]);
 
   /** Todos los negocios dentro del radio */
@@ -73,12 +134,19 @@ export function useNearbyBusinesses(
 
     const { lat, lng } = geo;
 
-    const withinRadius = allBusinesses.filter((b) => {
-      const bLat = b.latitude ?? b.coordinates?.lat;
-      const bLng = b.longitude ?? b.coordinates?.lng;
-      if (!bLat || !bLng) return false;
-      return haversineKm(lat, lng, bLat, bLng) <= radiusKm;
-    });
+    const withinRadius = allBusinesses
+      .map((b) => {
+        const bLat = b.latitude ?? b.coordinates?.lat;
+        const bLng = b.longitude ?? b.coordinates?.lng;
+        if (!bLat || !bLng) return null;
+        const dist = haversineKm(lat, lng, bLat, bLng);
+        if (dist > radiusKm) return null;
+        return { ...b, _distance: dist };
+      })
+      .filter(Boolean) as (Business & { _distance: number })[];
+
+    // Ordenar por distancia ascendente
+    withinRadius.sort((a, b) => a._distance - b._distance);
 
     if (!category) return withinRadius;
 

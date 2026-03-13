@@ -4,9 +4,12 @@
  * de BigDataCloud (gratuita, sin clave API).
  *
  * El resultado se almacena en localStorage para evitar peticiones repetitivas.
+ * En Capacitor nativo usa @capacitor/geolocation para permisos correctos.
  */
 import { useState, useEffect, useCallback } from "react";
 import { normalizeCountryName } from "@/data/countries";
+import { Capacitor } from "@capacitor/core";
+import { Geolocation as CapGeolocation } from "@capacitor/geolocation";
 
 export type CountryDetectStatus =
   | "idle"
@@ -75,41 +78,85 @@ export function useCountry() {
       return;
     }
 
+    setStatus("loading");
+
+    const handlePosition = async (lat: number, lng: number) => {
+      try {
+        const raw = await reverseGeocode(lat, lng);
+        const detected = normalizeCountryName(raw);
+        if (detected) {
+          setCountry(detected);
+          saveCache(detected);
+          setStatus("ready");
+        } else {
+          setStatus("error");
+        }
+      } catch {
+        setStatus("error");
+      }
+    };
+
+    // En plataforma nativa: usar Capacitor Geolocation plugin
+    if (Capacitor.isNativePlatform()) {
+      (async () => {
+        try {
+          let permStatus = await CapGeolocation.checkPermissions();
+          if (permStatus.location === "prompt" || permStatus.location === "prompt-with-rationale") {
+            permStatus = await CapGeolocation.requestPermissions({ permissions: ["location"] });
+          }
+          if (permStatus.location === "denied") {
+            setStatus("denied");
+            return;
+          }
+          const position = await CapGeolocation.getCurrentPosition({
+            enableHighAccuracy: false,
+            timeout: 15000,
+            maximumAge: 60000,
+          });
+          await handlePosition(position.coords.latitude, position.coords.longitude);
+        } catch (err: any) {
+          const msg = (err?.message || "").toLowerCase();
+          if (msg.includes("denied") || msg.includes("permission")) {
+            setStatus("denied");
+          } else {
+            setStatus("error");
+          }
+        }
+      })();
+      return;
+    }
+
+    // En web/PWA
     if (!navigator.geolocation) {
       setStatus("error");
       return;
     }
 
-    setStatus("loading");
+    let retries = 0;
+    const maxRetries = 2;
 
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const raw = await reverseGeocode(
-            pos.coords.latitude,
-            pos.coords.longitude,
-          );
-          const detected = normalizeCountryName(raw);
-          if (detected) {
-            setCountry(detected);
-            saveCache(detected);
-            setStatus("ready");
+    const attemptLocation = () => {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          await handlePosition(pos.coords.latitude, pos.coords.longitude);
+        },
+        (err) => {
+          if (err.code === err.PERMISSION_DENIED && retries < maxRetries) {
+            retries++;
+            setTimeout(attemptLocation, 500);
+            return;
+          }
+          if (err.code === err.PERMISSION_DENIED) {
+            setStatus("denied");
           } else {
             setStatus("error");
           }
-        } catch {
-          setStatus("error");
-        }
-      },
-      (err) => {
-        if (err.code === err.PERMISSION_DENIED) {
-          setStatus("denied");
-        } else {
-          setStatus("error");
-        }
-      },
-      { timeout: 10000, enableHighAccuracy: false },
-    );
+        },
+        { timeout: 15000, enableHighAccuracy: false, maximumAge: 60000 },
+      );
+    };
+
+    attemptLocation();
   }, []);
 
   /** Cambia el país manualmente y lo guarda en caché */

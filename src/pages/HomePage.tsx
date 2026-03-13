@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronRight, Search, MapPin, Star } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -11,7 +11,6 @@ import IslandsSection from "@/components/Islansection";
 import BannerCarousel from "@/components/BannerCarousel";
 import AboutPage from "./AboutPage";
 import { useCountryContext } from "@/contexts/CountryContext";
-import CountrySelector from "@/components/CountrySelector";
 
 const SectionShell = ({
   children,
@@ -27,6 +26,7 @@ const SectionShell = ({
 
 const HomePage = () => {
   const { country } = useCountryContext();
+  const navigate = useNavigate();
   const { destacados, loading: loadingDestacados } = useNegociosDestacados(
     6,
     country,
@@ -98,8 +98,6 @@ const HomePage = () => {
                 <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
                   Descubre lo mejores negocios
                 </div>
-                {/* Selector de país en el HERO */}
-                <CountrySelector compact className="w-44" />
               </div>
 
               <h1 className="mt-5 text-4xl md:text-6xl font-bold tracking-tight leading-tight text-slate-900">
@@ -181,16 +179,27 @@ const HomePage = () => {
               <div className="relative overflow-hidden rounded-[28px] border border-white/30 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.12)] h-[320px] md:h-[420px]">
                 {featuredBusinesses.length > 0 ? (
                   <>
-                    <img
-                      src={
-                        featuredBusinesses[heroIndex]?.coverImage ||
-                        featuredBusinesses[heroIndex]?.logo ||
-                        ""
-                      }
-                      alt={featuredBusinesses[heroIndex]?.name || "Destacado"}
-                      className="w-full h-full object-cover transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-900/8 to-transparent" />
+                    <div
+                      className="cursor-pointer w-full h-full"
+                      onClick={() => {
+                        const b = featuredBusinesses[heroIndex];
+                        if (b)
+                          navigate(
+                            `/negocio/${b.profile_name ? `@${b.profile_name}` : b.id}`,
+                          );
+                      }}
+                    >
+                      <img
+                        src={
+                          featuredBusinesses[heroIndex]?.coverImage ||
+                          featuredBusinesses[heroIndex]?.logo ||
+                          ""
+                        }
+                        alt={featuredBusinesses[heroIndex]?.name || "Destacado"}
+                        className="w-full h-full object-cover transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-900/8 to-transparent pointer-events-none" />
+                    </div>
 
                     <button
                       aria-label="Anterior"
@@ -220,7 +229,16 @@ const HomePage = () => {
                       ›
                     </button>
 
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div
+                      className="absolute bottom-0 left-0 right-0 p-6 cursor-pointer"
+                      onClick={() => {
+                        const b = featuredBusinesses[heroIndex];
+                        if (b)
+                          navigate(
+                            `/negocio/${b.profile_name ? `@${b.profile_name}` : b.id}`,
+                          );
+                      }}
+                    >
                       <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md p-4">
                         <p className="text-sm text-white/80">
                           Explora experiencias locales
@@ -269,14 +287,6 @@ const HomePage = () => {
                   <span className="inline-block h-1.5 w-10 rounded-full bg-emerald-300" />
                   <span className="inline-block h-1.5 w-6 rounded-full bg-emerald-200" />
                 </div>
-              </div>
-
-              {/* Selector de país para filtrar destacados */}
-              <div className="sm:pt-2 min-w-[200px]">
-                <p className="text-xs font-medium text-slate-500 mb-1.5">
-                  Filtrar por país
-                </p>
-                <CountrySelector compact className="w-full" />
               </div>
             </div>
           </div>

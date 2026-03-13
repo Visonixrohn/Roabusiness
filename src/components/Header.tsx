@@ -1,36 +1,138 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Search,
-  Menu,
   X,
-  MapPin,
   Home,
   Users,
-  Phone,
-  Plus,
-  LogOut,
   Settings,
-  Building2,
   LayoutTemplate,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useBusinesses } from "@/hooks/useBusinesses";
 import { isAdminSessionActive } from "@/lib/adminAuth";
+import CountrySelector from "@/components/CountrySelector";
+
+const normalize = (text = "") =>
+  text
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .trim();
+
+type SearchBoxProps = {
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
+  showDropdown: boolean;
+  setShowDropdown: (value: boolean) => void;
+  filteredBusinesses: any[];
+  navigate: ReturnType<typeof useNavigate>;
+  placeholder?: string;
+};
+
+const SearchBox = ({
+  searchQuery,
+  setSearchQuery,
+  showDropdown,
+  setShowDropdown,
+  filteredBusinesses,
+  navigate,
+  placeholder = "Buscar negocios...",
+}: SearchBoxProps) => {
+  return (
+    <div className="relative w-full">
+      <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+        <Search className="h-4 w-4 text-gray-400" />
+      </div>
+
+      <Input
+        type="text"
+        placeholder={placeholder}
+        value={searchQuery}
+        onChange={(e) => {
+          const value = e.target.value;
+          setSearchQuery(value);
+          setShowDropdown(value.trim().length > 0);
+        }}
+        onFocus={() => setShowDropdown(searchQuery.trim().length > 0)}
+        onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+        className="h-10 w-full rounded-full border border-white/30 bg-white/75 pl-10 pr-10 text-sm shadow-sm backdrop-blur-md transition focus:bg-white focus:ring-2 focus:ring-blue-500"
+        autoComplete="off"
+      />
+
+      {searchQuery && (
+        <button
+          type="button"
+          onClick={() => {
+            setSearchQuery("");
+            setShowDropdown(false);
+          }}
+          className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+          aria-label="Limpiar búsqueda"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      )}
+
+      {showDropdown && filteredBusinesses.length > 0 && (
+        <div className="absolute left-0 right-0 z-50 mt-2 max-h-80 overflow-y-auto rounded-2xl border border-white/40 bg-white/95 shadow-2xl backdrop-blur-xl">
+          {filteredBusinesses.slice(0, 8).map((b) => (
+            <button
+              key={b.id}
+              className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-blue-50"
+              onMouseDown={() => {
+                setSearchQuery("");
+                setShowDropdown(false);
+                navigate(`/negocio/${b.profile_name || b.id}`);
+              }}
+            >
+              <img
+                src={b.logo}
+                alt={b.name}
+                className="h-10 w-10 rounded-xl border border-gray-200 object-cover"
+              />
+
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-gray-900">
+                  {b.name}
+                </p>
+                <p className="truncate text-xs text-gray-500">
+                  {b.category || "Negocio"}
+                </p>
+              </div>
+
+              <span className="whitespace-nowrap text-xs text-gray-500">
+                {b.departamento || b.island}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {showDropdown &&
+        searchQuery.trim().length > 0 &&
+        filteredBusinesses.length === 0 && (
+          <div className="absolute left-0 right-0 z-50 mt-2 rounded-2xl border border-white/40 bg-white/95 p-4 shadow-2xl backdrop-blur-xl">
+            <p className="text-sm text-gray-500">No se encontraron resultados.</p>
+          </div>
+        )}
+    </div>
+  );
+};
 
 const Header = () => {
   const { t } = useLanguage();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-  // removed logout/modal related states
   const location = useLocation();
   const navigate = useNavigate();
-  const user = null;
-  const { businesses, loading } = useBusinesses();
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  const { businesses } = useBusinesses();
   const isAdminLoggedIn = isAdminSessionActive();
 
   const navigation = [
@@ -46,336 +148,183 @@ const Header = () => {
 
   const isActive = (href: string) => location.pathname === href;
 
-  const handleGoHome = () => {
-    if (location.pathname === "/") {
-      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-    }
-    setIsMenuOpen(false);
-  };
+  const filteredBusinesses = useMemo(() => {
+    const q = normalize(searchQuery);
+    if (!q) return [];
 
-  const handleNavLinkClick = (href: string) => {
-    if (location.pathname === href) {
-      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-    }
-    setIsMenuOpen(false);
-  };
+    return businesses.filter((b) => {
+      const name = normalize(b.name || "");
+      const desc = normalize(b.description || "");
+      const category = normalize(b.category || "");
+      const categories = normalize(
+        (b.categories && b.categories.length > 0 ? b.categories : [b.category])
+          .filter(Boolean)
+          .join(" "),
+      );
+      const amenities = normalize((b.amenities || []).join(" "));
+      const contactText = normalize(
+        [b.contact?.phone, b.contact?.email, b.contact?.website]
+          .filter(Boolean)
+          .join(" "),
+      );
 
-  // Filtrar negocios por nombre, descripción, categoría y amenidades
-  const normalize = (text = "") =>
-    text
-      .toString()
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/\p{Diacritic}/gu, "")
-      .trim();
+      return (
+        name.includes(q) ||
+        desc.includes(q) ||
+        category.includes(q) ||
+        categories.includes(q) ||
+        amenities.includes(q) ||
+        contactText.includes(q)
+      );
+    });
+  }, [searchQuery, businesses]);
 
-  const q = normalize(searchQuery);
-  const filteredBusinesses =
-    q.length > 0
-      ? businesses.filter((b) => {
-          const name = normalize(b.name || "");
-          const desc = normalize(b.description || "");
-          const category = normalize(b.category || "");
-          const categories = normalize(
-            (b.categories && b.categories.length > 0
-              ? b.categories
-              : [b.category]
-            )
-              .filter(Boolean)
-              .join(" "),
-          );
-          const amenities = normalize((b.amenities || []).join(" "));
-          const contactText = normalize(
-            [b.contact?.phone, b.contact?.email, b.contact?.website]
-              .filter(Boolean)
-              .join(" "),
-          );
+  useEffect(() => {
+    setShowDropdown(false);
+  }, [location.pathname]);
 
-          return (
-            name.includes(q) ||
-            desc.includes(q) ||
-            category.includes(q) ||
-            categories.includes(q) ||
-            amenities.includes(q) ||
-            contactText.includes(q)
-          );
-        })
-      : [];
+  useEffect(() => {
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <header
-      className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50"
+      className={cn(
+        "sticky top-0 z-50 border-b transition-all duration-300",
+        isScrolled
+          ? "border-white/20 bg-white/55 shadow-lg backdrop-blur-xl"
+          : "border-transparent bg-white/90 backdrop-blur-md",
+      )}
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      <div className="container mx-auto px-2 sm:px-4">
-        <div className="flex items-center justify-between h-12 sm:h-14">
-          {/* Logo */}
-          <Link
-            to="/"
-            onClick={handleGoHome}
-            className="flex items-center space-x-2"
-          >
-            <img
-              src="/icons/icon-192.png"
-              alt="RoaBusiness Logo"
-              className="w-8 h-8 object-contain rounded-md"
-            />
-            {/* Texto siempre visible; en desktop muestra también el subtítulo */}
-            <div>
-              <span className="text-base font-bold text-blue-600">
-                RoaBusiness
-              </span>
-              <span className="text-xs text-gray-600 hidden sm:block leading-none">
-                Directory
-              </span>
-            </div>
-          </Link>
-
-          {/* Búsqueda - Desktop */}
-          <div className="hidden md:flex flex-1 max-w-lg mx-4 relative">
-            <div className="relative w-full">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                <Search className="h-4 w-4 text-gray-400" />
-              </div>
-              <Input
-                type="text"
-                placeholder="Buscar negocios, hoteles, restaurantes..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setShowDropdown(e.target.value.length > 0);
-                }}
-                onFocus={() => setShowDropdown(searchQuery.length > 0)}
-                onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-                className="w-full pl-9 py-1.5 text-sm bg-gray-100 border-gray-200 rounded-full focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                autoComplete="off"
+      <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6">
+        {/* Usamos un layout de Grid de 3 columnas para garantizar el centro exacto */}
+        <div className="grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-3">
+          
+          {/* 1. Columna Izquierda: Buscador (solo visible en pantallas medianas o más) */}
+          <div className="flex items-center justify-start">
+            <div className="hidden w-full max-w-xs lg:max-w-sm md:block">
+              <SearchBox
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                showDropdown={showDropdown}
+                setShowDropdown={setShowDropdown}
+                filteredBusinesses={filteredBusinesses}
+                navigate={navigate}
               />
-              {/* Dropdown de resultados */}
-              {showDropdown && filteredBusinesses.length > 0 && (
-                <div className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-72 overflow-y-auto">
-                  {filteredBusinesses.map((b) => (
-                    <button
-                      key={b.id}
-                      className="w-full flex items-center px-4 py-2 hover:bg-blue-50 text-left gap-3"
-                      onMouseDown={() => {
-                        setSearchQuery("");
-                        setShowDropdown(false);
-                        navigate(`/negocio/${b.profile_name || b.id}`);
-                      }}
-                    >
-                      <img
-                        src={b.logo}
-                        alt={b.name}
-                        className="w-8 h-8 rounded-full object-cover border border-gray-200"
-                      />
-                      <span className="font-medium text-gray-800">
-                        {b.name}
-                      </span>
-                      <span className="ml-auto text-xs text-gray-500">
-                        {b.departamento || b.island}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 
-          {/* Navegación - Desktop */}
-          <nav className="hidden md:flex items-center space-x-0.5">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => handleNavLinkClick(item.href)}
-                  className={cn(
-                    "flex items-center px-2 py-1.5 rounded-lg text-xs font-medium transition-colors duration-200",
-                    isActive(item.href)
-                      ? "bg-blue-50 text-blue-600 border-b-2 border-blue-600"
-                      : "text-gray-600 hover:text-blue-600 hover:bg-gray-50",
-                  )}
-                >
-                  <Icon className="h-3.5 w-3.5 mr-1.5" />
-                  {item.name}
-                </Link>
-              );
-            })}
-
-            {/* Authentication removed: no login/profile buttons shown */}
-          </nav>
-
-          {/* Menú móvil - Botón (oculto: la navegación va en el BottomBar) */}
-          <div className="hidden">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-600 hover:text-blue-600"
-            >
-              {isMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </Button>
+          {/* 2. Columna Central: Logo y Título */}
+          <div className="flex justify-center">
+            <Link to="/" className="flex items-center gap-2 transition-transform hover:scale-[1.02]">
+              <img
+                src="/icons/icon-192.png"
+                alt="RoaBusiness"
+                className="h-10 w-10 rounded-2xl border border-white/40 bg-white/80 object-contain shadow-sm backdrop-blur"
+              />
+              <div className="leading-tight text-center sm:text-left">
+                <span className="block text-sm font-extrabold tracking-tight text-blue-600 sm:text-base">
+                  RoaBusiness
+                </span>
+                <span className="hidden text-[11px] text-gray-500 sm:block text-center sm:text-left">
+                  Directory
+                </span>
+              </div>
+            </Link>
           </div>
 
-          {/* Accesos rápidos admin - solo móvil cuando está logueado */}
-          {isAdminLoggedIn && (
-            <div className="flex md:hidden items-center gap-1">
-              <Link
-                to="/editar-negocio"
-                className={cn(
-                  "flex items-center justify-center h-9 w-9 rounded-xl text-xs font-medium transition-colors",
-                  isActive("/editar-negocio")
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600",
-                )}
-                aria-label="Panel admin"
-              >
-                <Settings className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/admin-banners"
-                className={cn(
-                  "flex items-center justify-center h-9 w-9 rounded-xl text-xs font-medium transition-colors",
-                  isActive("/admin-banners")
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600",
-                )}
-                aria-label="Banners"
-              >
-                <LayoutTemplate className="h-4 w-4" />
-              </Link>
-            </div>
-          )}
-        </div>
-
-        {/* Búsqueda - Móvil con dropdown */}
-        <div className="md:hidden pb-2">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-              <Search className="h-4 w-4 text-gray-400" />
-            </div>
-            <Input
-              type="text"
-              placeholder="Buscar..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setShowDropdown(e.target.value.length > 0);
-              }}
-              onFocus={() => setShowDropdown(searchQuery.length > 0)}
-              onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-              className="w-full pl-9 py-1.5 text-sm bg-gray-100 border-gray-200 rounded-full"
-            />
-            {/* Dropdown de resultados en móvil */}
-            {showDropdown && filteredBusinesses.length > 0 && (
-              <div className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-72 overflow-y-auto">
-                {filteredBusinesses.map((b) => (
-                  <button
-                    key={b.id}
-                    className="w-full flex items-center px-4 py-2 hover:bg-blue-50 text-left gap-3"
-                    onMouseDown={() => {
-                      setSearchQuery("");
-                      setShowDropdown(false);
-                      navigate(`/negocio/${b.profile_name || b.id}`);
-                    }}
+          {/* 3. Columna Derecha: Navegación, Admin y País */}
+          <div className="flex items-center justify-end gap-2 lg:gap-3">
+            {/* Navegación desktop (Oculta en pantallas pequeñas para no amontonarse) */}
+            <nav className="hidden items-center gap-1 xl:flex">
+              {navigation.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={cn(
+                      "inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-medium transition-all",
+                      isActive(item.href)
+                        ? "bg-blue-600 text-white shadow-md"
+                        : "text-gray-700 hover:bg-white/70 hover:text-blue-600",
+                    )}
                   >
-                    <img
-                      src={b.logo}
-                      alt={b.name}
-                      className="w-8 h-8 rounded-full object-cover border border-gray-200"
-                    />
-                    <span className="font-medium text-gray-800">{b.name}</span>
-                    <span className="ml-auto text-xs text-gray-500">
-                      {b.departamento || b.island}
-                    </span>
-                  </button>
-                ))}
+                    <Icon className="h-4 w-4" />
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* Admin (Siempre visible si está logueado, ajustado para no romper el layout) */}
+            {isAdminLoggedIn && (
+              <div className="flex items-center gap-1">
+                <Link
+                  to="/editar-negocio"
+                  className={cn(
+                    "flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl transition-colors",
+                    isActive("/editar-negocio")
+                      ? "bg-blue-600 text-white"
+                      : "bg-white/80 text-gray-600 shadow-sm backdrop-blur hover:bg-blue-50 hover:text-blue-600",
+                  )}
+                  aria-label="Panel admin"
+                >
+                  <Settings className="h-4 w-4" />
+                </Link>
+
+                <Link
+                  to="/admin-banners"
+                  className={cn(
+                    "flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl transition-colors",
+                    isActive("/admin-banners")
+                      ? "bg-blue-600 text-white"
+                      : "bg-white/80 text-gray-600 shadow-sm backdrop-blur hover:bg-blue-50 hover:text-blue-600",
+                  )}
+                  aria-label="Banners"
+                >
+                  <LayoutTemplate className="h-4 w-4" />
+                </Link>
               </div>
             )}
+
+            {/* Selector de país (Oculto en móvil, se muestra en la fila de abajo) */}
+            <div className="hidden md:block">
+              <div className="rounded-full border border-white/30 bg-white/70 p-1 shadow-sm backdrop-blur-xl transition hover:bg-white/90">
+                <CountrySelector compact className="w-28 min-w-[112px]" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Fila Inferior: Buscador móvil y selector de país móvil */}
+        <div className="pb-3 md:hidden">
+          <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <SearchBox
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                showDropdown={showDropdown}
+                setShowDropdown={setShowDropdown}
+                filteredBusinesses={filteredBusinesses}
+                navigate={navigate}
+              />
+            </div>
+
+            <div className="rounded-full border border-white/30 bg-white/70 p-1 shadow-sm backdrop-blur-xl shrink-0">
+              <CountrySelector compact className="w-24 min-w-[96px]" />
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Overlay y Modal lateral para menú móvil */}
-      {/* Overlay y modal lateral: se renderizan siempre pero usan clases condicionales para animación */}
-      <>
-        {/* Overlay oscuro */}
-        <div
-          onClick={() => setIsMenuOpen(false)}
-          className={cn(
-            "fixed inset-0 bg-black z-40 md:hidden transition-opacity",
-            isMenuOpen
-              ? "bg-opacity-50 opacity-100 pointer-events-auto"
-              : "bg-opacity-0 opacity-0 pointer-events-none",
-          )}
-          aria-hidden={!isMenuOpen}
-        />
-
-        {/* Modal lateral desde la derecha (usa translate-x para animar) */}
-        <div
-          className={cn(
-            "fixed inset-y-0 right-0 w-64 sm:w-72 bg-white shadow-2xl z-50 md:hidden transform transition-transform duration-300 ease-in-out",
-            isMenuOpen ? "translate-x-0" : "translate-x-full",
-          )}
-          aria-hidden={!isMenuOpen}
-        >
-          {/* Header del modal */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
-            <div className="flex items-center space-x-2">
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/2288/2288494.png"
-                alt="RoaBusiness"
-                className="w-8 h-8"
-              />
-              <div>
-                <span className="text-sm font-bold text-blue-600">
-                  RoaBusiness
-                </span>
-                <span className="text-xs text-gray-600 block leading-none">
-                  Menú
-                </span>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsMenuOpen(false)}
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-            >
-              <X className="h-5 w-5 text-gray-600" />
-            </button>
-          </div>
-
-          {/* Contenido del menú con scroll */}
-          <nav className="px-4 py-3 space-y-1 overflow-y-auto h-[calc(100vh-73px)]">
-            {/* Navegación principal */}
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => handleNavLinkClick(item.href)}
-                  className={cn(
-                    "flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                    isActive(item.href)
-                      ? "bg-blue-50 text-blue-600 shadow-sm"
-                      : "text-gray-600 hover:text-blue-600 hover:bg-gray-50",
-                  )}
-                >
-                  <Icon className="h-5 w-5 mr-3" />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-      </>
-
-      {/* Auth UI removed */}
     </header>
   );
 };
