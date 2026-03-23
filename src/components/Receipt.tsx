@@ -39,7 +39,7 @@ const Receipt: React.FC<ReceiptProps> = ({
   };
 
   const formatCurrency = (amount: number) => {
-    return `L ${amount.toFixed(2)}`;
+    return `$ ${amount.toFixed(2)}`;
   };
 
   const handlePrint = () => {

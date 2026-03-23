@@ -367,6 +367,20 @@ const AdminPanel = () => {
     if (!confirm("¿Estás seguro de que deseas eliminar este elemento?")) return;
 
     try {
+      if (activeTab !== "users") {
+        // Eliminar registros relacionados antes de borrar el negocio
+        await supabase.from("views").delete().eq("business_id", id);
+        await supabase.from("likes").delete().eq("business_id", id);
+        await supabase.from("comments").delete().eq("business_id", id);
+        await supabase.from("followers").delete().eq("business_id", id);
+        await supabase.from("calificaciones").delete().eq("business_id", id);
+        await supabase.from("posts").delete().eq("business_id", id);
+        await supabase.from("gallery").delete().eq("business_id", id);
+        await supabase.from("amenities").delete().eq("business_id", id);
+        await supabase.from("transactions").delete().eq("business_id", id);
+        await supabase.from("subscription_history").delete().eq("business_id", id);
+      }
+
       const table = activeTab === "users" ? "users" : "businesses";
       const { error } = await supabase.from(table).delete().eq("id", id);
       if (error) throw error;

@@ -22,6 +22,14 @@ import {
   RotateCcw,
   Star,
   DollarSign,
+  Search,
+  Filter,
+  RefreshCw,
+  TrendingUp,
+  AlertCircle,
+  Calendar,
+  ChevronRight,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -394,6 +402,18 @@ const EditBusinessPage = () => {
     }
 
     try {
+      // Eliminar registros relacionados antes de borrar el negocio
+      await supabase.from("views").delete().eq("business_id", id);
+      await supabase.from("likes").delete().eq("business_id", id);
+      await supabase.from("comments").delete().eq("business_id", id);
+      await supabase.from("followers").delete().eq("business_id", id);
+      await supabase.from("calificaciones").delete().eq("business_id", id);
+      await supabase.from("posts").delete().eq("business_id", id);
+      await supabase.from("gallery").delete().eq("business_id", id);
+      await supabase.from("amenities").delete().eq("business_id", id);
+      await supabase.from("transactions").delete().eq("business_id", id);
+      await supabase.from("subscription_history").delete().eq("business_id", id);
+
       const { error } = await supabase.from("businesses").delete().eq("id", id);
       if (error) throw error;
       toast.success("Negocio eliminado exitosamente");
@@ -873,196 +893,261 @@ const EditBusinessPage = () => {
       <Header />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
+        {/* Breadcrumb */}
+        <div className="mb-6">
           <Link
             to="/"
-            className="flex items-center text-blue-600 hover:text-blue-800 mb-6"
+            className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-4 w-4 mr-1" />
             Volver al inicio
           </Link>
+        </div>
 
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-700 to-indigo-700 rounded-2xl p-6 mb-6 text-white shadow-lg">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Gestionar Negocios
-              </h1>
-              <p className="text-gray-600">
+              <div className="flex items-center gap-2 mb-1">
+                <Building className="h-6 w-6 opacity-80" />
+                <h1 className="text-2xl font-bold">Gestionar Negocios</h1>
+              </div>
+              <p className="text-blue-100 text-sm">
                 Administra todos los negocios registrados en la plataforma
               </p>
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               <Button
                 onClick={() => navigate("/financial")}
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 flex items-center gap-2"
+                className="bg-white/20 hover:bg-white/30 border border-white/30 text-white flex items-center gap-2 text-sm"
               >
                 <DollarSign className="h-4 w-4" />
                 Panel Financiero
               </Button>
               <Button
                 onClick={handleOpenRegisterModal}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-white text-blue-700 hover:bg-blue-50 font-semibold flex items-center gap-2 text-sm"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4" />
                 Nuevo Negocio
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Filtros */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <button
             type="button"
             onClick={() => setFilterStatus("all")}
-            className={`text-left rounded-lg border p-4 bg-white shadow-sm transition-colors ${
-              filterStatus === "all" ? "border-blue-500" : "border-gray-200"
+            className={`group text-left rounded-xl border-2 p-5 bg-white shadow-sm transition-all hover:shadow-md ${
+              filterStatus === "all"
+                ? "border-blue-500 ring-2 ring-blue-200"
+                : "border-gray-100 hover:border-blue-300"
             }`}
           >
-            <p className="text-xs text-gray-500">Total negocios</p>
-            <p className="text-2xl font-bold text-gray-900">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <Users className="h-5 w-5 text-blue-600" />
+              </div>
+              {filterStatus === "all" && (
+                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                  Activo
+                </span>
+              )}
+            </div>
+            <p className="text-3xl font-extrabold text-gray-900 mb-0.5">
               {businesses.length}
             </p>
+            <p className="text-xs text-gray-500 font-medium">Total negocios</p>
           </button>
 
           <button
             type="button"
             onClick={() => setFilterStatus("active")}
-            className={`text-left rounded-lg border p-4 bg-white shadow-sm transition-colors ${
-              filterStatus === "active" ? "border-green-500" : "border-gray-200"
+            className={`group text-left rounded-xl border-2 p-5 bg-white shadow-sm transition-all hover:shadow-md ${
+              filterStatus === "active"
+                ? "border-green-500 ring-2 ring-green-200"
+                : "border-gray-100 hover:border-green-300"
             }`}
           >
-            <p className="text-xs text-gray-500">Negocios activos</p>
-            <p className="text-2xl font-bold text-green-600">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2 bg-green-50 rounded-lg">
+                <TrendingUp className="h-5 w-5 text-green-600" />
+              </div>
+              {filterStatus === "active" && (
+                <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                  Activo
+                </span>
+              )}
+            </div>
+            <p className="text-3xl font-extrabold text-green-600 mb-0.5">
               {activeBusinessesCount}
             </p>
+            <p className="text-xs text-gray-500 font-medium">Negocios activos</p>
           </button>
 
           <button
             type="button"
             onClick={() => setFilterStatus("inactive")}
-            className={`text-left rounded-lg border p-4 bg-white shadow-sm transition-colors ${
-              filterStatus === "inactive" ? "border-red-500" : "border-gray-200"
+            className={`group text-left rounded-xl border-2 p-5 bg-white shadow-sm transition-all hover:shadow-md ${
+              filterStatus === "inactive"
+                ? "border-red-500 ring-2 ring-red-200"
+                : "border-gray-100 hover:border-red-300"
             }`}
           >
-            <p className="text-xs text-gray-500">Negocios inactivos</p>
-            <p className="text-2xl font-bold text-red-600">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2 bg-red-50 rounded-lg">
+                <AlertCircle className="h-5 w-5 text-red-500" />
+              </div>
+              {filterStatus === "inactive" && (
+                <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded-full">
+                  Activo
+                </span>
+              )}
+            </div>
+            <p className="text-3xl font-extrabold text-red-500 mb-0.5">
               {inactiveBusinessesCount}
+            </p>
+            <p className="text-xs text-gray-500 font-medium">
+              Negocios inactivos
             </p>
           </button>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Buscar por nombre
-              </label>
+        {/* Filtros */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <Filter className="h-4 w-4 text-gray-400" />
+            <span className="text-sm font-semibold text-gray-600">Filtros</span>
+            {(searchTerm || filterDepartamento || filterCategory || filterStatus !== "all") && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchTerm("");
+                  setFilterDepartamento("");
+                  setFilterCategory("");
+                  setFilterStatus("all");
+                }}
+                className="ml-auto text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+              >
+                <X className="h-3 w-3" />
+                Limpiar todo
+              </button>
+            )}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Buscar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 placeholder="Buscar negocio..."
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Filtrar por departamento
-              </label>
-              <select
-                value={filterDepartamento}
-                onChange={(e) => setFilterDepartamento(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Todos los departamentos</option>
-                {Array.from(
-                  new Set(
-                    businesses
-                      .map((b) => b.departamento || b.island)
-                      .filter(Boolean),
-                  ),
-                )
-                  .sort()
-                  .map((dep) => (
-                    <option key={dep} value={dep}>
-                      {dep}
-                    </option>
-                  ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Filtrar por categoría
-              </label>
-              <select
-                value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Todas las categorías</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
+
+            {/* Departamento - de negocios registrados */}
+            <select
+              value={filterDepartamento}
+              onChange={(e) => setFilterDepartamento(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-700"
+            >
+              <option value="">Todos los departamentos</option>
+              {Array.from(
+                new Set(
+                  businesses
+                    .map((b) => b.departamento || b.island)
+                    .filter(Boolean),
+                ),
+              )
+                .sort()
+                .map((dep) => (
+                  <option key={dep} value={dep}>
+                    {dep}
                   </option>
                 ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Estado de suscripción
-              </label>
-              <select
-                value={filterStatus}
-                onChange={(e) =>
-                  setFilterStatus(
-                    e.target.value as "all" | "active" | "inactive",
-                  )
-                }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">Todos</option>
-                <option value="active">Activos</option>
-                <option value="inactive">Inactivos</option>
-              </select>
-            </div>
+            </select>
+
+            {/* Categoría - de negocios registrados */}
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-700"
+            >
+              <option value="">Todas las categorías</option>
+              {Array.from(
+                new Set(
+                  businesses
+                    .map((b) => b.category)
+                    .filter(Boolean),
+                ),
+              )
+                .sort()
+                .map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+            </select>
+
+            {/* Estado */}
+            <select
+              value={filterStatus}
+              onChange={(e) =>
+                setFilterStatus(e.target.value as "all" | "active" | "inactive")
+              }
+              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-700"
+            >
+              <option value="all">Todos los estados</option>
+              <option value="active">Activos</option>
+              <option value="inactive">Inactivos</option>
+            </select>
           </div>
         </div>
 
         {/* Lista de negocios */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-            <p className="text-gray-600">Cargando negocios...</p>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mb-3"></div>
+            <p className="text-gray-500 text-sm">Cargando negocios...</p>
           </div>
         ) : filteredBusinesses.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <Building className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No hay negocios
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-16 text-center">
+            <div className="flex justify-center mb-4">
+              <div className="p-4 bg-gray-100 rounded-full">
+                <Building className="h-10 w-10 text-gray-400" />
+              </div>
+            </div>
+            <h3 className="text-base font-semibold text-gray-800 mb-1">
+              No se encontraron negocios
             </h3>
-            <p className="text-gray-600 mb-4">
-              {searchTerm || filterDepartamento || filterCategory
-                ? "No se encontraron negocios con los filtros aplicados"
-                : "Comienza registrando tu primer negocio"}
+            <p className="text-sm text-gray-500 mb-4">
+              {searchTerm || filterDepartamento || filterCategory || filterStatus !== "all"
+                ? "Intenta ajustar los filtros de búsqueda"
+                : "Comienza registrando el primer negocio"}
             </p>
-            {businesses.length > 0 && (
+            {(searchTerm || filterDepartamento || filterCategory || filterStatus !== "all") && (
               <Button
                 variant="outline"
+                size="sm"
                 onClick={() => {
                   setSearchTerm("");
                   setFilterDepartamento("");
                   setFilterCategory("");
+                  setFilterStatus("all");
                 }}
               >
+                <X className="h-4 w-4 mr-1" />
                 Limpiar filtros
               </Button>
             )}
             {businesses.length === 0 && (
               <Button
                 onClick={handleOpenRegisterModal}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-blue-600 hover:bg-blue-700 mt-2"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Registrar Primer Negocio
@@ -1070,205 +1155,218 @@ const EditBusinessPage = () => {
             )}
           </div>
         ) : (
-          <div className="space-y-2 mb-4">
-            <p className="text-sm text-gray-600">
-              Mostrando {filteredBusinesses.length} de {businesses.length}{" "}
-              negocios
-            </p>
-          </div>
-        )}
-
-        {!loading && filteredBusinesses.length > 0 && (
-          <div className="grid grid-cols-1 gap-4">
-            {filteredBusinesses.map((business) => (
-              <div
-                key={business.id}
-                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+          <>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm text-gray-500">
+                <span className="font-semibold text-gray-800">
+                  {filteredBusinesses.length}
+                </span>{" "}
+                de {businesses.length} negocios
+              </p>
+              <button
+                type="button"
+                onClick={fetchBusinesses}
+                className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
               >
-                <div className="flex flex-col md:flex-row gap-6">
-                  {/* Imagen */}
-                  <div className="flex-shrink-0">
-                    <img
-                      src={
-                        business.logo ||
-                        business.cover_image ||
-                        "https://via.placeholder.com/150"
-                      }
-                      alt={business.name}
-                      className="w-24 h-24 rounded-lg object-cover"
-                    />
-                  </div>
+                <RefreshCw className="h-3.5 w-3.5" />
+                Actualizar
+              </button>
+            </div>
 
-                  {/* Información */}
-                  <div className="flex-1">
-                    <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-1">
-                          {business.name}
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="secondary">{business.category}</Badge>
-                          <Badge variant="outline">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            {business.departamento || business.island}
-                          </Badge>
-                          <Badge
-                            variant={
-                              business.is_public ? "default" : "destructive"
-                            }
-                          >
-                            {business.is_public ? "Público" : "Oculto"}
-                          </Badge>
-                          <Badge
-                            variant={(() => {
-                              const status = getBusinessStatus(business);
-                              if (status.status === "grace_period")
-                                return "secondary";
-                              if (status.status === "active") return "default";
-                              return "destructive";
-                            })()}
-                          >
-                            {(() => {
-                              const status = getBusinessStatus(business);
-                              if (status.status === "grace_period") {
-                                return `Período de gracia (${status.daysRemaining} días)`;
+            <div className="space-y-3">
+              {filteredBusinesses.map((business) => {
+                const status = getBusinessStatus(business);
+                const isActive = isSubscriptionActive(business);
+                const statusColor = isActive
+                  ? "bg-green-50 text-green-700 border-green-200"
+                  : status.status === "grace_period"
+                    ? "bg-amber-50 text-amber-700 border-amber-200"
+                    : "bg-red-50 text-red-600 border-red-200";
+                const statusLabel =
+                  status.status === "grace_period"
+                    ? `Gracia · ${status.daysRemaining}d`
+                    : isActive
+                      ? "Activo"
+                      : "Vencido";
+
+                return (
+                  <div
+                    key={business.id}
+                    className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+                  >
+                    <div className="flex items-stretch">
+                      {/* Barra lateral de estado */}
+                      <div
+                        className={`w-1.5 flex-shrink-0 ${
+                          isActive
+                            ? "bg-green-500"
+                            : status.status === "grace_period"
+                              ? "bg-amber-400"
+                              : "bg-red-400"
+                        }`}
+                      />
+
+                      <div className="flex-1 p-4">
+                        <div className="flex flex-col sm:flex-row gap-4 items-start">
+                          {/* Logo */}
+                          <div className="flex-shrink-0">
+                            <img
+                              src={
+                                business.logo ||
+                                business.cover_image ||
+                                "https://via.placeholder.com/64"
                               }
-                              if (status.status === "active") {
-                                return "Suscripción activa";
+                              alt={business.name}
+                              className="w-14 h-14 rounded-xl object-cover border border-gray-100 shadow-sm"
+                            />
+                          </div>
+
+                          {/* Info principal */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                              <h3 className="text-base font-bold text-gray-900 truncate">
+                                {business.name}
+                              </h3>
+                              <span
+                                className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full border ${statusColor}`}
+                              >
+                                {statusLabel}
+                              </span>
+                              {!business.is_public && (
+                                <span className="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 border border-gray-200">
+                                  <EyeOff className="h-3 w-3 mr-1" />
+                                  Oculto
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 mb-2">
+                              {business.category && (
+                                <span className="flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                                  {business.category}
+                                </span>
+                              )}
+                              {(business.departamento || business.island) && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3 text-gray-400" />
+                                  {business.departamento || business.island}
+                                  {business.municipio && `, ${business.municipio}`}
+                                </span>
+                              )}
+                              {business.contact?.email && (
+                                <span className="flex items-center gap-1">
+                                  <Mail className="h-3 w-3 text-gray-400" />
+                                  {business.contact.email}
+                                </span>
+                              )}
+                              {business.contact?.phone && (
+                                <span className="flex items-center gap-1">
+                                  <Phone className="h-3 w-3 text-gray-400" />
+                                  {business.contact.phone}
+                                </span>
+                              )}
+                              {status.expiryDate && (
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="h-3 w-3 text-gray-400" />
+                                  Vence:{" "}
+                                  {status.expiryDate.toLocaleDateString("es-HN")}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Rating */}
+                            <div className="mb-1">
+                              <BusinessRatingDisplay businessId={business.id} />
+                            </div>
+
+                            {/* PayPal Info */}
+                            {(business.paypal_order_id || business.paypal_payer_name) && (
+                              <div className="flex flex-wrap gap-3 text-xs text-gray-400 mt-1">
+                                {business.paypal_order_id && (
+                                  <span>
+                                    <span className="font-semibold text-blue-500">
+                                      PayPal:
+                                    </span>{" "}
+                                    <span className="font-mono">
+                                      {business.paypal_order_id}
+                                    </span>
+                                  </span>
+                                )}
+                                {business.paypal_payer_name && (
+                                  <span>
+                                    <span className="font-semibold text-blue-500">
+                                      Pagador:
+                                    </span>{" "}
+                                    {business.paypal_payer_name}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Acciones */}
+                          <div className="flex sm:flex-col gap-2 flex-shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => togglePublic(business)}
+                              title={
+                                business.is_public
+                                  ? "Ocultar negocio"
+                                  : "Publicar negocio"
                               }
-                              return "Suscripción vencida";
-                            })()}
-                          </Badge>
+                              className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors ${
+                                business.is_public
+                                  ? "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
+                                  : "border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
+                              }`}
+                            >
+                              {business.is_public ? (
+                                <>
+                                  <EyeOff className="h-3.5 w-3.5" /> Ocultar
+                                </>
+                              ) : (
+                                <>
+                                  <Eye className="h-3.5 w-3.5" /> Publicar
+                                </>
+                              )}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRenewSubscription(business)}
+                              title="Renovar suscripción"
+                              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                            >
+                              <RotateCcw className="h-3.5 w-3.5" /> Renovar
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleEdit(business)}
+                              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100 transition-colors"
+                            >
+                              <Edit className="h-3.5 w-3.5" /> Editar
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleDelete(business.id, business.name)
+                              }
+                              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" /> Eliminar
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
-
-                    <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                      {business.description}
-                    </p>
-
-                    {/* Calificaciones */}
-                    <div className="mb-3">
-                      <BusinessRatingDisplay businessId={business.id} />
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 text-sm text-gray-500">
-                      <span className="flex items-center">
-                        <Mail className="h-4 w-4 mr-1" />
-                        {business.contact?.email || "Sin email"}
-                      </span>
-                      <span className="flex items-center">
-                        <Phone className="h-4 w-4 mr-1" />
-                        {business.contact?.phone || "Sin teléfono"}
-                      </span>
-                      {business.contact?.website && (
-                        <span className="flex items-center">
-                          <Globe className="h-4 w-4 mr-1" />
-                          {business.contact.website}
-                        </span>
-                      )}
-                      <span>
-                        Vence:{" "}
-                        {(() => {
-                          const status = getBusinessStatus(business);
-                          if (status.expiryDate) {
-                            return status.expiryDate.toLocaleDateString(
-                              "es-HN",
-                            );
-                          }
-                          return "Sin fecha";
-                        })()}
-                      </span>
-                    </div>
-
-                    {/* PayPal Info */}
-                    {(business.paypal_order_id ||
-                      business.paypal_payer_name) && (
-                      <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-400">
-                        {business.paypal_order_id && (
-                          <span className="flex items-center gap-1">
-                            <span className="font-semibold text-blue-600">
-                              ID PayPal:
-                            </span>
-                            <span className="font-mono">
-                              {business.paypal_order_id}
-                            </span>
-                          </span>
-                        )}
-                        {business.paypal_payer_name && (
-                          <span className="flex items-center gap-1">
-                            <span className="font-semibold text-blue-600">
-                              Pagador:
-                            </span>
-                            {business.paypal_payer_name}
-                          </span>
-                        )}
-                      </div>
-                    )}
                   </div>
-
-                  {/* Acciones */}
-                  <div className="flex md:flex-col gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => togglePublic(business)}
-                      title={
-                        business.is_public
-                          ? "Ocultar negocio"
-                          : "Publicar negocio"
-                      }
-                      className="flex items-center gap-1"
-                    >
-                      {business.is_public ? (
-                        <>
-                          <EyeOff className="h-4 w-4" />
-                          <span className="hidden sm:inline text-xs">
-                            Ocultar
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="h-4 w-4" />
-                          <span className="hidden sm:inline text-xs">
-                            Publicar
-                          </span>
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleRenewSubscription(business)}
-                      className="flex items-center gap-1"
-                      title="Renovar suscripción"
-                    >
-                      <RotateCcw className="h-4 w-4" />
-                      <span className="hidden sm:inline text-xs">Renovar</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(business)}
-                      className="flex items-center gap-1"
-                    >
-                      <Edit className="h-4 w-4" />
-                      <span className="hidden sm:inline text-xs">Editar</span>
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDelete(business.id, business.name)}
-                      className="flex items-center gap-1"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      <span className="hidden sm:inline text-xs">Eliminar</span>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 
