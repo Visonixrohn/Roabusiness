@@ -100,7 +100,7 @@ const HeroSection = ({
   const galleryCount = business.gallery?.length || 0;
 
   return (
-    <div className="relative overflow-hidden rounded-[32px] min-h-[340px] md:min-h-[500px] group shadow-[0_20px_60px_rgba(15,23,42,0.18)]">
+    <div className="relative overflow-hidden rounded-[32px] min-h-[220px] md:min-h-[320px] group shadow-[0_20px_60px_rgba(15,23,42,0.18)]">
       <img
         src={business.coverImage}
         alt={business.name}
@@ -108,91 +108,43 @@ const HeroSection = ({
         className="absolute inset-0 h-full w-full object-cover cursor-pointer transition-transform duration-700 group-hover:scale-105"
       />
 
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/35 to-transparent" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.18),transparent_28%)]" />
+      {/* Gradiente suave solo arriba para legibilidad de badges */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent" />
 
-      <div className="absolute top-5 left-5 flex flex-wrap gap-3">
-        <Badge className="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-white backdrop-blur-md shadow-lg hover:bg-white/10">
-          <MapPin className="mr-1.5 h-4 w-4" />
+      {/* Badges departamento + categoría — arriba izquierda */}
+      <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+        <Badge className="rounded-full border border-white/20 bg-black/30 px-3 py-1.5 text-white backdrop-blur-md shadow text-xs font-semibold hover:bg-black/30">
+          <MapPin className="mr-1 h-3.5 w-3.5" />
           {business.departamento || business.island}
         </Badge>
-
-        {(business.categories?.length
-          ? business.categories
-          : [business.category]
-        )
+        {(business.categories?.length ? business.categories : [business.category])
           .filter(Boolean)
           .slice(0, 2)
           .map((cat) => (
-            <Badge
-              key={cat}
-              className="rounded-full border border-white/15 bg-black/20 px-4 py-2 text-white backdrop-blur-md hover:bg-black/20"
-            >
+            <Badge key={cat} className="rounded-full border border-white/20 bg-black/30 px-3 py-1.5 text-white backdrop-blur-md text-xs font-semibold hover:bg-black/30">
               {cat}
             </Badge>
           ))}
       </div>
 
+      {/* Botón galería — arriba derecha */}
       {galleryCount > 1 && (
         <Button
           onClick={onOpenGallery}
           size="sm"
-          className="absolute top-5 right-5 rounded-full border border-white/15 bg-white/10 px-4 text-white backdrop-blur-md hover:bg-white/20"
+          className="absolute top-4 right-4 rounded-full border border-white/20 bg-black/30 px-4 text-white backdrop-blur-md hover:bg-black/50 text-xs"
         >
-          <ImageIcon className="mr-2 h-4 w-4" />
+          <ImageIcon className="mr-2 h-3.5 w-3.5" />
           {t("business.gallery")} ({galleryCount})
         </Button>
       )}
 
-      <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-        <div className="flex flex-col lg:flex-row lg:items-end gap-5">
-          <div className="h-24 w-24 md:h-28 md:w-28 rounded-[26px] overflow-hidden border border-white/20 bg-white shadow-2xl shrink-0">
-            <img
-              src={business.logo}
-              alt={`${business.name} logo`}
-              className="h-full w-full object-cover"
-            />
-          </div>
-
-          <div className="flex-1">
-            <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-white">
-              {business.name}
-            </h1>
-
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Badge className="rounded-full border border-white/15 bg-black/20 text-white backdrop-blur-md hover:bg-black/20">
-                <MapPin className="mr-1 h-3.5 w-3.5" />
-                {business.municipio || business.location}
-              </Badge>
-            </div>
-
-            <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-4">
-              <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-md">
-                <StarRating
-                  value={average || 0}
-                  readOnly
-                  size={18}
-                  showValue={false}
-                  totalRatings={totalRatings}
-                  className="justify-start"
-                />
-                <div className="mt-1 text-sm text-white/85">
-                  {average && average > 0 ? average.toFixed(1) : "Nuevo"} ·{" "}
-                  {totalRatings > 0
-                    ? `${totalRatings} ${totalRatings === 1 ? "valoración" : "valoraciones"}`
-                    : "Sin valoraciones"}
-                </div>
-              </div>
-
-              {business.description && (
-                <p className="max-w-2xl text-sm md:text-base text-white/80 leading-relaxed line-clamp-2">
-                  {business.description}
-                </p>
-              )}
-            </div>
-          </div>
+      {/* Logo — esquina inferior derecha */}
+      {business.logo && (
+        <div className="absolute bottom-4 right-4 h-16 w-16 md:h-20 md:w-20 rounded-[18px] overflow-hidden border-2 border-white/40 bg-white shadow-xl z-10">
+          <img src={business.logo} alt={`${business.name} logo`} className="h-full w-full object-cover" />
         </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -1214,9 +1166,11 @@ const TikTokCreatorEmbed = ({ url }: { url: string }) => {
   // Detectar si estamos en WebView nativo (Capacitor APK/AAB)
   const isNativeWebView = (() => {
     try {
-      const { Capacitor } = (window as any);
+      const { Capacitor } = window as any;
       if (Capacitor?.isNativePlatform?.()) return true;
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     // Fallback: detectar WebView por user agent
     const ua = navigator.userAgent || "";
     return /wv|WebView/i.test(ua) && /Android/i.test(ua);
@@ -1302,9 +1256,7 @@ const TikTokCreatorEmbed = ({ url }: { url: string }) => {
         </div>
         <div className="text-center">
           <p className="font-bold text-white">@{username}</p>
-          <p className="text-sm text-slate-400 mt-1">
-            Ver videos en TikTok
-          </p>
+          <p className="text-sm text-slate-400 mt-1">Ver videos en TikTok</p>
         </div>
         <span className="px-5 py-2 rounded-full bg-[#fe2c55] text-white text-sm font-bold">
           Abrir en TikTok
@@ -1661,6 +1613,54 @@ const BusinessProfilePage = () => {
             totalRatings={totalRatings}
             onOpenGallery={() => setShowGalleryModal(true)}
           />
+
+          {/* Info del negocio — debajo de la portada */}
+          <div className="rounded-[28px] border border-slate-200/60 bg-white shadow-sm px-6 py-5 md:px-8 md:py-6">
+            <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
+              {business.name}
+            </h1>
+
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {(business.municipio || business.location) && (
+                <span className="inline-flex items-center gap-1 text-sm font-medium text-slate-500">
+                  <MapPin className="h-4 w-4 text-slate-400" />
+                  {business.municipio || business.location}
+                  {(business.departamento || business.island) && `, ${business.departamento || business.island}`}
+                </span>
+              )}
+              {(business.categories?.length ? business.categories : [business.category])
+                .filter(Boolean)
+                .slice(0, 3)
+                .map((cat) => (
+                  <span key={cat} className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
+                    {cat}
+                  </span>
+                ))}
+            </div>
+
+            <div className="mt-4 flex items-center gap-3">
+              <StarRating
+                value={average || 0}
+                readOnly
+                size={18}
+                showValue={false}
+                totalRatings={totalRatings}
+                className="justify-start"
+              />
+              <span className="text-sm font-semibold text-slate-700">
+                {average && average > 0 ? average.toFixed(1) : "Nuevo"}
+              </span>
+              <span className="text-sm text-slate-400">
+                · {totalRatings > 0 ? `${totalRatings} ${totalRatings === 1 ? "valoración" : "valoraciones"}` : "Sin valoraciones"}
+              </span>
+            </div>
+
+            {business.description && (
+              <p className="mt-4 text-sm md:text-base text-slate-600 leading-relaxed">
+                {business.description}
+              </p>
+            )}
+          </div>
 
           <SectionCard className="p-4 md:p-5">
             <QuickActionsBar

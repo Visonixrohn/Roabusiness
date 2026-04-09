@@ -63,8 +63,13 @@ export function useNearbyBusinesses(
           let permStatus = await CapGeolocation.checkPermissions();
 
           // Si no se ha pedido, solicitar
-          if (permStatus.location === "prompt" || permStatus.location === "prompt-with-rationale") {
-            permStatus = await CapGeolocation.requestPermissions({ permissions: ["location"] });
+          if (
+            permStatus.location === "prompt" ||
+            permStatus.location === "prompt-with-rationale"
+          ) {
+            permStatus = await CapGeolocation.requestPermissions({
+              permissions: ["location"],
+            });
           }
 
           // Si fue denegado explícitamente
@@ -84,7 +89,10 @@ export function useNearbyBusinesses(
         } catch (err: any) {
           // Manejar errores del plugin nativo
           const msg = err?.message || "Error obteniendo ubicación";
-          if (msg.toLowerCase().includes("denied") || msg.toLowerCase().includes("permission")) {
+          if (
+            msg.toLowerCase().includes("denied") ||
+            msg.toLowerCase().includes("permission")
+          ) {
             setGeo({ status: "denied" });
           } else {
             onError(2, msg);

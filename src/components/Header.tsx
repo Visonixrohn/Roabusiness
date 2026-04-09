@@ -8,6 +8,7 @@ import {
   Users,
   Settings,
   LayoutTemplate,
+  MapPin,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -44,8 +45,8 @@ const SearchBox = ({
 }: SearchBoxProps) => {
   return (
     <div className="relative w-full">
-      <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-        <Search className="h-4 w-4 text-gray-400" />
+      <div className="absolute inset-y-0 left-0 flex items-center pl-3.5">
+        <Search className="h-4 w-4 text-slate-400" />
       </div>
 
       <Input
@@ -58,8 +59,13 @@ const SearchBox = ({
           setShowDropdown(value.trim().length > 0);
         }}
         onFocus={() => setShowDropdown(searchQuery.trim().length > 0)}
-        onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-        className="h-10 w-full rounded-full border border-white/30 bg-white/75 pl-10 pr-10 text-sm shadow-sm backdrop-blur-md transition focus:bg-white focus:ring-2 focus:ring-blue-500"
+        onBlur={() => setTimeout(() => setShowDropdown(false), 200)} // Ligeramente más tiempo para permitir clic
+        className={cn(
+          "h-10 w-full rounded-full border border-slate-200/60 bg-slate-100/50",
+          "pl-10 pr-10 text-sm text-slate-900 placeholder:text-slate-400",
+          "shadow-inner backdrop-blur-md transition-all duration-300",
+          "focus:bg-white focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+        )}
         autoComplete="off"
       />
 
@@ -70,55 +76,62 @@ const SearchBox = ({
             setSearchQuery("");
             setShowDropdown(false);
           }}
-          className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+          className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600 transition-colors"
           aria-label="Limpiar búsqueda"
         >
           <X className="h-4 w-4" />
         </button>
       )}
 
+      {/* Dropdown de Resultados */}
       {showDropdown && filteredBusinesses.length > 0 && (
-        <div className="absolute left-0 right-0 z-50 mt-2 max-h-80 overflow-y-auto rounded-2xl border border-white/40 bg-white/95 shadow-2xl backdrop-blur-xl">
-          {filteredBusinesses.slice(0, 8).map((b) => (
+        <div className="absolute left-0 right-0 z-[100] mt-2 max-h-[70vh] sm:max-h-96 overflow-y-auto custom-scrollbar rounded-[20px] border border-slate-200/50 bg-white/95 shadow-[0_12px_40px_rgba(0,0,0,0.12)] backdrop-blur-xl p-2">
+          <div className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            Resultados sugeridos
+          </div>
+          {filteredBusinesses.slice(0, 6).map((b) => (
             <button
               key={b.id}
-              className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-blue-50"
-              onMouseDown={() => {
+              className="group flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-all hover:bg-slate-50 active:scale-[0.98]"
+              onMouseDown={(e) => {
+                e.preventDefault(); // Evita que el onBlur del input se dispare antes del clic
                 setSearchQuery("");
                 setShowDropdown(false);
                 navigate(`/negocio/${b.profile_name || b.id}`);
               }}
             >
               <img
-                src={b.logo}
+                src={b.logo || b.coverImage || "/icons/icon-192.png"}
                 alt={b.name}
-                className="h-10 w-10 rounded-xl border border-gray-200 object-cover"
+                className="h-10 w-10 shrink-0 rounded-xl border border-slate-200 object-cover shadow-sm transition-transform group-hover:scale-105"
               />
 
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-gray-900">
+                <p className="truncate text-[14px] font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">
                   {b.name}
                 </p>
-                <p className="truncate text-xs text-gray-500">
-                  {b.category || "Negocio"}
-                </p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="truncate text-xs font-medium text-slate-500">
+                    {b.category || "Negocio"}
+                  </span>
+                  <span className="h-1 w-1 rounded-full bg-slate-300 shrink-0" />
+                  <span className="flex items-center text-[11px] text-slate-400 truncate">
+                    <MapPin className="h-3 w-3 mr-0.5 shrink-0" />
+                    {b.departamento || b.island}
+                  </span>
+                </div>
               </div>
-
-              <span className="whitespace-nowrap text-xs text-gray-500">
-                {b.departamento || b.island}
-              </span>
             </button>
           ))}
         </div>
       )}
 
-      {showDropdown &&
-        searchQuery.trim().length > 0 &&
-        filteredBusinesses.length === 0 && (
-          <div className="absolute left-0 right-0 z-50 mt-2 rounded-2xl border border-white/40 bg-white/95 p-4 shadow-2xl backdrop-blur-xl">
-            <p className="text-sm text-gray-500">No se encontraron resultados.</p>
-          </div>
-        )}
+      {showDropdown && searchQuery.trim().length > 0 && filteredBusinesses.length === 0 && (
+        <div className="absolute left-0 right-0 z-50 mt-2 rounded-[20px] border border-slate-200/50 bg-white/95 p-6 text-center shadow-[0_12px_40px_rgba(0,0,0,0.12)] backdrop-blur-xl">
+          <Search className="h-8 w-8 text-slate-200 mx-auto mb-2" />
+          <p className="text-sm font-medium text-slate-500">No encontramos resultados para "{searchQuery}"</p>
+        </div>
+      )}
     </div>
   );
 };
@@ -197,20 +210,19 @@ const Header = () => {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 border-b transition-all duration-300",
+        "sticky top-0 z-50 transition-all duration-300",
         isScrolled
-          ? "border-white/20 bg-white/55 shadow-lg backdrop-blur-xl"
-          : "border-transparent bg-white/90 backdrop-blur-md",
+          ? "bg-white/80 backdrop-blur-2xl border-b border-slate-200/60 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]"
+          : "bg-white/95 backdrop-blur-md border-b border-transparent"
       )}
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
-      <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6">
-        {/* Usamos un layout de Grid de 3 columnas para garantizar el centro exacto */}
-        <div className="grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-3">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-4">
           
-          {/* 1. Columna Izquierda: Buscador (solo visible en pantallas medianas o más) */}
+          {/* 1. Columna Izquierda: Buscador */}
           <div className="flex items-center justify-start">
-            <div className="hidden w-full max-w-xs lg:max-w-sm md:block">
+            <div className="hidden w-full max-w-sm md:block">
               <SearchBox
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
@@ -224,17 +236,19 @@ const Header = () => {
 
           {/* 2. Columna Central: Logo y Título */}
           <div className="flex justify-center">
-            <Link to="/" className="flex items-center gap-2 transition-transform hover:scale-[1.02]">
-              <img
-                src="/icons/icon-192.png"
-                alt="RoaBusiness"
-                className="h-10 w-10 rounded-2xl border border-white/40 bg-white/80 object-contain shadow-sm backdrop-blur"
-              />
-              <div className="leading-tight text-center sm:text-left">
-                <span className="block text-sm font-extrabold tracking-tight text-blue-600 sm:text-base">
+            <Link to="/" className="group flex items-center gap-2.5 transition-transform active:scale-95">
+              <div className="relative h-10 w-10 overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-sm transition-transform duration-300 group-hover:scale-105 group-hover:shadow-md">
+                <img
+                  src="/icons/icon-192.png"
+                  alt="RoaBusiness Logo"
+                  className="h-full w-full object-contain p-0.5"
+                />
+              </div>
+              <div className="leading-none text-left">
+                <span className="block text-[17px] font-extrabold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                   RoaBusiness
                 </span>
-                <span className="hidden text-[11px] text-gray-500 sm:block text-center sm:text-left">
+                <span className="block text-[11px] font-bold tracking-widest text-emerald-600 uppercase mt-0.5">
                   Directory
                 </span>
               </div>
@@ -243,38 +257,40 @@ const Header = () => {
 
           {/* 3. Columna Derecha: Navegación, Admin y País */}
           <div className="flex items-center justify-end gap-2 lg:gap-3">
-            {/* Navegación desktop (Oculta en pantallas pequeñas para no amontonarse) */}
+            
+            {/* Navegación Desktop */}
             <nav className="hidden items-center gap-1 xl:flex">
               {navigation.map((item) => {
                 const Icon = item.icon;
+                const active = isActive(item.href);
                 return (
                   <Link
                     key={item.name}
                     to={item.href}
                     className={cn(
-                      "inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-medium transition-all",
-                      isActive(item.href)
-                        ? "bg-blue-600 text-white shadow-md"
-                        : "text-gray-700 hover:bg-white/70 hover:text-blue-600",
+                      "inline-flex h-10 items-center gap-2 rounded-full px-4 text-[13px] font-bold transition-all duration-300",
+                      active
+                        ? "bg-slate-900 text-white shadow-sm"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                     )}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className={cn("h-4 w-4", active ? "text-emerald-400" : "")} />
                     {item.name}
                   </Link>
                 );
               })}
             </nav>
 
-            {/* Admin (Siempre visible si está logueado, ajustado para no romper el layout) */}
+            {/* Admin Buttons */}
             {isAdminLoggedIn && (
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5 ml-2">
                 <Link
                   to="/editar-negocio"
                   className={cn(
-                    "flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl transition-colors",
+                    "flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300",
                     isActive("/editar-negocio")
-                      ? "bg-blue-600 text-white"
-                      : "bg-white/80 text-gray-600 shadow-sm backdrop-blur hover:bg-blue-50 hover:text-blue-600",
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-slate-100 text-slate-500 hover:bg-emerald-50 hover:text-emerald-600"
                   )}
                   aria-label="Panel admin"
                 >
@@ -284,10 +300,10 @@ const Header = () => {
                 <Link
                   to="/admin-banners"
                   className={cn(
-                    "flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl transition-colors",
+                    "flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300",
                     isActive("/admin-banners")
-                      ? "bg-blue-600 text-white"
-                      : "bg-white/80 text-gray-600 shadow-sm backdrop-blur hover:bg-blue-50 hover:text-blue-600",
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-slate-100 text-slate-500 hover:bg-emerald-50 hover:text-emerald-600"
                   )}
                   aria-label="Banners"
                 >
@@ -296,17 +312,17 @@ const Header = () => {
               </div>
             )}
 
-            {/* Selector de país (Oculto en móvil, se muestra en la fila de abajo) */}
-            <div className="hidden md:block">
-              <div className="rounded-full border border-white/30 bg-white/70 p-1 shadow-sm backdrop-blur-xl transition hover:bg-white/90">
+            {/* Selector de País Desktop */}
+            <div className="hidden md:block pl-2 border-l border-slate-200/60 ml-2">
+              <div className="rounded-full bg-slate-50 p-1 transition-colors hover:bg-slate-100">
                 <CountrySelector compact className="w-28 min-w-[112px]" />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Fila Inferior: Buscador móvil y selector de país móvil */}
-        <div className="pb-3 md:hidden">
+        {/* Fila Inferior Móvil: Buscador y País */}
+        <div className="pb-3 pt-1 md:hidden">
           <div className="flex items-center gap-2">
             <div className="min-w-0 flex-1">
               <SearchBox
@@ -319,8 +335,8 @@ const Header = () => {
               />
             </div>
 
-            <div className="rounded-full border border-white/30 bg-white/70 p-1 shadow-sm backdrop-blur-xl shrink-0">
-              <CountrySelector compact className="w-24 min-w-[96px]" />
+            <div className="rounded-full bg-slate-50 p-1 shrink-0 border border-slate-200/60">
+              <CountrySelector compact className="w-[100px]" />
             </div>
           </div>
         </div>

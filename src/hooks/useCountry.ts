@@ -101,8 +101,13 @@ export function useCountry() {
       (async () => {
         try {
           let permStatus = await CapGeolocation.checkPermissions();
-          if (permStatus.location === "prompt" || permStatus.location === "prompt-with-rationale") {
-            permStatus = await CapGeolocation.requestPermissions({ permissions: ["location"] });
+          if (
+            permStatus.location === "prompt" ||
+            permStatus.location === "prompt-with-rationale"
+          ) {
+            permStatus = await CapGeolocation.requestPermissions({
+              permissions: ["location"],
+            });
           }
           if (permStatus.location === "denied") {
             setStatus("denied");
@@ -113,7 +118,10 @@ export function useCountry() {
             timeout: 15000,
             maximumAge: 60000,
           });
-          await handlePosition(position.coords.latitude, position.coords.longitude);
+          await handlePosition(
+            position.coords.latitude,
+            position.coords.longitude,
+          );
         } catch (err: any) {
           const msg = (err?.message || "").toLowerCase();
           if (msg.includes("denied") || msg.includes("permission")) {

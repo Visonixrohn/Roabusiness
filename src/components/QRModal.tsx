@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useAndroidBack } from "@/hooks/useAndroidBack";
-import { X, Download, Share2 } from "lucide-react";
+import { X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Capacitor } from "@capacitor/core";
 import { Share } from "@capacitor/share";
@@ -49,7 +49,8 @@ const QRModal: React.FC<QRModalProps> = ({
       const logoAreaH = 80;
       const nameAreaH = 70;
       const footerH = 40;
-      const cardH = padding + logoAreaH + 20 + qrSize + nameAreaH + footerH + padding;
+      const cardH =
+        padding + logoAreaH + 20 + qrSize + nameAreaH + footerH + padding;
 
       canvas.width = cardW;
       canvas.height = cardH;
@@ -105,7 +106,11 @@ const QRModal: React.FC<QRModalProps> = ({
           ctx.font = `bold ${logoSize * 0.4}px -apple-system, BlinkMacSystemFont, sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillText(businessName.substring(0, 2).toUpperCase(), centerX, y + logoSize / 2);
+          ctx.fillText(
+            businessName.substring(0, 2).toUpperCase(),
+            centerX,
+            y + logoSize / 2,
+          );
         }
 
         y += logoAreaH + 10;
@@ -117,7 +122,10 @@ const QRModal: React.FC<QRModalProps> = ({
         ctx.textBaseline = "middle";
         const maxNameW = cardW - padding * 2;
         let displayName = businessName;
-        while (ctx.measureText(displayName).width > maxNameW && displayName.length > 0) {
+        while (
+          ctx.measureText(displayName).width > maxNameW &&
+          displayName.length > 0
+        ) {
           displayName = displayName.slice(0, -1);
         }
         if (displayName !== businessName) displayName += "…";
@@ -203,7 +211,10 @@ const QRModal: React.FC<QRModalProps> = ({
         // Crear un blob URL temporal para pasarlo a share
         const file = new File([blob], fileName, { type: "image/png" });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: `QR - ${businessName}` });
+          await navigator.share({
+            files: [file],
+            title: `QR - ${businessName}`,
+          });
           return;
         }
         // Fallback: share con URL como texto
@@ -215,7 +226,11 @@ const QRModal: React.FC<QRModalProps> = ({
         });
         return;
       } catch (err) {
-        if ((err as Error).name === "AbortError" || (err as any)?.message?.includes("cancel")) return;
+        if (
+          (err as Error).name === "AbortError" ||
+          (err as any)?.message?.includes("cancel")
+        )
+          return;
       }
     }
 
@@ -361,15 +376,6 @@ const QRModal: React.FC<QRModalProps> = ({
 
           {/* Botones */}
           <div className="flex gap-3">
-            <Button
-              onClick={handleShare}
-              variant="outline"
-              className="flex-1 h-11 rounded-xl"
-              disabled={!qrDataUrl}
-            >
-              <Share2 className="h-4 w-4 mr-2" />
-              Compartir
-            </Button>
             <Button
               onClick={handleDownload}
               className="flex-1 h-11 rounded-xl bg-slate-900 hover:bg-slate-800"

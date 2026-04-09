@@ -8,6 +8,7 @@ import {
   Sparkles,
   ChevronRight,
   X,
+  Globe,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -20,17 +21,13 @@ import BannerCarousel from "@/components/BannerCarousel";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Combobox } from "@/components/ui/combobox";
-import { Globe } from "lucide-react";
 import businessCategories from "@/data/businessCategories";
 import { PAISES_LATAM } from "@/data/countries";
 import { useCountryContext } from "@/contexts/CountryContext";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import FiltersModal, { type ModalFilters } from "@/components/FiltersModal";
+import { cn } from "@/lib/utils";
 
+// ========== UI BASE ==========
 const SectionCard = ({
   children,
   className = "",
@@ -40,7 +37,10 @@ const SectionCard = ({
 }) => {
   return (
     <section
-      className={`rounded-[28px] border border-slate-200/70 bg-white/90 backdrop-blur-xl shadow-[0_10px_40px_rgba(15,23,42,0.08)] ${className}`}
+      className={cn(
+        "rounded-[24px] border border-slate-200/60 bg-white p-6 md:p-8 shadow-sm hover:shadow-md transition-shadow duration-300",
+        className,
+      )}
     >
       {children}
     </section>
@@ -65,74 +65,27 @@ const DirectoryPage = () => {
 
   const { country: detectedCountry, setManualCountry } = useCountryContext();
 
-  // Aplicar el país detectado como filtro al montar la página
   useEffect(() => {
     if (detectedCountry) {
       updateFilters({ pais: detectedCountry });
     }
-    // Solo al montar (no en cada cambio de detectedCountry para no pisar filtros manuales)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [viewMode, setViewMode] = useState<"grid" | "map" | "list">("grid");
   const [showFiltersModal, setShowFiltersModal] = useState(false);
-  const [modalFilters, setModalFilters] = useState({
+  const [inlineCategoryInput, setInlineCategoryInput] = useState("");
+
+  const currentModalFilters: ModalFilters = {
     departamento: filters.departamento || "",
     municipio: filters.municipio || "",
     colonia: filters.colonia || "",
     category: filters.category || "",
-  });
-  const [departamentoInput, setDepartamentoInput] = useState("");
-  const [municipioInput, setMunicipioInput] = useState("");
-  const [coloniaInput, setColoniaInput] = useState("");
-  const [categoryInput, setCategoryInput] = useState("");
-  const [inlineCategoryInput, setInlineCategoryInput] = useState("");
-  const [clearQueryOnApply, setClearQueryOnApply] = useState(false);
-
-  const openFiltersModal = () => {
-    setModalFilters({
-      departamento: filters.departamento || "",
-      municipio: filters.municipio || "",
-      colonia: filters.colonia || "",
-      category: filters.category || "",
-    });
-    setDepartamentoInput(filters.departamento || "");
-    setMunicipioInput(filters.municipio || "");
-    setColoniaInput(filters.colonia || "");
-    setCategoryInput(filters.category || "");
-    setClearQueryOnApply(false);
-    setShowFiltersModal(true);
   };
 
-  const handleApplyModalFilters = () => {
-    updateFilters({
-      ...modalFilters,
-      query: clearQueryOnApply ? "" : filters.query,
-    });
-    setShowFiltersModal(false);
-    setClearQueryOnApply(false);
+  const handleApplyModalFilters = (applied: ModalFilters) => {
+    updateFilters({ ...applied });
   };
-
-  const handleClearModalFilters = () => {
-    setModalFilters({
-      departamento: "",
-      municipio: "",
-      colonia: "",
-      category: "",
-    });
-    setDepartamentoInput("");
-    setMunicipioInput("");
-    setColoniaInput("");
-    setCategoryInput("");
-    setClearQueryOnApply(false);
-  };
-
-  const priceRanges = [
-    { value: "$", label: "Económico ($)" },
-    { value: "$$", label: "Moderado ($$)" },
-    { value: "$$$", label: "Caro ($$$)" },
-    { value: "$$$$", label: "Muy caro ($$$$)" },
-  ];
 
   const hasActiveFilters =
     filters.query ||
@@ -143,104 +96,29 @@ const DirectoryPage = () => {
     filters.priceRange ||
     filters.pais;
 
-  const municipiosModalFiltrados = useMemo(() => {
-    if (!modalFilters.departamento) return municipios;
-
-    return Array.from(
-      new Set(
-        allBusinesses
-          .filter(
-            (business) =>
-              (business.departamento || business.island) ===
-              modalFilters.departamento,
-          )
-          .map((business) => (business.municipio || business.location)?.trim()),
-      ),
-    )
-      .filter(Boolean)
-      .sort() as string[];
-  }, [allBusinesses, municipios, modalFilters.departamento]);
-
-  const coloniasModalFiltradas = useMemo(() => {
-    return Array.from(
-      new Set(
-        allBusinesses
-          .filter((business) => {
-            const sameDepartamento =
-              !modalFilters.departamento ||
-              (business.departamento || business.island) ===
-                modalFilters.departamento;
-
-            const sameMunicipio =
-              !modalFilters.municipio ||
-              (business.municipio || business.location) ===
-                modalFilters.municipio;
-
-            return sameDepartamento && sameMunicipio;
-          })
-          .map((business) => business.colonia?.trim()),
-      ),
-    )
-      .filter(Boolean)
-      .sort() as string[];
-  }, [allBusinesses, modalFilters.departamento, modalFilters.municipio]);
-
-  const categoriasModalFiltradas = useMemo(() => {
-    return Array.from(
-      new Set(
-        allBusinesses
-          .filter((business) => {
-            const sameDepartamento =
-              !modalFilters.departamento ||
-              (business.departamento || business.island) ===
-                modalFilters.departamento;
-
-            const sameMunicipio =
-              !modalFilters.municipio ||
-              (business.municipio || business.location) ===
-                modalFilters.municipio;
-
-            const sameColonia =
-              !modalFilters.colonia ||
-              (business.colonia || "") === modalFilters.colonia;
-
-            return sameDepartamento && sameMunicipio && sameColonia;
-          })
-          .map((business) => business.category?.trim()),
-      ),
-    )
-      .filter(Boolean)
-      .sort() as string[];
-  }, [
-    allBusinesses,
-    modalFilters.departamento,
-    modalFilters.municipio,
-    modalFilters.colonia,
-  ]);
-
   const categoriasInline = useMemo(() => {
     const source = categories.length > 0 ? categories : businessCategories;
-    return Array.from(new Set(source.map((category) => category?.trim())))
+    return Array.from(new Set(source.map((c) => c?.trim())))
       .filter(Boolean)
       .sort() as string[];
   }, [categories]);
 
   if (businessError) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.08),transparent_25%),linear-gradient(to_bottom,#f8fafc,#ffffff)]">
+      <div className="min-h-screen bg-slate-50">
         <Header />
-        <div className="flex items-center justify-center min-h-[60vh] px-4">
+        <div className="flex h-[60vh] items-center justify-center px-4">
           <div className="max-w-md text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50">
-              <X className="h-6 w-6 text-red-500" />
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-[20px] bg-red-50 border border-red-100">
+              <X className="h-8 w-8 text-red-500" />
             </div>
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900 mb-2">
-              Error al cargar el directorio
+            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 mb-2">
+              Error al cargar
             </h2>
-            <p className="text-slate-600">{businessError}</p>
+            <p className="text-slate-500 font-medium">{businessError}</p>
             <Button
               onClick={() => window.location.reload()}
-              className="mt-5 rounded-2xl bg-slate-900 hover:bg-slate-800"
+              className="mt-8 rounded-full bg-slate-900 text-white hover:bg-slate-800 px-8 h-12 font-bold shadow-sm"
             >
               Reintentar
             </Button>
@@ -258,147 +136,139 @@ const DirectoryPage = () => {
   ) => (
     <Badge
       variant="secondary"
-      className="gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-slate-700"
+      className="gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[13px] text-slate-700 shadow-sm transition-all hover:bg-slate-50"
     >
-      <span className="font-medium">{label}:</span> {value}
-      <button onClick={onClear} className="hover:text-red-600">
-        ×
+      <span className="font-bold text-slate-500">{label}:</span>{" "}
+      <span className="font-semibold text-slate-900">{value}</span>
+      <button
+        onClick={onClear}
+        className="ml-1 rounded-full p-0.5 hover:bg-slate-200 hover:text-red-600 transition-colors"
+      >
+        <X className="h-3 w-3" />
       </button>
     </Badge>
   );
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.08),transparent_25%),linear-gradient(to_bottom,#f8fafc,#ffffff)]">
+    <div className="min-h-screen bg-slate-50/50 pb-20">
       <Header />
 
-      <div className="mx-auto w-full max-w-7xl px-4 md:px-6 py-6 md:py-10 space-y-8">
-        <SectionCard className="overflow-hidden">
-          <div className="relative px-6 py-8 md:px-10 md:py-12">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.12),transparent_26%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.08),transparent_24%)]" />
+      <main className="mx-auto w-full max-w-[1200px] px-4 md:px-6 py-6 md:py-10 space-y-8">
+        {/* HERO SECTION */}
+        <section className="relative overflow-hidden rounded-[32px] bg-slate-900 border border-slate-800 shadow-xl">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(16,185,129,0.2),transparent_50%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(59,130,246,0.15),transparent_40%)] pointer-events-none" />
 
-            <div className="relative grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
-              <div>
-                <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
-                  Explorar negocios
-                </div>
-
-                <h1 className="mt-5 text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
-                  Directorio de negocios
-                  <span className="block bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent">
-                    local, útil y fácil de explorar
-                  </span>
-                </h1>
-
-                <p className="mt-5 max-w-2xl text-base md:text-lg leading-8 text-slate-600">
-                  Encuentra restaurantes, tiendas, hoteles, servicios y mucho
-                  más. Busca por nombre, categoría o ubicación y descubre
-                  negocios en distintas zonas.
-                </p>
-
-                <div className="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
-                    <p className="text-sm text-slate-500">Resultados</p>
-                    <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
-                      {filteredCount}
-                    </p>
-                    <p className="text-sm text-slate-500">negocios visibles</p>
-                  </div>
-
-                  <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
-                    <p className="text-sm text-slate-500">Total publicado</p>
-                    <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
-                      {totalBusinesses}
-                    </p>
-                    <p className="text-sm text-slate-500">en el directorio</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="relative">
-                <div className="rounded-[28px] overflow-hidden border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.10)]">
-                  <BannerCarousel />
-                </div>
-              </div>
-            </div>
-          </div>
-        </SectionCard>
-
-        <SectionCard className="p-5 md:p-6 overflow-visible">
-          <div className="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-5 mb-5">
+          <div className="relative p-6 sm:p-10 md:p-12 lg:p-14 grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-10 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 text-emerald-600 mb-2">
-                <Sparkles className="h-4 w-4" />
-                <span className="text-sm font-medium">
-                  Búsqueda inteligente
-                </span>
+              <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400 uppercase tracking-widest backdrop-blur-md mb-6">
+                Explorar negocios
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
-                Encuentra el negocio ideal
-              </h2>
-              <p className="mt-2 text-slate-600">
-                Busca por nombre o filtra por categoría, departamento, municipio
-                y sector.
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.1]">
+                Directorio local, <br />
+                <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                  fácil de explorar
+                </span>
+              </h1>
+              <p className="mt-5 max-w-lg text-base md:text-lg leading-relaxed text-slate-300 font-medium">
+                Encuentra restaurantes, tiendas, hoteles, servicios y mucho más.
+                Busca por nombre, categoría o ubicación.
               </p>
+
+              <div className="mt-8 flex gap-4">
+                <div className="rounded-[20px] border border-white/10 bg-white/5 p-4 backdrop-blur-md flex-1">
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                    Visibles
+                  </p>
+                  <p className="text-3xl font-extrabold text-white">
+                    {filteredCount}
+                  </p>
+                </div>
+                <div className="rounded-[20px] border border-white/10 bg-white/5 p-4 backdrop-blur-md flex-1">
+                  <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                    Directorio
+                  </p>
+                  <p className="text-3xl font-extrabold text-white">
+                    {totalBusinesses}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="flex gap-2 flex-wrap">
-              <Button
-                variant={viewMode === "grid" ? "default" : "outline"}
+            <div className="relative rounded-[24px] overflow-hidden border border-white/10 shadow-2xl lg:rotate-1 hover:rotate-0 transition-transform duration-500">
+              <BannerCarousel />
+            </div>
+          </div>
+        </section>
+
+        {/* BARRA DE FILTROS & VISTAS */}
+        <SectionCard className="p-4 sm:p-6 overflow-visible">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-6">
+            <div>
+              <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-emerald-500" />
+                Busca lo que necesitas
+              </h2>
+            </div>
+
+            {/* Controles Segmentados de Vista */}
+            <div className="flex p-1 bg-slate-100 rounded-2xl border border-slate-200/60 w-full lg:w-auto">
+              <button
                 onClick={() => setViewMode("grid")}
-                className={
+                className={cn(
+                  "flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all",
                   viewMode === "grid"
-                    ? "rounded-2xl bg-slate-900 text-white hover:bg-slate-800"
-                    : "rounded-2xl"
-                }
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700",
+                )}
               >
-                <Grid className="h-4 w-4 mr-2" />
-                Grid
-              </Button>
-
-              <Button
-                variant={viewMode === "list" ? "default" : "outline"}
+                <Grid className="h-4 w-4" />{" "}
+                <span className="hidden sm:inline">Grid</span>
+              </button>
+              <button
                 onClick={() => setViewMode("list")}
-                className={
+                className={cn(
+                  "flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all",
                   viewMode === "list"
-                    ? "rounded-2xl bg-slate-900 text-white hover:bg-slate-800"
-                    : "rounded-2xl"
-                }
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700",
+                )}
               >
-                <ListFilter className="h-4 w-4 mr-2" />
-                Lista
-              </Button>
-
-              <Button
-                variant={viewMode === "map" ? "default" : "outline"}
+                <ListFilter className="h-4 w-4" />{" "}
+                <span className="hidden sm:inline">Lista</span>
+              </button>
+              <button
                 onClick={() => setViewMode("map")}
-                className={
+                className={cn(
+                  "flex-1 lg:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all",
                   viewMode === "map"
-                    ? "rounded-2xl bg-slate-900 text-white hover:bg-slate-800"
-                    : "rounded-2xl"
-                }
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700",
+                )}
               >
-                <MapPin className="h-4 w-4 mr-2" />
-                Mapa
-              </Button>
+                <MapPin className="h-4 w-4" />{" "}
+                <span className="hidden sm:inline">Mapa</span>
+              </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-[1.25fr_0.6fr_0.6fr_auto] gap-4 items-end overflow-visible">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-4">
-                <Search className="h-4 w-4 text-slate-400" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_auto] gap-3 items-center overflow-visible">
+            {/* Buscador */}
+            <div className="relative group z-10">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                <Search className="h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
               </div>
               <Input
                 type="text"
-                placeholder="Buscar negocios, restaurantes, hoteles, servicios..."
+                placeholder="Buscar por nombre, rubro..."
                 value={filters.query}
                 onChange={(e) => updateFilters({ query: e.target.value })}
-                className="h-12 rounded-2xl border-slate-200 pl-11 text-base shadow-sm"
+                className="h-14 rounded-[20px] border-slate-200/60 bg-slate-50 pl-12 text-[15px] font-medium text-slate-900 shadow-sm focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 transition-all placeholder:text-slate-400"
               />
             </div>
 
-            <div className="relative">
+            {/* Categoría */}
+            <div className="relative z-20">
               <Combobox
                 value={filters.category}
                 onInputChange={setInlineCategoryInput}
@@ -406,20 +276,18 @@ const DirectoryPage = () => {
                   updateFilters({ category: value });
                   setInlineCategoryInput(value);
                 }}
-                options={categoriasInline.filter((category) =>
-                  category
-                    .toLowerCase()
-                    .includes(inlineCategoryInput.toLowerCase()),
+                options={categoriasInline.filter((c) =>
+                  c.toLowerCase().includes(inlineCategoryInput.toLowerCase()),
                 )}
-                placeholder="Selecciona una categoría"
+                placeholder="Categoría"
                 inputValue={inlineCategoryInput || filters.category}
                 clearable
               />
             </div>
 
-            {/* Selector de país */}
-            <div className="relative flex items-center gap-1.5">
-              <Globe className="absolute left-3 h-4 w-4 text-teal-500 pointer-events-none z-10" />
+            {/* Selector de País */}
+            <div className="relative flex items-center group z-10">
+              <Globe className="absolute left-4 h-5 w-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors pointer-events-none" />
               <select
                 value={filters.pais || ""}
                 onChange={(e) => {
@@ -427,7 +295,7 @@ const DirectoryPage = () => {
                   updateFilters({ pais: val });
                   if (val) setManualCountry(val);
                 }}
-                className="w-full h-12 pl-9 pr-4 rounded-2xl border border-slate-200 bg-white text-sm text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-400 appearance-none cursor-pointer"
+                className="w-full h-14 pl-12 pr-10 rounded-[20px] border border-slate-200/60 bg-slate-50 text-[15px] font-medium text-slate-900 shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 appearance-none cursor-pointer transition-all"
               >
                 <option value="">Todos los países</option>
                 {PAISES_LATAM.map((p) => (
@@ -436,382 +304,186 @@ const DirectoryPage = () => {
                   </option>
                 ))}
               </select>
-              <svg
-                className="absolute right-3 h-4 w-4 text-gray-400 pointer-events-none"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
+              <ChevronRight className="absolute right-4 h-4 w-4 text-slate-400 pointer-events-none rotate-90" />
             </div>
 
+            {/* Botón Más Filtros */}
             <Button
-              variant="outline"
-              onClick={openFiltersModal}
-              className="h-12 rounded-2xl border-slate-200 bg-white hover:bg-slate-50"
+              onClick={() => setShowFiltersModal(true)}
+              className="h-14 rounded-[20px] border border-slate-200/60 bg-white hover:bg-slate-50 text-slate-700 font-bold shadow-sm transition-all active:scale-95 px-6 z-10"
             >
-              <SlidersHorizontal className="h-4 w-4 mr-2" />
-              Filtros {hasActiveFilters ? "activos" : ""}
+              <SlidersHorizontal className="h-5 w-5 mr-2 text-emerald-500" />
+              Filtros
+              {hasActiveFilters && (
+                <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-[10px] text-white">
+                  !
+                </span>
+              )}
             </Button>
           </div>
 
+          {/* Tags de Filtros Activos */}
           {hasActiveFilters && (
-            <div className="mt-5 flex flex-wrap gap-2">
+            <div className="mt-5 flex flex-wrap items-center gap-2 pt-4 border-t border-slate-100">
               {filters.query &&
                 renderActiveFilterBadge("Búsqueda", `"${filters.query}"`, () =>
                   updateFilters({ query: "" }),
                 )}
-
               {filters.departamento &&
                 renderActiveFilterBadge(
                   "Departamento",
                   filters.departamento,
                   () => updateFilters({ departamento: "" }),
                 )}
-
               {filters.municipio &&
                 renderActiveFilterBadge("Municipio", filters.municipio, () =>
                   updateFilters({ municipio: "" }),
                 )}
-
               {filters.colonia &&
                 renderActiveFilterBadge("Sector", filters.colonia, () =>
                   updateFilters({ colonia: "" }),
                 )}
-
               {filters.category &&
                 renderActiveFilterBadge("Categoría", filters.category, () =>
                   updateFilters({ category: "" }),
                 )}
-
-              {filters.priceRange &&
-                renderActiveFilterBadge(
-                  "Precio",
-                  priceRanges.find((p) => p.value === filters.priceRange)
-                    ?.label || filters.priceRange,
-                  () => updateFilters({ priceRange: "" }),
-                )}
-
               {filters.pais &&
                 renderActiveFilterBadge("País", filters.pais, () =>
                   updateFilters({ pais: "" }),
                 )}
 
-              <Button
-                variant="ghost"
+              <button
                 onClick={clearFilters}
-                className="rounded-full text-slate-600 hover:text-red-600"
+                className="text-[13px] font-bold text-slate-400 hover:text-red-600 ml-2 transition-colors"
               >
                 Limpiar todo
-              </Button>
+              </button>
             </div>
           )}
         </SectionCard>
 
-        <Dialog open={showFiltersModal} onOpenChange={setShowFiltersModal}>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0 rounded-[28px] border-0 shadow-2xl">
-            <DialogHeader className="px-6 pt-6 pb-4 border-b bg-white">
-              <DialogTitle className="text-2xl font-bold tracking-tight text-slate-900">
-                Filtrar resultados
-              </DialogTitle>
-              <p className="text-sm text-slate-500">
-                Refina la búsqueda por ubicación y categoría.
-              </p>
-            </DialogHeader>
+        <FiltersModal
+          open={showFiltersModal}
+          onClose={() => setShowFiltersModal(false)}
+          onApply={handleApplyModalFilters}
+          allBusinesses={allBusinesses}
+          departamentos={departamentos}
+          municipios={municipios}
+          initialFilters={currentModalFilters}
+        />
 
-            <div className="px-6 py-5 space-y-4 bg-slate-50/70 overflow-visible">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-visible">
-                <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
-                  <p className="text-sm font-medium text-slate-700">
-                    Departamento
-                  </p>
-                  <Combobox
-                    value={modalFilters.departamento}
-                    onInputChange={setDepartamentoInput}
-                    onChange={(value) => {
-                      setModalFilters((prev) => ({
-                        ...prev,
-                        departamento: value,
-                        municipio: "",
-                        colonia: "",
-                        category: "",
-                      }));
-                      setDepartamentoInput(value);
-                      setMunicipioInput("");
-                      setColoniaInput("");
-                      setCategoryInput("");
-                      setClearQueryOnApply(true);
-                    }}
-                    options={departamentos.filter((departamento) =>
-                      departamento
-                        .toLowerCase()
-                        .includes(departamentoInput.toLowerCase()),
-                    )}
-                    placeholder="Departamento"
-                    inputValue={departamentoInput || modalFilters.departamento}
-                    clearable
-                  />
-                </div>
-
-                <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
-                  <p className="text-sm font-medium text-slate-700">
-                    Municipio
-                  </p>
-                  <Combobox
-                    value={modalFilters.municipio}
-                    onInputChange={setMunicipioInput}
-                    onChange={(value) => {
-                      setModalFilters((prev) => ({
-                        ...prev,
-                        municipio: value,
-                        colonia: "",
-                        category: "",
-                      }));
-                      setMunicipioInput(value);
-                      setColoniaInput("");
-                      setCategoryInput("");
-                    }}
-                    options={municipiosModalFiltrados.filter((municipio) =>
-                      municipio
-                        .toLowerCase()
-                        .includes(municipioInput.toLowerCase()),
-                    )}
-                    placeholder={
-                      modalFilters.departamento
-                        ? "Municipio"
-                        : "Primero selecciona departamento"
-                    }
-                    inputValue={municipioInput || modalFilters.municipio}
-                    clearable
-                    disabled={!modalFilters.departamento}
-                  />
-                </div>
-
-                <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
-                  <p className="text-sm font-medium text-slate-700">
-                    Colonia / Sector
-                  </p>
-                  <Combobox
-                    value={modalFilters.colonia}
-                    onInputChange={setColoniaInput}
-                    onChange={(value) => {
-                      setModalFilters((prev) => ({
-                        ...prev,
-                        colonia: value,
-                        category: "",
-                      }));
-                      setColoniaInput(value);
-                      setCategoryInput("");
-                    }}
-                    options={coloniasModalFiltradas.filter((colonia) =>
-                      colonia
-                        .toLowerCase()
-                        .includes(coloniaInput.toLowerCase()),
-                    )}
-                    placeholder={
-                      modalFilters.departamento || modalFilters.municipio
-                        ? "Colonia / Sector"
-                        : "Primero selecciona ubicación"
-                    }
-                    inputValue={coloniaInput || modalFilters.colonia}
-                    clearable
-                    disabled={
-                      !modalFilters.departamento && !modalFilters.municipio
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2 rounded-2xl border border-slate-200 bg-white p-4">
-                  <p className="text-sm font-medium text-slate-700">
-                    Categoría
-                  </p>
-                  <Combobox
-                    value={modalFilters.category}
-                    onInputChange={setCategoryInput}
-                    onChange={(value) => {
-                      setModalFilters((prev) => ({
-                        ...prev,
-                        category: value,
-                      }));
-                      setCategoryInput(value);
-                    }}
-                    options={categoriasModalFiltradas.filter((category) =>
-                      category
-                        .toLowerCase()
-                        .includes(categoryInput.toLowerCase()),
-                    )}
-                    placeholder="Categoría"
-                    inputValue={categoryInput || modalFilters.category}
-                    clearable
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="px-6 py-4 border-t bg-white flex flex-col sm:flex-row gap-2 sm:justify-between">
-              <Button
-                variant="outline"
-                onClick={handleClearModalFilters}
-                className="rounded-2xl text-red-600 border-red-200 hover:bg-red-50"
-              >
-                Limpiar
-              </Button>
-
-              <div className="flex gap-2 sm:justify-end">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowFiltersModal(false)}
-                  className="rounded-2xl"
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  onClick={handleApplyModalFilters}
-                  className="rounded-2xl bg-slate-900 hover:bg-slate-800"
-                >
-                  Aplicar filtros
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-1">
-          <div>
-            <h3 className="text-2xl font-bold tracking-tight text-slate-900">
-              {filteredCount} resultados encontrados
-            </h3>
-            <p className="text-slate-600 mt-1">
-              Explora negocios locales por categoría y ubicación.
-            </p>
-          </div>
-
-          {hasActiveFilters && (
-            <Button
-              variant="outline"
-              onClick={clearFilters}
-              className="rounded-2xl border-slate-200 bg-white hover:bg-slate-50"
-            >
-              Limpiar filtros
-            </Button>
-          )}
-        </div>
-
+        {/* CONTENEDOR DE RESULTADOS */}
         <Tabs defaultValue="businesses" className="space-y-0">
           <TabsContent value="businesses" className="mt-0">
             {loadingBusinesses ? (
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                {[...Array(9)].map((_, i) => (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+                {[...Array(6)].map((_, i) => (
                   <div
                     key={i}
-                    className="rounded-[24px] border border-slate-200 bg-white p-4 md:p-5 animate-pulse"
+                    className="rounded-[24px] border border-slate-200/60 bg-white p-3 md:p-5 shadow-sm animate-pulse"
                   >
-                    <div className="h-44 bg-slate-200 rounded-2xl mb-4" />
-                    <div className="h-4 bg-slate-200 rounded mb-2" />
-                    <div className="h-4 bg-slate-200 rounded w-2/3 mb-4" />
-                    <div className="h-3 bg-slate-200 rounded mb-1" />
-                    <div className="h-3 bg-slate-200 rounded w-1/2" />
+                    <div className="h-28 md:h-48 bg-slate-100 rounded-2xl mb-4 md:mb-5" />
+                    <div className="h-4 md:h-5 bg-slate-100 rounded-md w-3/4 mb-3" />
+                    <div className="h-3 md:h-4 bg-slate-100 rounded-md w-1/2 mb-4" />
+                    <div className="h-8 md:h-10 bg-slate-100 rounded-xl w-full mt-auto" />
                   </div>
                 ))}
               </div>
             ) : filteredCount === 0 ? (
-              <SectionCard className="p-10 md:p-14">
-                <div className="max-w-md mx-auto text-center">
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
-                    <MapPin className="h-6 w-6 text-slate-500" />
-                  </div>
-                  <h3 className="text-xl font-bold tracking-tight text-slate-900 mb-2">
-                    No se encontraron negocios
-                  </h3>
-                  <p className="text-slate-600 mb-5">
-                    Intenta ajustar tu búsqueda o cambiar los filtros para ver
-                    más resultados.
-                  </p>
-                  <Button
-                    onClick={clearFilters}
-                    className="rounded-2xl bg-slate-900 hover:bg-slate-800"
-                  >
-                    Limpiar todos los filtros
-                  </Button>
+              <SectionCard className="p-12 md:p-20 text-center flex flex-col items-center justify-center">
+                <div className="flex h-20 w-20 items-center justify-center rounded-[24px] bg-slate-100 mb-6">
+                  <Search className="h-8 w-8 text-slate-400" />
                 </div>
+                <h3 className="text-2xl font-extrabold tracking-tight text-slate-900 mb-2">
+                  No encontramos resultados
+                </h3>
+                <p className="text-slate-500 font-medium max-w-md mx-auto mb-8">
+                  No hay negocios que coincidan con tus filtros actuales.
+                  Intenta usar términos más generales o limpia los filtros.
+                </p>
+                <Button
+                  onClick={clearFilters}
+                  className="rounded-full bg-slate-900 hover:bg-slate-800 text-white px-8 h-12 font-bold shadow-sm"
+                >
+                  Limpiar todos los filtros
+                </Button>
               </SectionCard>
             ) : viewMode === "grid" ? (
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                 {businesses.map((business) => (
-                  <BusinessCard key={business.id} business={business} />
+                  <div
+                    key={business.id}
+                    className="h-full transform transition-transform duration-300 hover:-translate-y-1"
+                  >
+                    <BusinessCard business={business} />
+                  </div>
                 ))}
               </div>
             ) : viewMode === "list" ? (
               <div className="flex flex-col gap-4">
                 {businesses.map((business) => (
-                  <SectionCard
+                  <a
                     key={business.id}
-                    className="p-4 md:p-5 transition-shadow hover:shadow-[0_18px_45px_rgba(15,23,42,0.10)]"
+                    href={`/negocio/@${business.profile_name || business.id}`}
+                    className="group block rounded-[24px] border border-slate-200/60 bg-white p-4 md:p-5 shadow-sm hover:shadow-[0_12px_30px_-10px_rgba(15,23,42,0.12)] hover:border-slate-300 transition-all duration-300"
                   >
-                    <div className="flex flex-col md:flex-row md:items-center md:gap-6">
-                      <div className="flex-1">
-                        <div className="flex flex-wrap items-center gap-2 mb-2">
-                          <h3 className="text-xl font-bold tracking-tight text-slate-900">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-5 md:gap-6">
+                      {/* Thumbnail Image */}
+                      {(business.logo || business.coverImage) && (
+                        <div className="h-24 w-24 md:h-28 md:w-28 shrink-0 overflow-hidden rounded-[16px] bg-slate-100 border border-slate-200/60 group-hover:shadow-md transition-shadow">
+                          <img
+                            src={business.logo || business.coverImage}
+                            alt={business.name}
+                            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+                      )}
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                          <h3 className="text-xl font-extrabold tracking-tight text-slate-900 truncate group-hover:text-emerald-600 transition-colors">
                             {business.name}
                           </h3>
                           {business.category && (
-                            <Badge className="rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50">
+                            <Badge className="rounded-full bg-emerald-50 text-emerald-700 border-emerald-100 font-bold px-2.5 py-0.5">
                               {business.category}
                             </Badge>
                           )}
                         </div>
 
-                        <p className="text-slate-600 mb-1">
-                          {business.municipio || business.location}
-                          {business.departamento
-                            ? ` • ${business.departamento}`
-                            : business.island
-                              ? ` • ${business.island}`
+                        <div className="flex items-center gap-1.5 text-[13px] font-bold text-slate-400 uppercase tracking-wide mb-2.5">
+                          <MapPin className="h-3.5 w-3.5" />
+                          <span className="truncate">
+                            {business.municipio || business.location}
+                            {business.departamento || business.island
+                              ? `, ${business.departamento || business.island}`
                               : ""}
-                        </p>
+                          </span>
+                        </div>
 
-                        {business.colonia && (
-                          <p className="text-sm text-slate-500 mb-2">
-                            Sector: {business.colonia}
-                          </p>
-                        )}
-
-                        <p className="text-sm leading-6 text-slate-600 line-clamp-2">
-                          {business.description}
+                        <p className="text-[15px] leading-relaxed text-slate-500 line-clamp-2">
+                          {business.description ||
+                            "Sin descripción disponible."}
                         </p>
                       </div>
 
-                      <Button
-                        asChild
-                        className="mt-4 md:mt-0 rounded-2xl bg-slate-900 hover:bg-slate-800"
-                      >
-                        <a
-                          href={`/negocio/@${business.profile_name || business.id}`}
-                        >
-                          Ver perfil
-                          <ChevronRight className="ml-2 h-4 w-4" />
-                        </a>
-                      </Button>
+                      <div className="hidden md:flex shrink-0 h-12 w-12 items-center justify-center rounded-full bg-slate-50 text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
+                        <ChevronRight className="h-6 w-6" />
+                      </div>
                     </div>
-                  </SectionCard>
+                  </a>
                 ))}
               </div>
             ) : (
-              <SectionCard className="overflow-hidden p-2">
-                <div className="overflow-hidden rounded-[22px]">
+              <SectionCard className="p-2 overflow-hidden h-[600px] border-slate-200/60 shadow-sm">
+                <div className="h-full w-full rounded-[20px] overflow-hidden bg-slate-100">
                   <MapView businesses={businesses} />
                 </div>
               </SectionCard>
             )}
           </TabsContent>
         </Tabs>
-      </div>
+      </main>
 
       <Footer />
     </div>

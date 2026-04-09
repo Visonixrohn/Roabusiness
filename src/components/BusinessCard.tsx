@@ -1,285 +1,91 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Star,
-  MapPin,
-  Phone,
-  Globe,
-  Heart,
-  Eye,
-  Mail,
-  Facebook,
-  Instagram,
-  Twitter,
-  Users,
-  TrendingUp,
-  Share2,
-  User,
-} from "lucide-react";
-import TikTokIcon from "@/components/icons/TikTokIcon";
+import { Star, MapPin, ArrowRight } from "lucide-react";
 import { Business } from "@/types/business";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import ContactModal from "@/components/ContactModal";
 import GalleryModal from "@/components/GalleryModal";
 import QRModal from "@/components/QRModal";
-import { StarRating } from "@/components/StarRating";
-import { cn } from "@/lib/utils";
 import { useContacts } from "@/hooks/useContacts";
 import { useRatings } from "@/hooks/useRatings";
-import {
-  copyBusinessLink,
-  getBusinessUrl,
-  shareBusinessLink,
-} from "@/lib/shareUtils";
+import { getBusinessUrl } from "@/lib/shareUtils";
+import { cn } from "@/lib/utils";
 
 interface BusinessCardProps {
   business: Business;
   followers?: number;
-  variant?: "default" | "compact";
 }
 
-const BusinessCard: React.FC<BusinessCardProps> = ({
-  business,
-  followers,
-  variant = "default",
-}) => {
+const BusinessCard: React.FC<BusinessCardProps> = ({ business }) => {
   const navigate = useNavigate();
-  const [isLiked, setIsLiked] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
 
-  const { contacts, loading: loadingContacts } = useContacts(business.id);
-  const { average, totalRatings } = useRatings(business.id);
-
-  // Fallback para contactos: si no hay en la tabla contacts, usar los del objeto business.contact
-  const fallbackContacts = business.contact || null;
-
-  const getPriceRangeText = (priceRange: string) => {
-    switch (priceRange) {
-      case "$":
-        return "Económico";
-      case "$$":
-        return "Moderado";
-      case "$$$":
-        return "Caro";
-      case "$$$$":
-        return "Muy Caro";
-      default:
-        return "No especificado";
-    }
-  };
-
-  const islandColors = {
-    Roatán: "bg-gradient-to-r from-teal-500 to-teal-600",
-    Utila: "bg-gradient-to-r from-emerald-500 to-emerald-600",
-    Guanaja: "bg-gradient-to-r from-indigo-500 to-indigo-600",
-    "Jose Santos Guardiola": "bg-gradient-to-r from-pink-500 to-pink-600",
-  };
+  const { contacts } = useContacts(business.id);
+  const { average } = useRatings(business.id);
 
   return (
     <>
       <div
-        className={cn(
-          "bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden group relative cursor-pointer border border-gray-100",
-          "transform hover:-translate-y-1",
-        )}
-        onClick={() => {
-          navigate(`/negocio/${business.profile_name || business.id}`);
-        }}
+        className="group relative flex flex-col h-full cursor-pointer overflow-hidden bg-white rounded-[24px] md:rounded-[28px] border border-slate-200/50 shadow-[0_2px_10px_rgba(15,23,42,0.03)] hover:shadow-[0_12px_30px_-10px_rgba(15,23,42,0.12)] hover:border-slate-300 transition-all duration-300 hover:-translate-y-1"
+        onClick={() => navigate(`/negocio/${business.profile_name || business.id}`)}
       >
-        {/* Imagen de portada con aspect ratio fijo */}
-        <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
+        {/* IMAGEN DE PORTADA */}
+        <div className="relative h-28 sm:h-32 md:h-48 w-full overflow-hidden bg-slate-100 shrink-0">
           <img
             src={business.coverImage}
             alt={business.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-            loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
-
-          {/* Overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/20 group-hover:from-black/40 transition-all duration-300" />
-
-          {/* Badge de departamento/isla - arriba izquierda */}
-          <div className="absolute top-3 right-1">
-            <Badge
-              className={cn(
-                "text-xs font-semibold shadow-lg px-2.5 py-1 text-white border-0",
-                islandColors[
-                  (business.departamento ||
-                    business.island) as keyof typeof islandColors
-                ] || "bg-gradient-to-r from-gray-500 to-gray-600",
-              )}
-            >
-              <MapPin className="h-3 w-3 mr-1 inline" />
-              {business.departamento || business.island}
-            </Badge>
-          </div>
-
-          {/* Galería indicator - abajo derecha (ligeramente desplazado para dejar espacio a las estrellas) */}
-          {business.gallery && business.gallery.length > 1 && (
-            <div className="absolute bottom-3 right-16">
-              <Button
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowGalleryModal(true);
-                }}
-                className="bg-white/90 backdrop-blur-sm text-gray-800 hover:bg-white rounded-full px-2.5 sm:px-3 py-1.5 text-xs h-auto font-medium shadow-lg"
-              >
-                <Eye className="h-3.5 w-3.5 mr-1 sm:mr-1.5" />
-                <span>
-                  {business.gallery?.length} foto
-                  {business.gallery.length !== 1 ? "s" : ""}
-                </span>
-              </Button>
-            </div>
-          )}
-
-          {/* Rating overlay - esquina inferior derecha sobre la imagen (fondo transparente) */}
-          <div className="absolute bottom-3 right-3 z-20">
-            <div className="px-2 py-1 flex flex-col items-center gap-0">
-              <div className="text-sm font-semibold text-white drop-shadow-lg">
-                {(average || 0).toFixed(1)}
-              </div>
-              <StarRating
-                value={average || 0}
-                readOnly
-                size={14}
-                showValue={false}
-                className="!leading-none text-white drop-shadow-lg"
-              />
-              <span className="text-xs text-white drop-shadow mt-1">
-                {totalRatings || 0} personas calificaron
-              </span>
-            </div>
-          </div>
-
-          {/* Logo flotante */}
-          <div className="absolute -bottom-1 left-4">
-            <div className="w-16 h-16 rounded-2xl border-4 border-white shadow-xl overflow-hidden bg-white">
-              <img
-                src={business.logo}
-                alt={`${business.name} logo`}
-                className="w-full h-full object-cover"
-              />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-90" />
+          
+          {/* Badge Ubicación Flotante */}
+          <div className="absolute top-2 left-2 md:top-3 md:left-3 z-10">
+            <div className="bg-white/95 backdrop-blur-md px-1.5 py-0.5 md:px-2 md:py-1 rounded-full text-[9px] md:text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1 shadow-sm">
+              <MapPin className="h-2.5 w-2.5 text-emerald-500" />
+              <span className="truncate max-w-[50px] sm:max-w-[100px]">{business.departamento || business.island}</span>
             </div>
           </div>
         </div>
 
-        {/* Contenido */}
-        <div className="p-4 pt-8">
-          {/* Header con nombre y categoría */}
-          <div className="mb-3">
-            {/* Nombre completo y centrado (sin truncar) */}
-            <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-2 text-center group-hover:text-teal-600 transition-colors">
+        {/* CONTENIDO INFERIOR - Paddings ultra compactos en móvil (p-2.5) */}
+        <div className="relative flex flex-col flex-1 p-2.5 md:p-5">
+          {/* Nombre y Estrellas */}
+          <div className="flex justify-between items-start gap-1 mb-1">
+            <h3 className="text-[13px] md:text-[17px] font-extrabold text-slate-900 line-clamp-1 group-hover:text-emerald-600 transition-colors">
               {business.name}
             </h3>
-            <div className="flex flex-wrap items-center justify-center gap-1.5">
-              {(business.categories && business.categories.length > 0
-                ? business.categories
-                : [business.category]
-              )
-                .filter(Boolean)
-                .map((cat) => (
-                  <Badge
-                    key={cat}
-                    variant="outline"
-                    className="text-teal-600 border-teal-300 bg-teal-50 text-[10px] sm:text-xs px-2 py-0.5 font-medium"
-                  >
-                    {cat}
-                  </Badge>
-                ))}
+            <div className="flex items-center gap-1 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-100 shrink-0">
+              <Star className="h-3 w-3 md:h-3.5 md:w-3.5 fill-amber-500 text-amber-500" />
+              <span className="text-[10px] md:text-xs font-bold text-amber-700">{(average || 0).toFixed(1)}</span>
             </div>
           </div>
-          {/* Amenidades */}
-          {business.amenities && business.amenities.length > 0 && (
-            <div className="mb-4">
-              <div className="flex flex-wrap gap-1.5">
-                {business.amenities.slice(0, 3).map((amenity, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="text-[9px] sm:text-xs bg-gray-100 text-gray-700 px-1.5 sm:px-2 py-0.5 font-normal"
-                  >
-                    {amenity}
-                  </Badge>
-                ))}
-                {business.amenities.length > 3 && (
-                  <Badge
-                    variant="secondary"
-                    className="text-[9px] sm:text-xs bg-gradient-to-r from-blue-100 to-teal-100 text-blue-700 px-1.5 sm:px-2 py-0.5 font-medium"
-                  >
-                    +{business.amenities.length - 3} más
-                  </Badge>
-                )}
-              </div>
-            </div>
-          )}
 
-          {/* Ubicación */}
-          <div className="flex items-start gap-2 mb-3 text-xs sm:text-sm text-gray-600">
-            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400 flex-shrink-0 mt-0.5" />
-            <span className="line-clamp-1">
-              {[business.municipio || business.location, business.colonia]
-                .filter(Boolean)
-                .join(", ")}
-            </span>
+          {/* Categoría y Ciudad */}
+          <div className="flex items-center gap-1 text-[10px] md:text-[12px] font-medium text-slate-500 mb-3 truncate">
+            <span className="text-emerald-600 font-bold bg-emerald-50 px-1.5 rounded truncate max-w-[70%]">{business.category || business.categories?.[0]}</span>
+            <span className="w-1 h-1 rounded-full bg-slate-300 shrink-0" />
+            <span className="truncate">{business.municipio || business.location}</span>
           </div>
 
-          {/* Descripción */}
-          <p className="text-gray-600 text-xs sm:text-sm mb-3 line-clamp-2 leading-relaxed">
-            {business.description ||
-              "Descubre este increíble negocio en Honduras"}
+          {/* Descripción (Oculta en móvil) */}
+          <p className="hidden md:block text-[13px] text-slate-500 line-clamp-2 leading-relaxed mb-4">
+            {business.description || "Descubre más sobre este negocio..."}
           </p>
 
-          {/* Stats (seguidores si existe) */}
-          {followers !== undefined && followers > 0 && (
-            <div className="flex items-center gap-4 mb-4 pb-3 border-b border-gray-100">
-              <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-600">
-                <Users className="h-3 w-3 sm:h-4 sm:w-4 text-teal-500" />
-                <span className="font-semibold text-gray-900">{followers}</span>
-                <span className="text-[10px] sm:text-xs">seguidores</span>
-              </div>
+          {/* Botón Inferior */}
+          <div className="mt-auto pt-2 border-t border-slate-100">
+            <div className="flex items-center justify-between text-[11px] md:text-[13px] font-bold text-slate-400 group-hover:text-emerald-600 transition-colors">
+              <span>Ver perfil completo</span>
+              <ArrowRight className="h-3.5 w-3.5 md:h-4 md:w-4 transition-transform group-hover:translate-x-1" />
             </div>
-          )}
-
-          {/* Botones de acción */}
-          <div className="flex gap-1.5 sm:gap-2">
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/negocio/${business.profile_name || business.id}`);
-              }}
-              className="flex-1 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white rounded-xl h-9 sm:h-10 font-medium shadow-md hover:shadow-lg transition-all text-xs sm:text-sm px-2 sm:px-4"
-            >
-              <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
-              Ver perfil
-            </Button>
           </div>
         </div>
       </div>
 
-      {/* Modales — fuera del div con transform para evitar que fixed quede contenido dentro */}
-      <ContactModal
-        business={business}
-        isOpen={showContactModal}
-        onClose={() => setShowContactModal(false)}
-        contacts={contacts || fallbackContacts}
-      />
-      <GalleryModal
-        business={business}
-        isOpen={showGalleryModal}
-        onClose={() => setShowGalleryModal(false)}
-      />
-      <QRModal
-        isOpen={showQRModal}
-        onClose={() => setShowQRModal(false)}
-        businessName={business.name}
-        businessLogo={business.logo}
-        url={getBusinessUrl(business.profile_name || business.id)}
-      />
+      <ContactModal business={business} isOpen={showContactModal} onClose={() => setShowContactModal(false)} contacts={contacts} />
+      <GalleryModal business={business} isOpen={showGalleryModal} onClose={() => setShowGalleryModal(false)} />
+      <QRModal isOpen={showQRModal} onClose={() => setShowQRModal(false)} businessName={business.name} businessLogo={business.logo} url={getBusinessUrl(business.profile_name || business.id)} />
     </>
   );
 };
