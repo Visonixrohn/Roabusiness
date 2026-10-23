@@ -40,7 +40,7 @@ import PublicBusinessRegistrationPage from "@/pages/PublicBusinessRegistrationPa
 import PaymentSubscriptionPage from "@/pages/PaymentSubscriptionPage";
 
 import "./App.css";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { App as CapacitorApp } from "@capacitor/app";
 import { toast } from "sonner";
 import { backHandlerStack } from "@/utils/backHandlerStack";
@@ -48,6 +48,52 @@ import { backHandlerStack } from "@/utils/backHandlerStack";
 const libraries: ("places" | "geometry" | "drawing" | "visualization")[] = [
   "places",
 ];
+
+const MapsRoute = ({ children }: { children: ReactNode }) => {
+  const [loadStatus, setLoadStatus] = useState<"loading" | "loaded" | "failed">(
+    "loading",
+  );
+
+  useEffect(() => {
+    if (loadStatus !== "loading") return;
+
+    const timeout = window.setTimeout(() => setLoadStatus("failed"), 15000);
+    return () => window.clearTimeout(timeout);
+  }, [loadStatus]);
+
+  if (loadStatus === "failed") {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 px-4 text-center">
+        <p role="alert" className="text-slate-700">
+          No se pudo cargar el mapa. El resto de la aplicación sigue disponible.
+        </p>
+        <button
+          type="button"
+          className="font-semibold text-orange-700 underline"
+          onClick={() => window.location.reload()}
+        >
+          Reintentar
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <LoadScript
+      googleMapsApiKey={GOOGLE_MAPS_CONFIG.apiKey}
+      libraries={libraries}
+      onLoad={() => setLoadStatus("loaded")}
+      onError={() => setLoadStatus("failed")}
+      loadingElement={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-blue-600" />
+        </div>
+      }
+    >
+      {children}
+    </LoadScript>
+  );
+};
 
 function App() {
   const lastBackPress = useRef<number>(0);
@@ -113,27 +159,25 @@ function App() {
     <AuthProvider>
       <CountryProvider>
         <InteractionsProvider>
-          <LoadScript
-            googleMapsApiKey={GOOGLE_MAPS_CONFIG.apiKey}
-            libraries={libraries}
-            loadingElement={
-              <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-              </div>
-            }
-          >
-            <Router>
-              <ScrollToTop />
-              <div className="min-h-screen bg-gray-50 pb-16 md:pb-0">
-                {/* Top bar móvil eliminado */}
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  {/* Redirección de URL antigua de Google */}
-                  <Route
-                    path="/sobre-las-islas"
-                    element={<Navigate to="/" replace />}
-                  />
-                  <Route path="/directorio" element={<DirectoryPage />} />
+          <Router>
+            <ScrollToTop />
+            <div className="min-h-screen bg-gray-50 pb-16 md:pb-0">
+              {/* Top bar móvil eliminado */}
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                {/* Redirección de URL antigua de Google */}
+                <Route
+                  path="/sobre-las-islas"
+                  element={<Navigate to="/" replace />}
+                />
+                <Route
+                  path="/directorio"
+                  element={
+                    <MapsRoute>
+                      <DirectoryPage />
+                    </MapsRoute>
+                  }
+                />
                   <Route
                     path="/negocio/@:profileName"
                     element={<BusinessProfilePage />}
@@ -144,22 +188,30 @@ function App() {
                   />
                   <Route
                     path="/negocio/:id/configuracion"
-                    element={<BusinessSettingsPage />}
+                    element={
+                      <MapsRoute>
+                        <BusinessSettingsPage />
+                      </MapsRoute>
+                    }
                   />
                   <Route
                     path="/registrar-negocio"
                     element={
-                      <AdminRouteGuard>
-                        <BusinessRegistrationPage />
-                      </AdminRouteGuard>
+                      <MapsRoute>
+                        <AdminRouteGuard>
+                          <BusinessRegistrationPage />
+                        </AdminRouteGuard>
+                      </MapsRoute>
                     }
                   />
                   <Route
                     path="/editar-negocio"
                     element={
-                      <AdminRouteGuard>
-                        <EditBusinessPage />
-                      </AdminRouteGuard>
+                      <MapsRoute>
+                        <AdminRouteGuard>
+                          <EditBusinessPage />
+                        </AdminRouteGuard>
+                      </MapsRoute>
                     }
                   />
                   <Route path="/admin-login" element={<AdminLoginPage />} />
@@ -191,7 +243,11 @@ function App() {
                   />
                   <Route
                     path="/registro-negocio"
-                    element={<PublicBusinessRegistrationPage />}
+                    element={
+                      <MapsRoute>
+                        <PublicBusinessRegistrationPage />
+                      </MapsRoute>
+                    }
                   />
                   <Route
                     path="/pago-suscripcion"
@@ -219,23 +275,22 @@ function App() {
                       </AdminRouteGuard>
                     }
                   />
-                </Routes>
-                <Toaster
-                  position="top-right"
-                  toastOptions={{
-                    duration: 3000,
-                    style: {
-                      background: "#1e40af",
-                      color: "#ffffff",
-                    },
-                  }}
-                />
+              </Routes>
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 3000,
+                  style: {
+                    background: "#1e40af",
+                    color: "#ffffff",
+                  },
+                }}
+              />
 
-                {/* Barra inferior móvil */}
-                <MobileBottomBar />
-              </div>
-            </Router>
-          </LoadScript>
+              {/* Barra inferior móvil */}
+              <MobileBottomBar />
+            </div>
+          </Router>
         </InteractionsProvider>
       </CountryProvider>
     </AuthProvider>
