@@ -20,7 +20,7 @@ function isUUID(str: string): boolean {
  * @returns URL completa del negocio
  */
 export function getBusinessUrl(profileName: string): string {
-  const baseUrl = "https://www.roabusiness.com";
+  const baseUrl = "https://roabusiness.vercel.app";
 
   // Si es un UUID, usar el formato legacy con ID
   if (isUUID(profileName)) {
